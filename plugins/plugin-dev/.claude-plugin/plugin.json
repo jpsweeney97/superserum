@@ -1,0 +1,20 @@
+{
+  "name": "plugin-dev",
+  "version": "1.0.0",
+  "description": "Comprehensive toolkit for developing, validating, and maintaining high-quality Claude Code plugins",
+  "author": {
+    "name": "JP"
+  },
+  "keywords": [
+    "plugin",
+    "development",
+    "toolkit",
+    "validation",
+    "audit",
+    "skills",
+    "commands",
+    "agents",
+    "hooks",
+    "mcp"
+  ]
+}
