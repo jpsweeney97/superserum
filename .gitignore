@@ -1,6 +1,9 @@
 # Worktrees
 .worktrees/
 
+# External repos (cloned for reference, not part of this project)
+skill-creator-and-improver/
+
 # OS
 .DS_Store
 

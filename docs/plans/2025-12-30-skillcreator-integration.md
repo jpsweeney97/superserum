@@ -1,5 +1,15 @@
 # SkillCreator Integration into Plugin-Dev
 
+> **⚠️ SUPERSEDED:** This plan has been replaced by an automated sync workflow approach.
+> See: [2025-12-30-skillcreator-sync-design.md](./2025-12-30-skillcreator-sync-design.md)
+>
+> The sync workflow automatically keeps plugin-dev's skillcreator in sync with the upstream
+> [tripleyak/skill-creator-and-improver](https://github.com/tripleyak/skill-creator-and-improver) repository.
+
+---
+
+*Original plan preserved below for reference:*
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Integrate SkillCreator (v3.1) into plugin-dev to provide a rigorous, quality-gated skill creation methodology with 11 thinking lenses, evolution scoring, and multi-agent synthesis.
