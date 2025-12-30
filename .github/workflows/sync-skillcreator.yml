@@ -1,0 +1,189 @@
+name: Sync SkillCreator
+on:
+  schedule:
+    - cron: '0 6 */2 * *'  # Every 48 hours at 6 AM UTC
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Sync even if versions match'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  UPSTREAM_REPO: tripleyak/skill-creator-and-improver
+  TARGET_PATH: plugins/plugin-dev/skills/skillcreator
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check upstream release exists
+        id: release_check
+        run: |
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://api.github.com/repos/${UPSTREAM_REPO}/releases/latest")
+
+          if [[ "$HTTP_CODE" != "200" ]]; then
+            echo "::warning::No releases found upstream (HTTP $HTTP_CODE)"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          else
+            echo "exists=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get latest upstream release
+        if: steps.release_check.outputs.exists == 'true'
+        id: upstream
+        run: |
+          RELEASE_JSON=$(curl -s "https://api.github.com/repos/${UPSTREAM_REPO}/releases/latest")
+
+          TAG=$(echo "$RELEASE_JSON" | jq -r '.tag_name')
+          VERSION=$(echo "$TAG" | sed 's/^v//' | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "$TAG")
+          NOTES=$(echo "$RELEASE_JSON" | jq -r '.body // "No release notes"')
+
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Get local version
+        if: steps.release_check.outputs.exists == 'true'
+        id: local
+        run: |
+          SKILL_FILE="${TARGET_PATH}/SKILL.md"
+          if [[ -f "$SKILL_FILE" ]]; then
+            VERSION=$(grep -oP 'version:\s*\K[\d.]+' "$SKILL_FILE" | head -1)
+          else
+            VERSION="0.0.0"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if sync needed
+        if: steps.release_check.outputs.exists == 'true'
+        id: check
+        env:
+          UPSTREAM_VERSION: ${{ steps.upstream.outputs.version }}
+          LOCAL_VERSION: ${{ steps.local.outputs.version }}
+          FORCE_SYNC: ${{ inputs.force_sync }}
+        run: |
+          if [[ "$UPSTREAM_VERSION" != "$LOCAL_VERSION" ]] || [[ "$FORCE_SYNC" == "true" ]]; then
+            echo "needed=true" >> $GITHUB_OUTPUT
+            echo "Sync needed: $LOCAL_VERSION → $UPSTREAM_VERSION"
+          else
+            echo "needed=false" >> $GITHUB_OUTPUT
+            echo "Already at version $LOCAL_VERSION"
+          fi
+
+      - name: Sync from upstream
+        if: steps.check.outputs.needed == 'true'
+        env:
+          UPSTREAM_TAG: ${{ steps.upstream.outputs.tag }}
+          UPSTREAM_VERSION: ${{ steps.upstream.outputs.version }}
+        run: |
+          # Validate tag format (alphanumeric, dots, hyphens, underscores only)
+          if [[ ! "$UPSTREAM_TAG" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "::error::Invalid tag format: $UPSTREAM_TAG"
+            exit 1
+          fi
+
+          # Clone upstream at specific tag
+          git clone --depth 1 --branch "$UPSTREAM_TAG" \
+            "https://github.com/${UPSTREAM_REPO}.git" /tmp/upstream
+
+          # Clean target directory
+          rm -rf "$TARGET_PATH"
+          mkdir -p "$TARGET_PATH"
+
+          # Sync with exclusions
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='README.md' \
+            --exclude='LICENSE' \
+            --exclude='assets/images' \
+            /tmp/upstream/ "$TARGET_PATH/"
+
+          # Record sync metadata
+          cat > "$TARGET_PATH/.sync-metadata" << EOF
+          upstream_repo: https://github.com/${UPSTREAM_REPO}
+          upstream_version: $UPSTREAM_VERSION
+          upstream_tag: $UPSTREAM_TAG
+          synced_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          EOF
+
+      - name: Validate synced skill
+        if: steps.check.outputs.needed == 'true'
+        id: validate
+        run: |
+          SCRIPT="plugins/plugin-dev/scripts/quick_validate.py"
+
+          if [[ -f "$SCRIPT" ]]; then
+            set +e
+            OUTPUT=$(python "$SCRIPT" "$TARGET_PATH" 2>&1)
+            EXIT_CODE=$?
+            set -e
+
+            echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+            if [[ $EXIT_CODE -eq 0 ]]; then
+              echo "status=✅ PASSED" >> $GITHUB_OUTPUT
+            else
+              echo "status=⚠️ FAILED (exit code $EXIT_CODE)" >> $GITHUB_OUTPUT
+            fi
+
+            echo "output<<EOF" >> $GITHUB_OUTPUT
+            echo "$OUTPUT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "status=⏭️ SKIPPED (script not found)" >> $GITHUB_OUTPUT
+            echo "output=Validation script not found at $SCRIPT" >> $GITHUB_OUTPUT
+            echo "exit_code=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check.outputs.needed == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore(plugin-dev): sync skillcreator ${{ steps.local.outputs.version }} → ${{ steps.upstream.outputs.version }}
+          branch: auto-sync/skillcreator
+          delete-branch: true
+          title: "chore(plugin-dev): sync skillcreator to ${{ steps.upstream.outputs.tag }}"
+          labels: |
+            automated
+            dependencies
+            plugin-dev
+          body: |
+            ## SkillCreator Sync
+
+            **Upstream:** [tripleyak/skill-creator-and-improver](https://github.com/${{ env.UPSTREAM_REPO }})
+            **Version:** `${{ steps.local.outputs.version }}` → `${{ steps.upstream.outputs.version }}`
+
+            ### Validation
+
+            **Status:** ${{ steps.validate.outputs.status }}
+
+            <details>
+            <summary>Validation output</summary>
+
+            ```
+            ${{ steps.validate.outputs.output }}
+            ```
+
+            </details>
+
+            ### Release Notes
+
+            ${{ steps.upstream.outputs.notes }}
+
+            ---
+
+            <sub>🤖 Created by [sync-skillcreator.yml](.github/workflows/sync-skillcreator.yml)</sub>
