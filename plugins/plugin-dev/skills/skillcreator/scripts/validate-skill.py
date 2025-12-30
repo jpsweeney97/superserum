@@ -88,8 +88,14 @@ class SkillValidator:
             return False
 
     def validate_frontmatter(self):
-        """Validate frontmatter fields."""
-        required_fields = ["name", "version", "description", "license", "model"]
+        """Validate frontmatter fields.
+
+        Required: name, description
+        Optional: license, allowed-tools, metadata
+        Version/model can be at top-level OR under metadata (per quick_validate.py)
+        """
+        # Only name and description are strictly required
+        required_fields = ["name", "description"]
 
         for field in required_fields:
             self.check(
@@ -107,14 +113,20 @@ class SkillValidator:
                 f"Skill name should be kebab-case: {name}"
             )
 
-        # Check version format (semver)
-        if "version" in self.frontmatter:
-            version = self.frontmatter["version"]
+        # Check version format (semver) - can be top-level or in metadata
+        version = self.frontmatter.get("version")
+        if not version and "metadata" in self.frontmatter:
+            version = self.frontmatter["metadata"].get("version")
+
+        if version:
             self.check(
                 "frontmatter.version.format",
                 re.match(r'^\d+\.\d+\.\d+', str(version)),
                 f"Version should be semver format: {version}"
             )
+        else:
+            # Version is recommended but not required
+            self.warnings.append("No version found (check metadata.version or top-level version)")
 
         # Check description length
         if "description" in self.frontmatter:
