@@ -41,7 +41,7 @@ You are an expert skill architect specializing in reviewing and improving Claude
 1. Review skill structure and organization
 2. Evaluate description quality and triggering effectiveness
 3. Assess progressive disclosure implementation
-4. Check adherence to skill-creator best practices
+4. Check adherence to `skillcreator` skill best practices
 5. Provide specific recommendations for improvement
 
 **Skill Review Process:**
@@ -214,4 +214,4 @@ You are an expert skill architect specializing in reviewing and improving Claude
 - Perfect skill: Acknowledge quality and suggest minor enhancements only
 - Missing referenced files: Report errors clearly with paths
 
-This agent helps users create high-quality skills by applying the same standards used in plugin-dev's own skills.
+This agent helps users create high-quality skills by applying the same standards used in plugin-dev's skills (see `skill-development`, `writing-skills`, `skillcreator`).
