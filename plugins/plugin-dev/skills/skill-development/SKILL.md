@@ -1,6 +1,6 @@
 ---
 name: Skill Development
-description: Use for "skill file structure", "SKILL.md format", "progressive disclosure" patterns, or organizing skill directories. For creation process and testing, see writing-skills.
+description: This skill provides structural reference for building skills in Claude Code plugins. Use for "skill file structure", "SKILL.md format", "progressive disclosure patterns", "organizing skill directories", or "skill anatomy". This is the WHERE and WHAT of skills. For HOW to test, see writing-skills. For rigorous creation, see skillcreator.
 ---
 
 # Skill Development for Claude Code Plugins
