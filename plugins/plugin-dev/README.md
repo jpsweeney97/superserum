@@ -4,7 +4,7 @@ A comprehensive toolkit for developing Claude Code plugins with expert guidance 
 
 ## Overview
 
-The plugin-dev toolkit provides **ten specialized skills** to help you build high-quality Claude Code plugins:
+The plugin-dev toolkit provides **eleven specialized skills** to help you build high-quality Claude Code plugins:
 
 1. **Hook Development** - Advanced hooks API and event-driven automation
 2. **MCP Integration** - Model Context Protocol server integration
@@ -16,6 +16,7 @@ The plugin-dev toolkit provides **ten specialized skills** to help you build hig
 8. **Plugin Audit** - Comprehensive validation with 50+ rules across 8 categories
 9. **Writing Skills** - TDD methodology for creating and testing skills
 10. **Plugin Optimization** - Six-lens analysis for improving plugins from good to great
+11. **Plugin Brainstorming** - Design plugins through collaborative dialogue before implementation
 
 Each skill follows best practices with progressive disclosure: lean core documentation, detailed references, working examples, and utility scripts.
 
@@ -99,6 +100,25 @@ Interactive repair session for plugin issues with auto-fix and guided resolution
 | Non-kebab-case filename | Rename to kebab-case |
 | Missing `timeout` in hook | Add `"timeout": 30000` |
 | Hardcoded absolute path | Replace with `$CLAUDE_PLUGIN_ROOT/...` |
+
+### /plugin-dev:brainstorm
+
+Design a plugin through collaborative dialogue before implementation.
+
+**Features:**
+- Asks clarifying questions one at a time
+- Guides component selection (Skills vs Commands vs Agents vs Hooks vs MCP vs LSP)
+- Proposes 2-3 approaches with trade-offs
+- Presents design in incremental sections for validation
+- Outputs design document to `docs/plans/`
+- Hands off to `/plugin-dev:create-plugin` for implementation
+
+**Usage:**
+```bash
+/plugin-dev:brainstorm
+```
+
+Use this before `/create-plugin` when you want to explore and validate your plugin design first.
 
 ## Skills
 
@@ -294,6 +314,24 @@ Interactive repair session for plugin issues with auto-fix and guided resolution
 - Lenses reference documentation
 
 **Use when:** Plugin passes audit and needs refinement. Run audit first to fix issues.
+
+### 11. Plugin Brainstorming
+
+**Trigger phrases:** "build a plugin", "create a plugin", "design a plugin for X", "what components do I need", "help me design a plugin"
+
+**What it covers:**
+- Collaborative dialogue-based plugin design
+- Component selection framework (Skills vs Commands vs Agents vs Hooks vs MCP vs LSP)
+- Decision flowchart for choosing components
+- Common patterns and anti-patterns
+- Design document generation
+- Handoff to implementation workflows
+
+**Resources:**
+- Core SKILL.md (~140 lines)
+- Reference: component-decision-guide.md (decision framework, patterns, anti-patterns)
+
+**Use when:** Starting a new plugin and wanting to explore and validate the design before implementation.
 
 ## Agents
 
@@ -511,7 +549,7 @@ This plugin is part of the claude-code-marketplace. To contribute improvements:
 
 ## Version
 
-1.1.0 - Full toolkit: 10 skills, 3 agents, 4 commands, 50+ validation rules
+1.2.0 - Full toolkit: 11 skills, 3 agents, 4 commands, 50+ validation rules
 
 ## Author
 
