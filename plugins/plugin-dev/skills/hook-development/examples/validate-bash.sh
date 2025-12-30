@@ -7,8 +7,14 @@ set -euo pipefail
 # Read input from stdin
 input=$(cat)
 
+# Validate JSON input
+if ! echo "$input" | jq empty 2>/dev/null; then
+  echo '{"continue": true, "systemMessage": "Hook received malformed JSON input, skipping validation"}' >&2
+  exit 0
+fi
+
 # Extract command
-command=$(echo "$input" | jq -r '.tool_input.command // empty')
+command=$(echo "$input" | jq -r '.tool_input.command // empty' 2>/dev/null || echo "")
 
 # Validate command exists
 if [ -z "$command" ]; then
