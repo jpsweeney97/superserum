@@ -14,6 +14,7 @@ Guides systematic plugin improvement through collaborative dialogue, examining p
 The optimizer examines plugins through six analytical lenses, producing a prioritized design document. It guides improvement from "good" to "great" — distinct from audit, which fixes broken plugins.
 
 **Relationship to audit:**
+
 - **Audit** finds problems — "broken to working"
 - **Optimizer** improves quality — "good to great"
 
@@ -37,14 +38,14 @@ This grounds both Claude and user before the tour begins.
 
 Walk through 6 lenses in fixed order:
 
-| # | Lens | Core Question |
-|---|------|---------------|
-| 1 | Trigger Fidelity | Will Claude invoke this at the right moment? |
-| 2 | Token Economy | Does every token earn its keep? |
-| 3 | Structural Clarity | Can Claude navigate and understand efficiently? |
-| 4 | Degrees of Freedom | Does specificity match task fragility? |
-| 5 | Resilience | What happens when things go wrong? |
-| 6 | Plugin Coherence | Does this work as a unified whole? |
+| #   | Lens               | Core Question                                   |
+| --- | ------------------ | ----------------------------------------------- |
+| 1   | Trigger Fidelity   | Will Claude invoke this at the right moment?    |
+| 2   | Token Economy      | Does every token earn its keep?                 |
+| 3   | Structural Clarity | Can Claude navigate and understand efficiently? |
+| 4   | Degrees of Freedom | Does specificity match task fragility?          |
+| 5   | Resilience         | What happens when things go wrong?              |
+| 6   | Plugin Coherence   | Does this work as a unified whole?              |
 
 See [references/lenses.md](references/lenses.md) for detailed criteria per lens.
 
@@ -105,11 +106,11 @@ User can reshape, challenge, or refine. Refined suggestions go to design.
 
 Suggestions use Effort × Impact matrix:
 
-| Priority | Criteria | Action |
-|----------|----------|--------|
-| **Quick Win** | Low effort, any impact | Do first |
+| Priority       | Criteria                | Action               |
+| -------------- | ----------------------- | -------------------- |
+| **Quick Win**  | Low effort, any impact  | Do first             |
 | **High Value** | High impact, any effort | Worth the investment |
-| **Consider** | Low impact, high effort | May not justify cost |
+| **Consider**   | Low impact, high effort | May not justify cost |
 
 ## Suggestion Format
 
@@ -117,6 +118,7 @@ Each suggestion follows this structure:
 
 ```markdown
 ### [Priority] Issue title
+
 **Lens:** Which lens identified this
 **File:** path/to/file.md
 **Effort:** ~X min | **Impact:** High/Medium/Low
@@ -138,32 +140,40 @@ Write to `docs/plans/YYYY-MM-DD-<plugin>-optimization.md`:
 
 ```markdown
 # Plugin Optimization: <plugin-name>
+
 Generated: YYYY-MM-DD
 
 ## Summary
+
 [One paragraph from orientation]
 
 ## Quick Wins
+
 [Low effort, any impact — do first]
 
 ## High Value
+
 [Worth the investment]
 
 ## Consider
+
 [May not justify cost]
 
 ## Cross-Cutting Notes
+
 [Interactions, consolidated refactors, dependencies]
 ```
 
 ## After the Session
 
 **Documentation:**
+
 - Write design to `docs/plans/YYYY-MM-DD-<plugin>-optimization.md`
-- Use elements-of-style:writing-clearly-and-concisely skill if available
+- Use elements-of-style:writing-clearly-and-concisely skill
 - Commit the design document to git
 
 **Implementation (if continuing):**
+
 - Ask: "Ready to set up for implementation?"
 - Use superpowers:using-git-worktrees to create isolated workspace
 - Use superpowers:writing-plans to create implementation plan

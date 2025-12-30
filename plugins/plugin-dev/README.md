@@ -549,7 +549,7 @@ This plugin is part of the claude-code-marketplace. To contribute improvements:
 
 ## Version
 
-1.2.0 - Full toolkit: 11 skills, 3 agents, 4 commands, 50+ validation rules
+1.2.0 - Full toolkit: 11 skills, 3 agents, 5 commands, 50+ validation rules
 
 ## Author
 
