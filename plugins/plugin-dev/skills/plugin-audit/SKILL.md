@@ -23,6 +23,8 @@ Five-layer validation pipeline for Claude Code plugins. Eliminates false positiv
 
 4. **Report findings** with confidence levels and rule provenance
 
+**If scripts unavailable:** Perform manual checks — verify JSON syntax with `jq`, check required fields exist, scan for hardcoded paths using Grep.
+
 ## Pipeline Overview
 
 | Layer | Question | Method |
