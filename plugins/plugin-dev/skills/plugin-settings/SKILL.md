@@ -1,6 +1,6 @@
 ---
 name: Plugin Settings
-description: This skill should be used when the user asks about "plugin settings", "store plugin configuration", "user-configurable plugin", ".local.md files", "plugin state files", "read YAML frontmatter", "per-project plugin settings", or wants to make plugin behavior configurable. Documents the .claude/plugin-name.local.md pattern for storing plugin-specific configuration with YAML frontmatter and markdown content.
+description: Use for "plugin settings", "storing plugin configuration", ".local.md files", "YAML frontmatter parsing", or "per-project settings". Documents the .claude/plugin-name.local.md pattern.
 version: 0.1.0
 ---
 

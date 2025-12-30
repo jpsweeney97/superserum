@@ -4,7 +4,7 @@ A comprehensive toolkit for developing Claude Code plugins with expert guidance 
 
 ## Overview
 
-The plugin-dev toolkit provides nine specialized skills to help you build high-quality Claude Code plugins:
+The plugin-dev toolkit provides **ten specialized skills** to help you build high-quality Claude Code plugins:
 
 1. **Hook Development** - Advanced hooks API and event-driven automation
 2. **MCP Integration** - Model Context Protocol server integration
@@ -13,8 +13,15 @@ The plugin-dev toolkit provides nine specialized skills to help you build high-q
 5. **Command Development** - Creating slash commands with frontmatter and arguments
 6. **Agent Development** - Creating autonomous agents with AI-assisted generation
 7. **Skill Development** - Creating skills with progressive disclosure and strong triggers
+8. **Plugin Audit** - Comprehensive validation with 50+ rules across 8 categories
+9. **Writing Skills** - TDD methodology for creating and testing skills
+10. **Plugin Optimization** - Six-lens analysis for improving plugins from good to great
 
 Each skill follows best practices with progressive disclosure: lean core documentation, detailed references, working examples, and utility scripts.
+
+**Skill relationships:**
+- **Writing Skills** ↔ **Skill Development**: Complementary peers (process vs structure)
+- **Plugin Audit** → **Plugin Optimization**: Run audit first to fix issues, then optimize
 
 ## Guided Workflow Command
 
@@ -236,22 +243,79 @@ Interactive repair session for plugin issues with auto-fix and guided resolution
 
 ### 8. Plugin Audit
 
-**Trigger phrases:** "audit a plugin", "validate plugin structure", "check plugin quality", "lint plugin", "review plugin for issues", "verify plugin correctness"
+**Trigger phrases:** "audit a plugin", "validate plugin structure", "check plugin quality", "lint plugin"
 
 **What it covers:**
-- Auditing methodology (5 phases)
+- 5-phase auditing methodology
+- 50+ validation rules across 8 categories
 - Severity classification (CRITICAL/WARNING/INFO)
-- Validation process for all component types
+- Validation scripts for deterministic checks
 - Report generation (markdown and JSON)
-- Auto-fix categories
-- Validation scripts usage
 
 **Resources:**
-- Core SKILL.md (~9,000 words)
-- 8 reference files with 50+ validation rules
-- 4 validation scripts (JSON, YAML, paths, references)
+- Core SKILL.md (~3,000 words comprehensive reference)
+- 8 reference files with all validation rules
+- 2 validation scripts (check-syntax.sh, check-structure.sh)
 
-**Use when:** Validating plugins before testing or publishing, checking plugin quality, or enforcing best practices.
+**Use when:** Validating plugins before testing/publishing or enforcing best practices.
+
+### 9. Writing Skills
+
+**Trigger phrases:** "creating skills", "testing skills", "skill TDD"
+
+**What it covers:**
+- TDD methodology applied to documentation
+- Pressure testing with subagents
+- Claude Search Optimization (CSO)
+- Bulletproofing against rationalization
+- Skill Architecture Principle (SKILL.md self-sufficiency)
+
+**Resources:**
+- Core SKILL.md (~1,100 words)
+- 4 reference files (testing methodology, persuasion, graphviz, Anthropic best practices)
+
+**Related:** For structure (directories, SKILL.md format), see Skill Development.
+
+**Use when:** Creating new skills or applying TDD to process documentation.
+
+### 10. Plugin Optimization
+
+**Trigger phrases:** "optimize plugin", "improve plugin quality", "enhance plugin"
+
+**What it covers:**
+- Six analytical lenses for improvement
+- Prioritized design document generation
+- Quick wins vs. high-value changes
+- Token efficiency analysis
+- Description quality assessment
+
+**Resources:**
+- Core SKILL.md (~1,500 words)
+- Lenses reference documentation
+
+**Use when:** Plugin passes audit and needs refinement. Run audit first to fix issues.
+
+## Agents
+
+The plugin-dev toolkit includes three specialized agents:
+
+### agent-creator
+
+AI-assisted agent generation using Claude Code's proven prompt. Creates agents with proper frontmatter, description format with examples, and system prompts.
+
+**Trigger:** Proactively after user describes agent requirements
+
+### plugin-validator
+
+Proactive quality validation for plugins. Runs targeted checks after component changes and comprehensive audits before testing/publishing.
+
+**Trigger:** After plugin component modifications or before testing
+
+### skill-reviewer
+
+Reviews skills for best practices: description quality, content organization, progressive disclosure, and trigger phrase effectiveness.
+
+**Trigger:** After skill creation or modification
 
 ## Installation
 
@@ -447,7 +511,7 @@ This plugin is part of the claude-code-marketplace. To contribute improvements:
 
 ## Version
 
-1.0.0 - Enhanced with plugin-auditor integration: 9 skills, 3 agents, 3 commands, 50+ validation rules
+1.1.0 - Full toolkit: 10 skills, 3 agents, 4 commands, 50+ validation rules
 
 ## Author
 

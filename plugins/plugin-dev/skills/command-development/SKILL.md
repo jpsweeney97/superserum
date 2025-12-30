@@ -1,6 +1,6 @@
 ---
 name: Command Development
-description: This skill should be used when the user asks to "create a slash command", "add a command", "write a custom command", "define command arguments", "use command frontmatter", "organize commands", "create command with file references", "interactive command", "use AskUserQuestion in command", or needs guidance on slash command structure, YAML frontmatter fields, dynamic arguments, bash execution in commands, user interaction patterns, or command development best practices for Claude Code.
+description: Use when "creating a slash command", "adding a command", "defining command arguments", or "using command frontmatter". Also for dynamic arguments, bash execution, or AskUserQuestion patterns.
 version: 0.2.0
 ---
 
