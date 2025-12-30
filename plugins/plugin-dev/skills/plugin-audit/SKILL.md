@@ -1,6 +1,6 @@
 ---
 name: Plugin Audit
-description: Use when "auditing a plugin", "validating plugin structure", "checking plugin quality", or "linting plugin". Covers 50+ validation rules across 8 categories.
+description: This skill validates Claude Code plugins with 50+ rules across 8 categories. Invoked by `/plugin-dev:audit-plugin` command. Use when "auditing a plugin", "validating plugin structure", "checking plugin quality", or "linting plugin".
 ---
 
 # Plugin Audit
