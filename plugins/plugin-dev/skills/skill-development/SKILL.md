@@ -203,9 +203,9 @@ cc --plugin-dir /path/to/plugin
 
 Plugin-dev's skills demonstrate best practices:
 
-| Skill | Notable Pattern |
-|-------|-----------------|
-| `hook-development` | Progressive disclosure, 3 scripts |
-| `agent-development` | AI-assisted creation refs |
-| `mcp-integration` | Comprehensive references |
-| `plugin-settings` | Real-world examples |
+| Skill | Look For |
+|-------|----------|
+| `hook-development` | Progressive disclosure with 3 validation scripts |
+| `agent-development` | AI-assisted generation prompts in references |
+| `mcp-integration` | Comprehensive reference files for complex topic |
+| `plugin-settings` | Real-world examples from production plugins |
