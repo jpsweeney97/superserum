@@ -1,6 +1,6 @@
 ---
 name: optimizing-plugins
-description: Systematically improves Claude Code plugins through 6 analytical lenses. Use after audit confirms no broken issues, when asked to optimize, improve, or enhance a plugin, or when refining trigger phrases, token efficiency, or structural clarity.
+description: "This skill guides systematic plugin improvement from 'good' to 'great' using 6 analytical lenses. Use after 'audit passes', when plugin 'works but feels rough', 'triggers aren't firing reliably', 'skills overlap confusingly', or when asked to 'optimize plugin', 'improve plugin quality', 'refine descriptions'. Distinct from audit (which fixes broken to working)."
 ---
 
 # Plugin Optimizer
