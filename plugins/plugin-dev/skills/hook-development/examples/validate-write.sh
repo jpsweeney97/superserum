@@ -7,8 +7,14 @@ set -euo pipefail
 # Read input from stdin
 input=$(cat)
 
+# Validate JSON input
+if ! echo "$input" | jq empty 2>/dev/null; then
+  echo '{"continue": true, "systemMessage": "Hook received malformed JSON input, skipping validation"}' >&2
+  exit 0
+fi
+
 # Extract file path and content
-file_path=$(echo "$input" | jq -r '.tool_input.file_path // empty')
+file_path=$(echo "$input" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")
 
 # Validate path exists
 if [ -z "$file_path" ]; then
