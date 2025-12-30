@@ -4,22 +4,35 @@ A comprehensive toolkit for developing Claude Code plugins with expert guidance 
 
 ## Overview
 
-The plugin-dev toolkit provides **twelve specialized skills** to help you build high-quality Claude Code plugins:
+The plugin-dev toolkit provides **12 specialized skills** to help you build high-quality Claude Code plugins:
 
-1. **Hook Development** - Advanced hooks API and event-driven automation
-2. **MCP Integration** - Model Context Protocol server integration
-3. **Plugin Structure** - Plugin organization and manifest configuration
-4. **Plugin Settings** - Configuration patterns using .claude/plugin-name.local.md files
-5. **Command Development** - Creating slash commands with frontmatter and arguments
-6. **Agent Development** - Creating autonomous agents with AI-assisted generation
-7. **Skill Development** - Creating skills with progressive disclosure and strong triggers
-8. **Plugin Audit** - Comprehensive validation with 50+ rules across 8 categories
-9. **Writing Skills** - TDD methodology for creating and testing skills
-10. **Plugin Optimization** - Six-lens analysis for improving plugins from good to great
-11. **Plugin Brainstorming** - Design plugins through collaborative dialogue before implementation
-12. **SkillCreator** - Rigorous 4-phase skill creation with 11 thinking lenses and multi-agent synthesis
+| # | Skill | Directory | Purpose |
+|---|-------|-----------|---------|
+| 1 | Hook Development | `hook-development` | Event-driven automation |
+| 2 | MCP Integration | `mcp-integration` | Model Context Protocol servers |
+| 3 | Plugin Structure | `plugin-structure` | Organization and manifest |
+| 4 | Plugin Settings | `plugin-settings` | Configuration patterns |
+| 5 | Command Development | `command-development` | Slash commands |
+| 6 | Agent Development | `agent-development` | Autonomous agents |
+| 7 | Skill Development | `skill-development` | Skill structure reference |
+| 8 | Plugin Audit | `plugin-audit` | 50+ validation rules |
+| 9 | Writing Skills | `writing-skills` | TDD methodology |
+| 10 | Plugin Optimization | `optimizing-plugins` | Six-lens improvement |
+| 11 | Plugin Brainstorming | `brainstorming-plugins` | Design before implementation |
+| 12 | SkillCreator | `skillcreator` | Rigorous 4-phase creation |
 
 Each skill follows best practices with progressive disclosure: lean core documentation, detailed references, working examples, and utility scripts.
+
+**Command ↔ Skill Relationships:**
+
+| Command | Invokes Skill | When to Use |
+|---------|---------------|-------------|
+| `/audit-plugin` | `plugin-audit` | On-demand structured audit |
+| `/optimize-plugin` | `optimizing-plugins` | Guided improvement session |
+| `/fix-plugin` | `plugin-audit` | Interactive repair |
+| `/create-plugin` | Multiple skills | End-to-end creation |
+| `/create-skill` | `skillcreator` | Rigorous skill creation |
+| `/brainstorm` | `brainstorming-plugins` | Design exploration |
 
 **Skill relationships:**
 - **Writing Skills** ↔ **Skill Development**: Complementary peers (process vs structure)
