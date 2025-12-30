@@ -1,8 +1,22 @@
 #!/bin/bash
 # Example SessionStart hook for loading project context
 # This script detects project type and sets environment variables
+#
+# Note: SessionStart hooks receive context via environment variables,
+# not JSON stdin. JSON validation is not needed here.
 
 set -euo pipefail
+
+# Validate required environment variables
+if [ -z "${CLAUDE_PROJECT_DIR:-}" ]; then
+  echo "Error: CLAUDE_PROJECT_DIR not set" >&2
+  exit 1
+fi
+
+if [ -z "${CLAUDE_ENV_FILE:-}" ]; then
+  echo "Error: CLAUDE_ENV_FILE not set" >&2
+  exit 1
+fi
 
 # Navigate to project directory
 cd "$CLAUDE_PROJECT_DIR" || exit 1
