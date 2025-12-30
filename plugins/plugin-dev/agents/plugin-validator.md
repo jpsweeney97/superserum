@@ -125,13 +125,16 @@ Reference `${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/` for detailed rules.
 
 ## Using Validation Scripts
 
-Run scripts for deterministic checks:
+Run deterministic validation:
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/scripts/validate-json.sh <plugin-path>
-bash ${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/scripts/validate-yaml-frontmatter.sh <plugin-path>
-bash ${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/scripts/check-paths.sh <plugin-path>
-bash ${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/scripts/check-file-references.sh <plugin-path>
+# Layer 1: Syntax validation (JSON/YAML)
+bash ${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/scripts/check-syntax.sh <plugin-path>
+
+# Layer 2: Structure validation (manifest, naming, required fields)
+bash ${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/scripts/check-structure.sh <plugin-path>
 ```
+
+For path and reference checks, analyze files directly using Read/Grep tools.
 
 ## Behavioral Guidelines
 
