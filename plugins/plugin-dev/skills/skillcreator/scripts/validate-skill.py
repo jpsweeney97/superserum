@@ -88,14 +88,32 @@ class SkillValidator:
             return False
 
     def validate_frontmatter(self):
-        """Validate frontmatter fields."""
-        required_fields = ["name", "version", "description", "license", "model"]
+        """Validate frontmatter fields.
+
+        SkillCreator 3.0 spec:
+        - Required at top level: name, description
+        - Optional at top level: license, allowed-tools, metadata
+        - version/model go inside metadata block
+        """
+        # Only name and description are required at top level
+        required_fields = ["name", "description"]
+        allowed_fields = {"name", "description", "license", "allowed-tools", "metadata"}
 
         for field in required_fields:
             self.check(
                 f"frontmatter.{field}",
                 field in self.frontmatter and self.frontmatter[field],
                 f"Missing required frontmatter field: {field}"
+            )
+
+        # Check for unexpected top-level properties
+        unexpected = set(self.frontmatter.keys()) - allowed_fields
+        if unexpected:
+            self.check(
+                "frontmatter.allowed_properties",
+                False,
+                f"Unexpected frontmatter properties: {', '.join(sorted(unexpected))}. "
+                f"Use 'metadata:' block for custom fields like version, model, domains."
             )
 
         # Check name format (kebab-case)
@@ -107,14 +125,33 @@ class SkillValidator:
                 f"Skill name should be kebab-case: {name}"
             )
 
-        # Check version format (semver)
-        if "version" in self.frontmatter:
-            version = self.frontmatter["version"]
-            self.check(
-                "frontmatter.version.format",
-                re.match(r'^\d+\.\d+\.\d+', str(version)),
-                f"Version should be semver format: {version}"
-            )
+        # Check metadata block for version/model (recommended but not required)
+        metadata = self.frontmatter.get("metadata", {})
+        if isinstance(metadata, dict):
+            # Check version format if present
+            if "version" in metadata:
+                version = metadata["version"]
+                self.check(
+                    "metadata.version.format",
+                    re.match(r'^\d+\.\d+\.\d+', str(version)),
+                    f"Version should be semver format: {version}"
+                )
+            else:
+                self.check(
+                    "metadata.version",
+                    False,
+                    "Consider adding version in metadata block",
+                    warning=True
+                )
+
+            # Check model if present
+            if "model" not in metadata:
+                self.check(
+                    "metadata.model",
+                    False,
+                    "Consider adding model in metadata block",
+                    warning=True
+                )
 
         # Check description length
         if "description" in self.frontmatter:

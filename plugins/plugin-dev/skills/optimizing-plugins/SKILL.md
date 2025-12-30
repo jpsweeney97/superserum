@@ -1,6 +1,12 @@
 ---
 name: optimizing-plugins
-description: "This skill guides systematic plugin improvement from 'good' to 'great' using 6 analytical lenses. Use after 'audit passes', when plugin 'works but feels rough', 'triggers aren't firing reliably', 'skills overlap confusingly', or when asked to 'optimize plugin', 'improve plugin quality', 'refine descriptions'. Distinct from audit (which fixes broken to working)."
+description: "Guides systematic plugin improvement from 'good' to 'great' using 6 analytical lenses. Use after audit passes, when plugin works but feels rough, triggers aren't firing reliably, skills overlap confusingly, or when asked to optimize plugin, improve plugin quality, refine descriptions."
+license: MIT
+metadata:
+  version: 1.0.0
+  model: claude-opus-4-5-20251101
+  domains: [plugin-development, optimization, quality]
+  type: process
 ---
 
 # Plugin Optimizer
@@ -17,6 +23,14 @@ The optimizer examines plugins through six analytical lenses, producing a priori
 
 - **Audit** finds problems — "broken to working"
 - **Optimizer** improves quality — "good to great"
+
+## Triggers
+
+- `optimize plugin` - After audit passes, improve quality
+- `improve plugin quality` - Refine descriptions and structure
+- `plugin feels rough` - Works but needs polish
+- `triggers aren't firing` - Skills not activating reliably
+- `skills overlap confusingly` - Unclear boundaries between skills
 
 ## The Process
 
@@ -177,6 +191,34 @@ Generated: YYYY-MM-DD
 - Ask: "Ready to set up for implementation?"
 - Use superpowers:using-git-worktrees to create isolated workspace
 - Use superpowers:writing-plans to create implementation plan
+
+## Anti-Patterns
+
+| Avoid | Why | Instead |
+|-------|-----|---------|
+| Skipping orientation | Loses shared context, suggestions feel arbitrary | Always deliver orientation paragraph first |
+| Deep-diving every lens | Exhausts user, diminishes focus | Let user choose depth per lens |
+| Mixing analysis with implementation | Scope creep, incomplete analysis | Complete design document before any code changes |
+| Treating all suggestions equally | Wastes effort on low-impact items | Use Quick Win / High Value / Consider prioritization |
+| Ignoring cross-cutting concerns | Suggestions conflict or duplicate effort | Flag interactions during Deep mode, synthesize at end |
+
+## Verification
+
+After optimization session:
+
+- [ ] Orientation paragraph delivered and grounded conversation
+- [ ] All 6 lenses examined (skip/skim/deep choices made)
+- [ ] Cross-cutting concerns identified during synthesis
+- [ ] Design document written to `docs/plans/YYYY-MM-DD-<plugin>-optimization.md`
+- [ ] Suggestions categorized by priority (Quick Win / High Value / Consider)
+- [ ] User confirmed next steps (implement or defer)
+
+## Extension Points
+
+1. **Custom Lenses:** Add domain-specific lenses (e.g., "Security Lens" for auth plugins)
+2. **Automated Pre-scan:** Script to identify obvious issues before human tour begins
+3. **Optimization Templates:** Pre-built suggestion formats for common issues
+4. **Integration with Audit:** Chain audit → optimize workflow with shared context
 
 ## Key Principles
 
