@@ -1,6 +1,6 @@
 ---
 name: skillcreator
-description: "Use when creating production-grade skills that need rigorous analysis, evolution scoring, and multi-agent review. Triggers: 'SkillCreator:', 'ultimate skill', 'best possible skill', 'rigorous skill creation'. For simple skill structure, see skill-development. For TDD testing, see writing-skills."
+description: "This skill creates production-grade skills using rigorous 4-phase methodology with 11 thinking lenses and multi-agent synthesis. Use when 'SkillCreator:', 'ultimate skill', 'best possible skill', 'rigorous skill creation', or when creating complex/critical skills. For simple skills, use skill-development (structure) + writing-skills (testing)."
 license: MIT
 metadata:
   version: 3.1.0
