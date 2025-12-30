@@ -68,6 +68,12 @@ When user indicates work is complete:
 4. Prioritize critical issues
 5. Suggest running `/plugin-dev:audit-plugin` for full detailed report
 
+**Handling Partial Failures:**
+- If validation scripts fail to run: Fall back to manual checks using Read/Grep. Note in report: "Script validation unavailable — manual checks performed."
+- If a category can't be assessed: Mark as "⚠️ Skipped" with reason, don't silently omit.
+- If findings are incomplete: Explicitly state what was NOT checked and why.
+- Never report "all clear" unless all categories were actually validated.
+
 ## Validation Categories
 
 Reference `${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/` for detailed rules.
@@ -121,6 +127,21 @@ Reference `${CLAUDE_PLUGIN_ROOT}/skills/plugin-audit/` for detailed rules.
 [List top priority issues]
 
 **Recommendation:** Run `/plugin-dev:audit-plugin` for detailed report, or `/plugin-dev:fix-plugin` to resolve issues interactively.
+```
+
+### For Incomplete Checks
+```
+## Plugin Audit Summary (Partial)
+
+**Note:** Some checks could not be completed:
+- [Category]: [Reason]
+
+| Category | Status |
+|----------|--------|
+| Structure | ✅ |
+| Skills | ⚠️ Skipped |
+
+**Recommendation:** Resolve blockers and re-run.
 ```
 
 ## Using Validation Scripts
