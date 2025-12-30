@@ -26,6 +26,7 @@ This skill turns plugin ideas into well-formed designs through natural conversat
 ## Starting the Conversation
 
 Before asking questions:
+
 - Check project context (existing plugins, patterns, conventions)
 - Read any existing docs the user mentions
 - Understand if this extends an existing plugin or creates a new one
@@ -46,18 +47,19 @@ Use the decision framework in [references/component-decision-guide.md](reference
 
 Quick reference:
 
-| User Need | Component | Why |
-|-----------|-----------|-----|
-| "Claude needs to know about X" | **Skill** | Knowledge that loads on trigger |
-| "User runs action X explicitly" | **Command** | `/plugin:action` invocation |
-| "Delegate to separate context" | **Agent** | Isolated execution, custom tools |
-| "X must ALWAYS happen on event Y" | **Hook** | Deterministic, guaranteed |
-| "Connect to external service X" | **MCP Server** | Provides tools for external APIs |
-| "Code intelligence for language X" | **LSP Server** | Diagnostics, go-to-definition |
+| User Need                          | Component      | Why                              |
+| ---------------------------------- | -------------- | -------------------------------- |
+| "Claude needs to know about X"     | **Skill**      | Knowledge that loads on trigger  |
+| "User runs action X explicitly"    | **Command**    | `/plugin:action` invocation      |
+| "Delegate to separate context"     | **Agent**      | Isolated execution, custom tools |
+| "X must ALWAYS happen on event Y"  | **Hook**       | Deterministic, guaranteed        |
+| "Connect to external service X"    | **MCP Server** | Provides tools for external APIs |
+| "Code intelligence for language X" | **LSP Server** | Diagnostics, go-to-definition    |
 
 ### 3. Hook Events (if using hooks)
 
 Which events matter?
+
 - `PreToolUse` / `PostToolUse` — Before/after tool execution
 - `UserPromptSubmit` — When user sends a message
 - `SessionStart` / `SessionEnd` — Session lifecycle
@@ -82,17 +84,20 @@ Hook types: `command` (shell), `prompt` (LLM), `agent` (tools)
 Before presenting a design, propose 2-3 approaches with trade-offs.
 
 **How to present options:**
+
 - Lead with your recommended approach and explain why
 - Present options conversationally, not as a dry list
 - Include concrete trade-offs for each approach
 - For plugins: trade-offs often involve component choice
 
 **Example:**
+
 > "I'd recommend a **Skill + Command** combination. The Skill gives Claude
 > the knowledge automatically, and the Command lets users invoke it explicitly
 > when needed.
 >
 > Alternative approaches:
+>
 > - **Agent only**: More isolated, but overkill if we don't need separate context
 > - **Hook-based**: Would run automatically, but you said this should be optional"
 
@@ -105,6 +110,7 @@ Once you've agreed on an approach, present the design incrementally.
 Present in 200-300 word sections. After each section, ask: "Does this look right so far?"
 
 Sections to cover:
+
 1. **Problem & Users** — What it solves, who uses it
 2. **Component Architecture** — Which components, why each one
 3. **Trigger Strategy** — How/when things activate
@@ -117,11 +123,13 @@ Be ready to go back and clarify if something doesn't make sense.
 ## After the Design
 
 **Documentation:**
+
 - Write the validated design to `docs/plans/YYYY-MM-DD-<plugin-name>-design.md`
-- Use `elements-of-style:writing-clearly-and-concisely` skill if available
+- Use `elements-of-style:writing-clearly-and-concisely` skill
 - Commit the design document to git
 
 **Implementation (if continuing):**
+
 - Ask: "Ready to set up for implementation?"
 - Use `superpowers:using-git-worktrees` to create isolated workspace
 - Use `superpowers:writing-plans` for detailed implementation plan
