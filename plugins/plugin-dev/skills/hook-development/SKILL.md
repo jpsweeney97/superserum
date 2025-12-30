@@ -1,6 +1,6 @@
 ---
 name: Hook Development
-description: This skill guides hook creation for Claude Code plugins. Use when "creating a hook", "adding a PreToolUse hook", "validating tool use", or "implementing prompt-based hooks". Covers all events: PreToolUse, PostToolUse, Stop, SubagentStop, SessionStart, SessionEnd, UserPromptSubmit, PreCompact, Notification.
+description: "This skill guides hook creation for Claude Code plugins. Use when 'creating a hook', 'adding a PreToolUse hook', 'validating tool use', or 'implementing prompt-based hooks'. Covers all events: PreToolUse, PostToolUse, Stop, SubagentStop, SessionStart, SessionEnd, UserPromptSubmit, PreCompact, Notification."
 version: 0.1.0
 ---
 

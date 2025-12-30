@@ -1,6 +1,6 @@
 ---
 name: MCP Integration
-description: This skill guides MCP server integration for Claude Code plugins. Use when "adding MCP server", "integrating MCP", "configuring .mcp.json", or "connecting external service". Covers all server types: SSE, stdio, HTTP, WebSocket.
+description: "This skill guides MCP server integration for Claude Code plugins. Use when 'adding MCP server', 'integrating MCP', 'configuring .mcp.json', or 'connecting external service'. Covers all server types: SSE, stdio, HTTP, WebSocket."
 version: 0.1.0
 ---
 
