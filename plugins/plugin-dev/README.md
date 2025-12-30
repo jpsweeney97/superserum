@@ -549,7 +549,7 @@ All skills follow consistent standards:
 - **Core Skills**: ~22,000 words across 12 SKILL.md files
 - **Reference Docs**: ~12,000+ words of detailed guides
 - **Examples**: 12+ working examples (hook scripts, MCP configs, plugin layouts, settings files)
-- **Utilities**: 9 production-ready validation/testing/parsing scripts
+- **Utilities**: 11 production-ready validation/testing/parsing scripts
 
 ## Use Cases
 
