@@ -1,0 +1,1 @@
+../skills/skillcreator/scripts/package_skill.py

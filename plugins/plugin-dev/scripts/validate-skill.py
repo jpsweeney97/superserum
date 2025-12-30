@@ -1,0 +1,1 @@
+../skills/skillcreator/scripts/validate-skill.py
