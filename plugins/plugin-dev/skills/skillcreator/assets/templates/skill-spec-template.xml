@@ -150,6 +150,93 @@
   </architecture>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SCRIPTS                                                                    -->
+  <!-- Automation, verification, and agentic capabilities                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <scripts>
+    <decision_summary>
+      <needs_scripts><!-- true|false --></needs_scripts>
+      <rationale><!-- WHY scripts are or aren't needed for this skill --></rationale>
+    </decision_summary>
+
+    <script_inventory>
+      <!-- List all scripts to be created. Remove this section if needs_scripts is false -->
+      <script id="S1">
+        <name><!-- script_name.py --></name>
+        <category><!-- validation|state_management|generation|transformation|integration|visualization|calculation --></category>
+        <purpose><!-- What this script does and WHY it's needed --></purpose>
+        <language>python</language>
+
+        <invocation>
+          <command><!-- python scripts/script_name.py <args> --></command>
+          <arguments>
+            <argument name="input" required="true"><!-- Input file or directory --></argument>
+            <argument name="--output" required="false"><!-- Output destination --></argument>
+            <argument name="--verbose" required="false"><!-- Enable verbose output --></argument>
+          </arguments>
+        </invocation>
+
+        <outputs>
+          <output type="exit_code">
+            <code value="0">Success</code>
+            <code value="1">General failure</code>
+            <code value="10">Validation failure</code>
+          </output>
+          <output type="stdout"><!-- What it prints on success --></output>
+          <output type="file"><!-- Files it creates, if any --></output>
+        </outputs>
+
+        <patterns_used>
+          <!-- Reference patterns from script-patterns-catalog.md -->
+          <pattern>Result</pattern>
+          <pattern><!-- argparse_subcommands|simple_argparse|json_state|validation_result --></pattern>
+        </patterns_used>
+
+        <verification>
+          <self_verifies><!-- true|false --></self_verifies>
+          <verification_method><!-- How the script verifies its own output --></verification_method>
+        </verification>
+
+        <rationale><!-- WHY this script was included, what problem it solves --></rationale>
+      </script>
+      <!-- Add more scripts as needed -->
+    </script_inventory>
+
+    <reused_scripts>
+      <!-- Scripts adapted from other skills (prefer reuse over reinvention) -->
+      <reused_script>
+        <source><!-- ~/.claude/skills/other-skill/scripts/name.py --></source>
+        <adaptation><!-- How it was adapted for this skill --></adaptation>
+        <rationale><!-- WHY this script was reused --></rationale>
+      </reused_script>
+    </reused_scripts>
+
+    <agentic_capabilities>
+      <!-- Overall assessment of skill's autonomous operation capabilities -->
+      <autonomous_execution>
+        <supported><!-- true|false --></supported>
+        <description><!-- Can the skill run without user intervention? How? --></description>
+      </autonomous_execution>
+
+      <self_verification>
+        <supported><!-- true|false --></supported>
+        <description><!-- Can scripts verify their own success? How? --></description>
+      </self_verification>
+
+      <error_recovery>
+        <supported><!-- true|false --></supported>
+        <description><!-- Can scripts recover from errors autonomously? How? --></description>
+      </error_recovery>
+
+      <state_persistence>
+        <supported><!-- true|false --></supported>
+        <description><!-- Does it maintain state across sessions? Where? --></description>
+      </state_persistence>
+    </agentic_capabilities>
+  </scripts>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- EVOLUTION ANALYSIS                                                        -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
 

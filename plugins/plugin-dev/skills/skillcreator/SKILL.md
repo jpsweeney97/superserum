@@ -1,18 +1,18 @@
 ---
 name: skillcreator
-description: "This skill creates production-grade skills using rigorous 4-phase methodology with 11 thinking lenses and multi-agent synthesis. Use when 'SkillCreator:', 'ultimate skill', 'best possible skill', 'rigorous skill creation', or when creating complex/critical skills. For simple skills, use skill-development (structure) + writing-skills (testing)."
+description: "Ultimate meta-skill for creating production-ready Claude Code skills. Uses deep iterative analysis with 11 thinking models, regression questioning until exhausted, evolution and timelessness as core lens, and multi-agent synthesis panel for unanimous approval. Includes automation analysis for agentic scripts. Fully autonomous execution at maximum depth produces categorically the best possible skills."
 license: MIT
 metadata:
-  version: 3.1.0
+  version: 3.2.0
   model: claude-opus-4-5-20251101
   subagent_model: claude-opus-4-5-20251101
-  domains: [meta-skill, automation, skill-creation, orchestration]
+  domains: [meta-skill, automation, skill-creation, orchestration, agentic]
   type: orchestrator
   inputs: [user-goal, domain-hints]
-  outputs: [SKILL.md, references/, SKILL_SPEC.md]
+  outputs: [SKILL.md, references/, scripts/, SKILL_SPEC.md]
 ---
 
-# SkillCreator 3.1 - Ultimate Meta-Skill
+# SkillCreator 3.2 - Ultimate Meta-Skill
 
 Create categorically the best possible Claude Code skills.
 
@@ -53,25 +53,28 @@ Your Request
 ┌─────────────────────────────────────────────────────┐
 │ Phase 1: DEEP ANALYSIS                              │
 │ • Expand requirements (explicit, implicit, unknown) │
-│ • Apply 11 thinking models                          │
+│ • Apply 11 thinking models + Automation Lens        │
 │ • Question until no new insights (3 empty rounds)   │
+│ • Identify automation/script opportunities          │
 ├─────────────────────────────────────────────────────┤
 │ Phase 2: SPECIFICATION                              │
 │ • Generate XML spec with all decisions + WHY        │
+│ • Include scripts section (if applicable)           │
 │ • Validate timelessness score ≥ 7                   │
 ├─────────────────────────────────────────────────────┤
 │ Phase 3: GENERATION                                 │
 │ • Write SKILL.md with fresh context                 │
-│ • Generate references/ and assets/                  │
+│ • Generate references/, assets/, and scripts/       │
 ├─────────────────────────────────────────────────────┤
 │ Phase 4: SYNTHESIS PANEL                            │
-│ • 3 Opus agents review independently                │
-│ • All 3 must approve (unanimous)                    │
+│ • 3-4 Opus agents review independently              │
+│ • Script Agent added when scripts present           │
+│ • All agents must approve (unanimous)               │
 │ • If rejected → loop back with feedback             │
 └─────────────────────────────────────────────────────┘
     │
     ▼
-Production-Ready Skill
+Production-Ready Agentic Skill
 ```
 
 **Key principles:**
@@ -79,6 +82,7 @@ Production-Ready Skill
 - Every decision includes WHY
 - Zero tolerance for errors
 - Autonomous execution at maximum depth
+- Scripts enable self-verification and agentic operation
 
 ---
 
@@ -142,8 +146,32 @@ metadata:
 │   └── examples.md
 ├── assets/                     # Templates (optional)
 │   └── templates/
-└── scripts/                    # Validation tools (optional)
+└── scripts/                    # Automation scripts (optional)
+    ├── validate.py             # Validation/verification
+    ├── generate.py             # Artifact generation
+    └── state.py                # State management
 ```
+
+### Scripts Directory
+
+Scripts enable skills to be **agentic** - capable of autonomous operation with self-verification.
+
+| Category | Purpose | When to Include |
+|----------|---------|-----------------|
+| **Validation** | Verify outputs meet standards | Skill produces artifacts |
+| **Generation** | Create artifacts from templates | Repeatable artifact creation |
+| **State Management** | Track progress across sessions | Long-running operations |
+| **Transformation** | Convert/process data | Data processing tasks |
+| **Calculation** | Compute metrics/scores | Scoring or analysis |
+
+**Script Requirements:**
+- Python 3.x with standard library only (graceful fallbacks for extras)
+- `Result` dataclass pattern for structured returns
+- Exit codes: 0=success, 1=failure, 10=validation failure, 11=verification failure
+- Self-verification where applicable
+- Documented in SKILL.md with usage examples
+
+See: [references/script-integration-framework.md](references/script-integration-framework.md)
 
 ---
 
@@ -265,8 +293,54 @@ ROUND N:
 - All 11 thinking models have been applied
 - At least 3 simulated expert perspectives considered
 - Evolution/timelessness explicitly evaluated
+- Automation opportunities identified
 
 See: [references/regression-questions.md](references/regression-questions.md)
+
+### 1D: Automation Analysis
+
+Identify opportunities for scripts that enable agentic operation:
+
+```
+FOR EACH operation in the skill:
+│
+├── Is this operation repeatable?
+│   └── YES → Consider generation script
+│
+├── Does this produce verifiable output?
+│   └── YES → Consider validation script
+│
+├── Does this need state across sessions?
+│   └── YES → Consider state management script
+│
+├── Does this involve external tools?
+│   └── YES → Consider integration script
+│
+└── Can Claude verify success autonomously?
+    └── NO → Add self-verification script
+```
+
+**Automation Lens Questions:**
+
+| Question | Script Category if YES |
+|----------|----------------------|
+| What operations will be repeated identically? | Generation |
+| What outputs require validation? | Validation |
+| What state needs to persist? | State Management |
+| Can the skill run overnight autonomously? | All categories |
+| How will Claude verify correct execution? | Verification |
+
+**Decision: Script vs No Script**
+
+| Create Script When | Skip Script When |
+|-------------------|------------------|
+| Operation is deterministic | Requires human judgment |
+| Output can be validated | One-time setup |
+| Will be reused across invocations | Simple text output |
+| Enables autonomous operation | No verification needed |
+| External tool integration | Pure Claude reasoning |
+
+See: [references/script-integration-framework.md](references/script-integration-framework.md)
 
 </details>
 
@@ -302,6 +376,12 @@ The specification captures all analysis insights in XML format:
     <decision_points>Branches and defaults</decision_points>
   </architecture>
 
+  <scripts>
+    <decision_summary>needs_scripts + rationale</decision_summary>
+    <script_inventory>name, category, purpose, patterns</script_inventory>
+    <agentic_capabilities>autonomous, self-verify, recovery</agentic_capabilities>
+  </scripts>
+
   <evolution_analysis>
     <timelessness_score>X/10</timelessness_score>
     <extension_points>Where skill can grow</extension_points>
@@ -329,6 +409,8 @@ Before proceeding to Phase 3:
 - [ ] Timelessness score ≥ 7 with justification
 - [ ] At least 2 extension points documented
 - [ ] All requirements traceable to source
+- [ ] Scripts section complete (if applicable)
+- [ ] Agentic capabilities documented (if scripts present)
 
 </details>
 
@@ -344,6 +426,7 @@ Before proceeding to Phase 3:
 1. Create directory structure
    mkdir -p ~/.claude/skills/{skill-name}/references
    mkdir -p ~/.claude/skills/{skill-name}/assets/templates
+   mkdir -p ~/.claude/skills/{skill-name}/scripts  # if scripts needed
 
 2. Write SKILL.md
    • Frontmatter (YAML - allowed properties only)
@@ -353,6 +436,7 @@ Before proceeding to Phase 3:
    • Quick Reference table
    • How It Works overview
    • Commands
+   • Scripts section (if applicable)
    • Validation section
    • Anti-Patterns
    • Verification criteria
@@ -365,7 +449,13 @@ Before proceeding to Phase 3:
 
 4. Create assets (if needed)
    • Templates for skill outputs
-   • Validation scripts
+
+5. Create scripts (if needed)
+   • Use script-template.py as base
+   • Include Result dataclass pattern
+   • Add self-verification
+   • Document exit codes
+   • Test before finalizing
 ```
 
 ### Quality Checks During Generation
@@ -380,23 +470,46 @@ Before proceeding to Phase 3:
 | Verification | Concrete, measurable |
 | Tables over prose | Structured information in tables |
 | No placeholder text | Every section fully written |
+| Scripts (if present) | Shebang, docstring, argparse, exit codes, Result pattern |
+| Script docs | Scripts section in SKILL.md with usage examples |
 
 </details>
 
 <details>
 <summary><strong>Deep Dive: Phase 4 - Multi-Agent Synthesis</strong></summary>
 
-**Panel:** 3 Opus agents with distinct evaluative lenses
-**Requirement:** Unanimous 3/3 approval
+**Panel:** 3-4 Opus agents with distinct evaluative lenses
+**Requirement:** Unanimous approval (all agents)
 **Fallback:** Return to Phase 1 with feedback (max 5 iterations)
 
 ### Panel Composition
 
-| Agent | Focus | Key Criteria |
-|-------|-------|--------------|
-| **Design/Architecture** | Structure, patterns, correctness | Pattern appropriate, phases logical, no circular deps |
-| **Audience/Usability** | Clarity, discoverability, completeness | Triggers natural, steps unambiguous, no assumed knowledge |
-| **Evolution/Timelessness** | Future-proofing, extension, ecosystem | Score ≥7, extension points clear, ecosystem fit |
+| Agent | Focus | Key Criteria | When Active |
+|-------|-------|--------------|-------------|
+| **Design/Architecture** | Structure, patterns, correctness | Pattern appropriate, phases logical, no circular deps | Always |
+| **Audience/Usability** | Clarity, discoverability, completeness | Triggers natural, steps unambiguous, no assumed knowledge | Always |
+| **Evolution/Timelessness** | Future-proofing, extension, ecosystem | Score ≥7, extension points clear, ecosystem fit | Always |
+| **Script/Automation** | Agentic capability, verification, quality | Scripts follow patterns, self-verify, documented | When scripts present |
+
+### Script Agent (Conditional)
+
+The Script Agent is activated when the skill includes a `scripts/` directory. Focus areas:
+
+| Criterion | Checks |
+|-----------|--------|
+| **Pattern Compliance** | Result dataclass, argparse, exit codes |
+| **Self-Verification** | Scripts can verify their own output |
+| **Error Handling** | Graceful failures, actionable messages |
+| **Documentation** | Usage examples in SKILL.md |
+| **Agentic Capability** | Can run autonomously without human intervention |
+
+**Script Agent Scoring:**
+
+| Score | Meaning |
+|-------|---------|
+| 8-10 | Fully agentic, self-verifying, production-ready |
+| 6-7 | Functional but missing some agentic capabilities |
+| <6 | Requires revision - insufficient automation quality |
 
 ### Agent Evaluation
 
@@ -425,16 +538,17 @@ Each agent produces:
 ### Consensus Protocol
 
 ```
-IF all 3 agents APPROVED:
+IF all agents APPROVED (3/3 or 4/4):
     → Finalize skill
+    → Run validate-skill.py
     → Update registry
     → Complete
 
 ELSE:
-    → Collect all issues
+    → Collect all issues (including script issues)
     → Return to Phase 1 with issues as input
     → Re-apply targeted questioning
-    → Regenerate skill
+    → Regenerate skill and scripts
     → Re-submit to panel
 
 IF 5 iterations without consensus:
@@ -553,11 +667,13 @@ SKILLCREATOR_CONFIG:
 
 ## References
 
-- [Regression Questions](references/regression-questions.md) - Complete question bank
+- [Regression Questions](references/regression-questions.md) - Complete question bank (7 categories)
 - [Multi-Lens Framework](references/multi-lens-framework.md) - 11 thinking models guide
 - [Specification Template](references/specification-template.md) - XML spec structure
 - [Evolution Scoring](references/evolution-scoring.md) - Timelessness evaluation
 - [Synthesis Protocol](references/synthesis-protocol.md) - Multi-agent panel details
+- [Script Integration Framework](references/script-integration-framework.md) - When and how to create scripts
+- [Script Patterns Catalog](references/script-patterns-catalog.md) - Standard Python patterns
 
 ---
 
@@ -565,24 +681,39 @@ SKILLCREATOR_CONFIG:
 
 | Skill | Relationship |
 |-------|--------------|
-| skill-development | Structural reference for SKILL.md format |
-| writing-skills | TDD testing workflow for skills |
-| plugin-audit | Validation rules that apply to skills |
+| skill-composer | Can orchestrate created skills |
+| claude-authoring-guide | Deeper patterns reference |
+| codereview | Pattern for multi-agent panels |
+| maker-framework | Zero error standard source |
 
 ---
 
 ## Extension Points
 
 1. **Additional Lenses:** Add new thinking models to `references/multi-lens-framework.md`
-2. **New Synthesis Agents:** Extend panel beyond 3 agents for specific domains
+2. **New Synthesis Agents:** Extend panel beyond 4 agents for specific domains
 3. **Custom Patterns:** Add architecture patterns to selection guide
 4. **Domain Templates:** Add domain-specific templates to `assets/templates/`
+5. **Script Patterns:** Add new patterns to `references/script-patterns-catalog.md`
+6. **Script Categories:** Extend the 7 script categories for new use cases
 
 ---
 
 ## Changelog
 
-### v3.1.0 (Current)
+### v3.2.0 (Current)
+- Added Script Integration Framework for agentic skills
+- Added 4th Script Agent to synthesis panel (conditional)
+- Added Phase 1D: Automation Analysis
+- Added Automation Lens questions to regression questioning
+- Created `references/script-integration-framework.md`
+- Created `references/script-patterns-catalog.md`
+- Created `assets/templates/script-template.py`
+- Updated skill-spec-template.xml with `<scripts>` section
+- Updated validate-skill.py with script validation
+- Skills can now include self-verifying Python scripts
+
+### v3.1.0
 - Added progressive disclosure structure
 - Fixed frontmatter for packaging compatibility
 - Added validation & packaging section

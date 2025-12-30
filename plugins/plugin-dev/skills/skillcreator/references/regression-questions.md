@@ -119,6 +119,78 @@ Questions about the questioning process itself.
 | "What would I add with unlimited time?" | Identify deferred improvements |
 | "What's the most controversial aspect of this design?" | Surface hidden assumptions |
 
+### Category 7: Script and Automation Analysis
+
+Questions for determining script needs and enabling autonomous operation.
+
+| Question | Purpose |
+|----------|---------|
+| "What operations will be repeated identically across uses?" | Identify determinism needs |
+| "What outputs require validation before the skill can proceed?" | Identify verification scripts |
+| "What state needs to persist between skill invocations?" | Identify state management |
+| "How will Claude verify the skill executed correctly?" | Enable autonomous verification |
+| "What existing scripts in the ecosystem could be reused?" | Avoid reinventing |
+| "Can this skill run overnight without human intervention?" | Assess agentic capability |
+| "What would break if executed manually vs scripted?" | Identify fragile operations |
+| "How would another Claude instance recover from a script failure?" | Design error handling |
+
+**Script Decision Protocol:**
+
+For each affirmative answer:
+1. **Classify the script category:**
+   - Validation (verify artifacts)
+   - State Management (persist data)
+   - Generation (create artifacts)
+   - Transformation (convert data)
+   - Integration (external tools)
+   - Visualization (progress/status)
+   - Calculation (metrics/scores)
+
+2. **Select patterns from catalog:**
+   - Result dataclass for return values
+   - ValidationResult for multi-check validation
+   - argparse with subcommands for multi-operation
+   - JSON state for persistence
+   - Graceful fallback for optional dependencies
+
+3. **Document in specification:**
+   ```xml
+   <script id="S1">
+     <name>validate_output.py</name>
+     <category>validation</category>
+     <purpose>Verify generated artifacts meet quality standards</purpose>
+     <patterns_used>
+       <pattern>ValidationResult</pattern>
+       <pattern>simple_argparse</pattern>
+     </patterns_used>
+   </script>
+   ```
+
+4. **Design self-verification:**
+   - Every script should return success/failure via exit code
+   - Complex operations should verify their own outputs
+   - Error messages should be actionable
+
+**Research Existing Scripts:**
+```bash
+# Search for similar scripts in the ecosystem
+find ~/.claude/skills -name "*.py" -path "*/scripts/*" | xargs grep -l "<pattern>"
+
+# List available validation patterns
+grep -r "ValidationResult\|validate" ~/.claude/skills/*/scripts/
+```
+
+**Agentic Capability Checklist:**
+After script analysis, verify:
+
+- [ ] Autonomous Execution: Can skill run without user intervention?
+- [ ] Self-Verification: Can scripts verify their own outputs?
+- [ ] Error Recovery: Can scripts retry or recover from failures?
+- [ ] State Persistence: Is progress saved across sessions?
+- [ ] Structured Output: Do scripts output machine-readable data?
+
+See: [script-integration-framework.md](script-integration-framework.md), [script-patterns-catalog.md](script-patterns-catalog.md)
+
 ---
 
 ## Round Structure
