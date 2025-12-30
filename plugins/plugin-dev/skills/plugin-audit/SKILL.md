@@ -1,10 +1,6 @@
 ---
 name: Plugin Audit
-description: >
-  Use when the user asks to "audit a plugin", "validate plugin structure",
-  "check plugin quality", "lint plugin", "review plugin for issues", or
-  "verify plugin correctness". Also use for "check plugin best practices"
-  or validating plugins before testing or publishing.
+description: Use when "auditing a plugin", "validating plugin structure", "checking plugin quality", or "linting plugin". Covers 50+ validation rules across 8 categories.
 ---
 
 # Plugin Audit
