@@ -1,6 +1,6 @@
 ---
 name: Agent Development
-description: Use when "creating an agent", "adding an agent", "writing a subagent", or configuring agent frontmatter (description, tools, colors). Also for system prompt design or triggering conditions.
+description: This skill guides autonomous agent creation. Use when "creating an agent", "adding an agent", "writing a subagent", or configuring agent frontmatter (description, tools, colors). Covers system prompt design and triggering conditions.
 version: 0.1.0
 ---
 

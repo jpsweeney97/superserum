@@ -1,11 +1,6 @@
 ---
 name: brainstorming-plugins
-description: >
-  Designs Claude Code plugins through collaborative dialogue before
-  implementation. Use when user wants to "build a plugin", "create a
-  plugin", "design a plugin for X", or asks what components they need.
-  Explores problem, selects component types (Skills vs Commands vs
-  Agents vs Hooks vs MCP), and outputs plugin design document.
+description: This skill guides plugin design through collaborative dialogue. Use when user wants to "build a plugin", "create a plugin", "design a plugin for X", or asks what components they need. Explores requirements, selects component types, and outputs plugin design document.
 ---
 
 # Brainstorming Plugins

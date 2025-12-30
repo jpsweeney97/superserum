@@ -1,6 +1,6 @@
 ---
 name: Command Development
-description: Use when "creating a slash command", "adding a command", "defining command arguments", or "using command frontmatter". Also for dynamic arguments, bash execution, or AskUserQuestion patterns.
+description: This skill guides slash command creation. Use when "creating a slash command", "adding a command", "defining command arguments", or "using command frontmatter". Covers dynamic arguments, bash execution, and AskUserQuestion patterns.
 version: 0.2.0
 ---
 
