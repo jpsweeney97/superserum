@@ -1,5 +1,5 @@
 ---
-description: Run comprehensive plugin audit with detailed report, severity ratings, and fix suggestions
+description: Run comprehensive plugin audit. Invokes the `plugin-audit` skill with structured output, severity ratings, and fix suggestions. Use this command for on-demand audits; the skill loads automatically when discussing audit topics.
 argument-hint: "[path] [--json]"
 allowed-tools:
   - Read
