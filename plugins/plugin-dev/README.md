@@ -4,7 +4,7 @@ A comprehensive toolkit for developing Claude Code plugins with expert guidance 
 
 ## Overview
 
-The plugin-dev toolkit provides **eleven specialized skills** to help you build high-quality Claude Code plugins:
+The plugin-dev toolkit provides **twelve specialized skills** to help you build high-quality Claude Code plugins:
 
 1. **Hook Development** - Advanced hooks API and event-driven automation
 2. **MCP Integration** - Model Context Protocol server integration
@@ -17,12 +17,14 @@ The plugin-dev toolkit provides **eleven specialized skills** to help you build 
 9. **Writing Skills** - TDD methodology for creating and testing skills
 10. **Plugin Optimization** - Six-lens analysis for improving plugins from good to great
 11. **Plugin Brainstorming** - Design plugins through collaborative dialogue before implementation
+12. **SkillCreator** - Rigorous 4-phase skill creation with 11 thinking lenses and multi-agent synthesis
 
 Each skill follows best practices with progressive disclosure: lean core documentation, detailed references, working examples, and utility scripts.
 
 **Skill relationships:**
 - **Writing Skills** ↔ **Skill Development**: Complementary peers (process vs structure)
 - **Plugin Audit** → **Plugin Optimization**: Run audit first to fix issues, then optimize
+- **SkillCreator** → **Writing Skills** + **Skill Development**: Full methodology using both
 
 ## Guided Workflow Command
 
@@ -119,6 +121,31 @@ Design a plugin through collaborative dialogue before implementation.
 ```
 
 Use this before `/create-plugin` when you want to explore and validate your plugin design first.
+
+### /plugin-dev:create-skill
+
+Create skills using SkillCreator's rigorous 4-phase methodology with 11 thinking lenses.
+
+**4-Phase Process:**
+1. **Requirements Gathering** - Understand skill purpose, audience, and success criteria
+2. **Deep Analysis** - Apply 11 thinking lenses (First Principles, Devil's Advocate, etc.)
+3. **Synthesis Panel** - Multi-agent deliberation to resolve tensions and make decisions
+4. **Skill Generation** - Create production-ready skill with validation
+
+**Features:**
+- 11 thinking lenses for comprehensive analysis
+- Evolution scoring to track idea refinement
+- Multi-agent synthesis panel for quality decisions
+- Automatic validation before output
+- Supports both standalone skills and plugin integration
+
+**Usage:**
+```bash
+/plugin-dev:create-skill                        # Interactive skill creation
+/plugin-dev:create-skill "A skill for X"        # Start with description
+```
+
+Use this for production-grade skills requiring rigorous analysis.
 
 ## Skills
 
@@ -333,6 +360,26 @@ Use this before `/create-plugin` when you want to explore and validate your plug
 
 **Use when:** Starting a new plugin and wanting to explore and validate the design before implementation.
 
+### 12. SkillCreator
+
+**Trigger phrases:** "create a skill using skillcreator", "rigorous skill creation", "apply thinking lenses", "skill synthesis panel", "4-phase skill methodology"
+
+**What it covers:**
+- 4-phase skill creation methodology (Requirements, Analysis, Synthesis, Generation)
+- 11 thinking lenses for comprehensive analysis
+- Evolution scoring to measure idea refinement
+- Multi-agent synthesis panel for quality decisions
+- Validation scripts for structural and quality checks
+- Integration with plugin-dev workflow
+
+**Resources:**
+- Core SKILL.md (~1,800 words)
+- 11 thinking lens definitions
+- Synthesis panel protocol
+- 3 validation scripts (quick_validate.py, validate-skill.py, package_skill.py)
+
+**Use when:** Creating production-grade skills that require rigorous analysis and multi-perspective evaluation.
+
 ## Agents
 
 The plugin-dev toolkit includes three specialized agents:
@@ -385,6 +432,40 @@ cc --plugin-dir /path/to/plugin-dev
    - Ask: "Create a PreToolUse hook that validates file writes"
    - The hook-development skill gives working examples and utilities
 
+## Skill Creation Workflow
+
+Plugin-dev provides three levels of skill creation support:
+
+| Approach | Use When | Tool |
+|----------|----------|------|
+| **Reference** | Understanding skill structure | `skill-development` skill |
+| **TDD Testing** | Validating skill effectiveness | `writing-skills` skill |
+| **Full Methodology** | Creating production-grade skills | `/plugin-dev:create-skill` + `skillcreator` |
+
+### Decision Tree
+
+```
+Need to create a skill?
+├── Simple skill (< 500 words, straightforward)
+│   └── Use `skill-development` skill directly
+├── Standard skill (need to ensure quality)
+│   └── Use `writing-skills` TDD + `skill-development`
+└── Complex/critical skill (needs rigorous analysis)
+    └── Use `/plugin-dev:create-skill` (SkillCreator methodology)
+```
+
+### Validation Scripts
+
+```bash
+# Quick validation (required before packaging)
+python scripts/quick_validate.py path/to/skill/
+
+# Full structural validation
+python scripts/validate-skill.py path/to/skill/
+
+# Package for distribution
+python scripts/package_skill.py path/to/skill/ ./dist
+```
 
 ## Development Workflow
 
@@ -465,10 +546,10 @@ All skills follow consistent standards:
 
 ## Total Content
 
-- **Core Skills**: ~20,000 words across 8 SKILL.md files
-- **Reference Docs**: ~10,000+ words of detailed guides
+- **Core Skills**: ~22,000 words across 12 SKILL.md files
+- **Reference Docs**: ~12,000+ words of detailed guides
 - **Examples**: 12+ working examples (hook scripts, MCP configs, plugin layouts, settings files)
-- **Utilities**: 6 production-ready validation/testing/parsing scripts
+- **Utilities**: 9 production-ready validation/testing/parsing scripts
 
 ## Use Cases
 
@@ -549,7 +630,7 @@ This plugin is part of the claude-code-marketplace. To contribute improvements:
 
 ## Version
 
-1.2.0 - Full toolkit: 11 skills, 3 agents, 5 commands, 50+ validation rules
+1.3.0 - Full toolkit: 12 skills, 3 agents, 6 commands, 50+ validation rules, SkillCreator methodology
 
 ## Author
 
