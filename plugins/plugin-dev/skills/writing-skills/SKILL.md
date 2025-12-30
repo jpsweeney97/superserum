@@ -11,6 +11,8 @@ description: Use when "creating skills", "testing skills", "skill TDD", or apply
 
 For **file structure** (directories, SKILL.md format, progressive disclosure), see the `skill-development` skill.
 
+For **full autonomous creation** with 11 thinking lenses, evolution scoring, and synthesis panel, use the `skillcreator` skill.
+
 ## Overview
 
 Write test cases (pressure scenarios with subagents), watch them fail (baseline behavior), write the skill, watch tests pass (agents comply), refactor (close loopholes).

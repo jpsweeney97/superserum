@@ -11,6 +11,8 @@ Structural reference for building skills in Claude Code plugins.
 
 For the **creation process** (TDD, testing, validation workflow), see the `writing-skills` skill.
 
+For **rigorous skill creation** with analysis, evolution scoring, and synthesis panel, use the `skillcreator` skill or `/plugin-dev:create-skill` command.
+
 ## About Skills
 
 Skills are modular packages extending Claude's capabilities with specialized knowledge and tools. They transform Claude from general-purpose to specialized by providing procedural knowledge no model fully possesses.
