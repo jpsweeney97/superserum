@@ -1,6 +1,6 @@
 ---
 name: Writing Skills
-description: Use when "creating skills", "testing skills", "skill TDD", or applying TDD methodology to documentation. For structure and file organization, see skill-development.
+description: This skill applies TDD methodology to skill development. Use when "testing skills", "skill TDD", "pressure testing skills", or "validating skill effectiveness". For skill structure, see skill-development. For full creation methodology, see skillcreator.
 ---
 
 # Writing Skills
