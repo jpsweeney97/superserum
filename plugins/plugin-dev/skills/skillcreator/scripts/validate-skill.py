@@ -88,14 +88,8 @@ class SkillValidator:
             return False
 
     def validate_frontmatter(self):
-        """Validate frontmatter fields.
-
-        Required: name, description
-        Optional: license, allowed-tools, metadata
-        Version/model can be at top-level OR under metadata (per quick_validate.py)
-        """
-        # Only name and description are strictly required
-        required_fields = ["name", "description"]
+        """Validate frontmatter fields."""
+        required_fields = ["name", "version", "description", "license", "model"]
 
         for field in required_fields:
             self.check(
@@ -113,20 +107,14 @@ class SkillValidator:
                 f"Skill name should be kebab-case: {name}"
             )
 
-        # Check version format (semver) - can be top-level or in metadata
-        version = self.frontmatter.get("version")
-        if not version and "metadata" in self.frontmatter:
-            version = self.frontmatter["metadata"].get("version")
-
-        if version:
+        # Check version format (semver)
+        if "version" in self.frontmatter:
+            version = self.frontmatter["version"]
             self.check(
                 "frontmatter.version.format",
                 re.match(r'^\d+\.\d+\.\d+', str(version)),
                 f"Version should be semver format: {version}"
             )
-        else:
-            # Version is recommended but not required
-            self.warnings.append("No version found (check metadata.version or top-level version)")
 
         # Check description length
         if "description" in self.frontmatter:
@@ -271,6 +259,148 @@ class SkillValidator:
                 warning=True
             )
 
+    def validate_scripts_directory(self):
+        """Validate scripts directory if present."""
+        scripts_path = self.skill_path / "scripts"
+
+        if not scripts_path.exists():
+            # Scripts are optional - only warn if skill has bash examples suggesting scripts
+            bash_example_count = len(re.findall(r'```bash', self.content))
+            python_example_count = len(re.findall(r'python\s+scripts/', self.content))
+
+            if python_example_count > 0:
+                self.check(
+                    "scripts.presence",
+                    False,
+                    f"SKILL.md references scripts/ but no scripts directory exists",
+                    warning=False
+                )
+            elif bash_example_count > 3:
+                self.check(
+                    "scripts.presence",
+                    False,
+                    f"Skill has {bash_example_count} bash examples - consider adding scripts/",
+                    warning=True
+                )
+            return
+
+        # Validate each Python script
+        scripts = list(scripts_path.glob("*.py"))
+        for script in scripts:
+            self._validate_script(script)
+
+        # Validate script documentation in SKILL.md
+        self._validate_script_documentation(scripts)
+
+    def _validate_script(self, script_path: Path):
+        """Validate a single Python script file."""
+        try:
+            content = script_path.read_text(encoding="utf-8")
+        except Exception as e:
+            self.check(
+                f"script.{script_path.name}.readable",
+                False,
+                f"Cannot read script {script_path.name}: {e}"
+            )
+            return
+
+        script_name = script_path.name
+
+        # Check for shebang and docstring
+        has_shebang = content.strip().startswith('#!/usr/bin/env python3')
+        has_docstring = '"""' in content[:500] or "'''" in content[:500]
+        self.check(
+            f"script.{script_name}.header",
+            has_shebang and has_docstring,
+            f"Script {script_name} should have shebang and docstring",
+            warning=True
+        )
+
+        # Check for argparse usage (if main function exists)
+        has_main = "def main():" in content or 'if __name__' in content
+        has_argparse = "argparse" in content or "sys.argv" in content
+        if has_main:
+            self.check(
+                f"script.{script_name}.argparse",
+                has_argparse,
+                f"Script {script_name} should use argparse for CLI",
+                warning=True
+            )
+
+        # Check for explicit exit codes
+        has_exit = "sys.exit" in content or "exit(" in content
+        self.check(
+            f"script.{script_name}.exit_codes",
+            has_exit,
+            f"Script {script_name} should use explicit exit codes",
+            warning=True
+        )
+
+        # Check for error handling
+        has_try_except = "try:" in content and "except" in content
+        self.check(
+            f"script.{script_name}.error_handling",
+            has_try_except,
+            f"Script {script_name} should have error handling",
+            warning=True
+        )
+
+        # Check for result class or validation result pattern
+        has_result_pattern = (
+            "Result" in content or
+            "ValidationResult" in content or
+            "return (True" in content or
+            "return (False" in content
+        )
+        self.check(
+            f"script.{script_name}.result_pattern",
+            has_result_pattern,
+            f"Script {script_name} should use Result/ValidationResult pattern",
+            warning=True
+        )
+
+    def _validate_script_documentation(self, scripts: List[Path]):
+        """Check that scripts are documented in SKILL.md."""
+        if not scripts:
+            return
+
+        # Check for Scripts section in SKILL.md
+        has_scripts_section = bool(re.search(
+            r'##\s*Scripts',
+            self.content,
+            re.IGNORECASE
+        ))
+
+        self.check(
+            "scripts.documented.section",
+            has_scripts_section,
+            "Skills with scripts should have a Scripts section documenting usage"
+        )
+
+        # Check that each script is mentioned in SKILL.md
+        for script in scripts:
+            script_mentioned = script.name in self.content
+            self.check(
+                f"scripts.documented.{script.name}",
+                script_mentioned,
+                f"Script {script.name} should be documented in SKILL.md",
+                warning=True
+            )
+
+        # Check for exit code documentation
+        has_exit_docs = bool(re.search(
+            r'Exit\s*Code|exit\s+code|Exit:\s*\d',
+            self.content,
+            re.IGNORECASE
+        ))
+        if len(scripts) > 0:
+            self.check(
+                "scripts.documented.exit_codes",
+                has_exit_docs,
+                "Skills with scripts should document exit codes",
+                warning=True
+            )
+
     def validate(self) -> Tuple[bool, str]:
         """Run all validations and return result."""
         if not self.load_skill():
@@ -286,6 +416,7 @@ class SkillValidator:
         self.validate_anti_patterns()
         self.validate_structure()
         self.validate_references_directory()
+        self.validate_scripts_directory()
 
         return len(self.errors) == 0, self._format_report()
 
