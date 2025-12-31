@@ -1,6 +1,6 @@
 ---
 name: Writing Skills
-description: This skill applies TDD methodology to skill development. Use when "testing skills", "skill TDD", "pressure testing skills", or "validating skill effectiveness". For skill structure, see skill-development. For full creation methodology, see skillcreator.
+description: This skill applies TDD methodology to skill development. Use when "testing skills", "skill TDD", "pressure testing skills", or "validating skill effectiveness". For skill structure, see skill-development. For full creation methodology, see skillforge.
 ---
 
 # Writing Skills
@@ -11,7 +11,7 @@ description: This skill applies TDD methodology to skill development. Use when "
 
 For **file structure** (directories, SKILL.md format, progressive disclosure), see the `skill-development` skill.
 
-For **full autonomous creation** with 11 thinking lenses, evolution scoring, and synthesis panel, use the `skillcreator` skill.
+For **full autonomous creation** with 11 thinking lenses, evolution scoring, and synthesis panel, use the `skillforge` skill.
 
 ## Overview
 

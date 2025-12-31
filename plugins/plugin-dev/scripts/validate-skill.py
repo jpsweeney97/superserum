@@ -1,1 +1,1 @@
-../skills/skillcreator/scripts/validate-skill.py
+../skills/skillforge/scripts/validate-skill.py

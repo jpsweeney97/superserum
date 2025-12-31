@@ -1,1 +1,1 @@
-../skills/skillcreator/scripts/package_skill.py
+../skills/skillforge/scripts/package_skill.py

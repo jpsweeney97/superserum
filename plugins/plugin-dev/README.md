@@ -19,7 +19,7 @@ The plugin-dev toolkit provides **12 specialized skills** to help you build high
 | 9 | Writing Skills | `writing-skills` | TDD methodology |
 | 10 | Plugin Optimization | `optimizing-plugins` | Six-lens improvement |
 | 11 | Plugin Brainstorming | `brainstorming-plugins` | Design before implementation |
-| 12 | SkillCreator | `skillcreator` | Rigorous 4-phase creation |
+| 12 | SkillForge | `skillforge` | Rigorous 5-phase creation |
 
 Each skill follows best practices with progressive disclosure: lean core documentation, detailed references, working examples, and utility scripts.
 
@@ -31,13 +31,13 @@ Each skill follows best practices with progressive disclosure: lean core documen
 | `/optimize-plugin` | `optimizing-plugins` | Guided improvement session |
 | `/fix-plugin` | `plugin-audit` | Interactive repair |
 | `/create-plugin` | Multiple skills | End-to-end creation |
-| `/create-skill` | `skillcreator` | Rigorous skill creation |
+| `/create-skill` | `skillforge` | Rigorous skill creation |
 | `/brainstorm` | `brainstorming-plugins` | Design exploration |
 
 **Skill relationships:**
 - **Writing Skills** ↔ **Skill Development**: Complementary peers (process vs structure)
 - **Plugin Audit** → **Plugin Optimization**: Run audit first to fix issues, then optimize
-- **SkillCreator** → **Writing Skills** + **Skill Development**: Full methodology using both
+- **SkillForge** → **Writing Skills** + **Skill Development**: Full methodology using both
 
 ## Guided Workflow Command
 
@@ -137,9 +137,10 @@ Use this before `/create-plugin` when you want to explore and validate your plug
 
 ### /plugin-dev:create-skill
 
-Create skills using SkillCreator's rigorous 4-phase methodology with 11 thinking lenses.
+Create skills using SkillForge's rigorous 5-phase methodology with intelligent triage and 11 thinking lenses.
 
-**4-Phase Process:**
+**5-Phase Process:**
+0. **Triage** - Route to USE_EXISTING / IMPROVE_EXISTING / CREATE_NEW / COMPOSE / CLARIFY
 1. **Requirements Gathering** - Understand skill purpose, audience, and success criteria
 2. **Deep Analysis** - Apply 11 thinking lenses (First Principles, Devil's Advocate, etc.)
 3. **Synthesis Panel** - Multi-agent deliberation to resolve tensions and make decisions
@@ -373,12 +374,12 @@ Use this for production-grade skills requiring rigorous analysis.
 
 **Use when:** Starting a new plugin and wanting to explore and validate the design before implementation.
 
-### 12. SkillCreator
+### 12. SkillForge
 
-**Trigger phrases:** "create a skill using skillcreator", "rigorous skill creation", "apply thinking lenses", "skill synthesis panel", "4-phase skill methodology"
+**Trigger phrases:** "create a skill using skillforge", "rigorous skill creation", "apply thinking lenses", "skill synthesis panel", "5-phase skill methodology"
 
 **What it covers:**
-- 4-phase skill creation methodology (Requirements, Analysis, Synthesis, Generation)
+- 5-phase skill creation methodology (Triage, Requirements, Analysis, Synthesis, Generation)
 - 11 thinking lenses for comprehensive analysis
 - Evolution scoring to measure idea refinement
 - Multi-agent synthesis panel for quality decisions
@@ -453,7 +454,7 @@ Plugin-dev provides three levels of skill creation support:
 |----------|----------|------|
 | **Reference** | Understanding skill structure | `skill-development` skill |
 | **TDD Testing** | Validating skill effectiveness | `writing-skills` skill |
-| **Full Methodology** | Creating production-grade skills | `/plugin-dev:create-skill` + `skillcreator` |
+| **Full Methodology** | Creating production-grade skills | `/plugin-dev:create-skill` + `skillforge` |
 
 ### Decision Tree
 
@@ -464,7 +465,7 @@ Need to create a skill?
 ├── Standard skill (need to ensure quality)
 │   └── Use `writing-skills` TDD + `skill-development`
 └── Complex/critical skill (needs rigorous analysis)
-    └── Use `/plugin-dev:create-skill` (SkillCreator methodology)
+    └── Use `/plugin-dev:create-skill` (SkillForge methodology)
 ```
 
 ### Validation Scripts
@@ -643,7 +644,7 @@ This plugin is part of the claude-code-marketplace. To contribute improvements:
 
 ## Version
 
-1.3.0 - Full toolkit: 12 skills, 3 agents, 6 commands, 50+ validation rules, SkillCreator methodology
+1.4.0 - Full toolkit: 12 skills, 3 agents, 6 commands, 50+ validation rules, SkillForge methodology
 
 ## Author
 

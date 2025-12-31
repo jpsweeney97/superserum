@@ -1,6 +1,6 @@
 ---
 name: Skill Development
-description: This skill provides structural reference for building skills in Claude Code plugins. Use for "skill file structure", "SKILL.md format", "progressive disclosure patterns", "organizing skill directories", or "skill anatomy". This is the WHERE and WHAT of skills. For HOW to test, see writing-skills. For rigorous creation, see skillcreator.
+description: This skill provides structural reference for building skills in Claude Code plugins. Use for "skill file structure", "SKILL.md format", "progressive disclosure patterns", "organizing skill directories", or "skill anatomy". This is the WHERE and WHAT of skills. For HOW to test, see writing-skills. For rigorous creation, see skillforge.
 ---
 
 # Skill Development for Claude Code Plugins
@@ -11,7 +11,7 @@ Structural reference for building skills in Claude Code plugins.
 
 For the **creation process** (TDD, testing, validation workflow), see the `writing-skills` skill.
 
-For **rigorous skill creation** with analysis, evolution scoring, and synthesis panel, use the `skillcreator` skill or `/plugin-dev:create-skill` command.
+For **rigorous skill creation** with analysis, evolution scoring, and synthesis panel, use the `skillforge` skill or `/plugin-dev:create-skill` command.
 
 ## About Skills
 

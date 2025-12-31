@@ -314,7 +314,7 @@ For each identified script, document in the specification:
   <category>validation</category>
   <purpose>Verify generated artifacts meet quality standards</purpose>
   <rationale>Manual verification is error-prone and inconsistent</rationale>
-  <reused_from>~/.claude/skills/skillcreator/scripts/validate-skill.py</reused_from>
+  <reused_from>~/.claude/skills/skillforge/scripts/validate-skill.py</reused_from>
 </script>
 ```
 

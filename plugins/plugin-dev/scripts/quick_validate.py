@@ -1,1 +1,1 @@
-../skills/skillcreator/scripts/quick_validate.py
+../skills/skillforge/scripts/quick_validate.py

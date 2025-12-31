@@ -1,4 +1,4 @@
-name: Sync SkillCreator
+name: Sync SkillForge
 on:
   schedule:
     - cron: '0 6 */2 * *'  # Every 48 hours at 6 AM UTC
@@ -14,8 +14,8 @@ permissions:
   pull-requests: write
 
 env:
-  UPSTREAM_REPO: tripleyak/skill-creator-and-improver
-  TARGET_PATH: plugins/plugin-dev/skills/skillcreator
+  UPSTREAM_REPO: tripleyak/SkillForge
+  TARGET_PATH: plugins/plugin-dev/skills/skillforge
 
 jobs:
   sync:
@@ -153,18 +153,18 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: |
-            chore(plugin-dev): sync skillcreator ${{ steps.local.outputs.version }} → ${{ steps.upstream.outputs.version }}
-          branch: auto-sync/skillcreator
+            chore(plugin-dev): sync skillforge ${{ steps.local.outputs.version }} → ${{ steps.upstream.outputs.version }}
+          branch: auto-sync/skillforge
           delete-branch: true
-          title: "chore(plugin-dev): sync skillcreator to ${{ steps.upstream.outputs.tag }}"
+          title: "chore(plugin-dev): sync skillforge to ${{ steps.upstream.outputs.tag }}"
           labels: |
             automated
             dependencies
             plugin-dev
           body: |
-            ## SkillCreator Sync
+            ## SkillForge Sync
 
-            **Upstream:** [tripleyak/skill-creator-and-improver](https://github.com/${{ env.UPSTREAM_REPO }})
+            **Upstream:** [tripleyak/SkillForge](https://github.com/${{ env.UPSTREAM_REPO }})
             **Version:** `${{ steps.local.outputs.version }}` → `${{ steps.upstream.outputs.version }}`
 
             ### Validation
@@ -186,4 +186,4 @@ jobs:
 
             ---
 
-            <sub>🤖 Created by [sync-skillcreator.yml](.github/workflows/sync-skillcreator.yml)</sub>
+            <sub>🤖 Created by [sync-skillforge.yml](.github/workflows/sync-skillforge.yml)</sub>
