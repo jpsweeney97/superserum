@@ -1,5 +1,13 @@
 # Plugin-Dev Optimization Implementation Plan
 
+> **⚠️ PARTIALLY SUPERSEDED (2025-12-31):** References to `skillcreator` in this plan should read `skillforge` following the upstream rename.
+>
+> - Migration documentation: [`plugins/plugin-dev/docs/migrations/skillcreator-to-skillforge.md`](../../plugins/plugin-dev/docs/migrations/skillcreator-to-skillforge.md)
+>
+> *The optimization recommendations remain valid; only the skill name has changed.*
+
+---
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Improve plugin-dev trigger fidelity, resilience, and coherence through 12 targeted changes across 18 files.

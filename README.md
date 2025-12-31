@@ -6,7 +6,7 @@ A monorepo for developing and maintaining Claude Code plugins. Contains four pro
 
 | Plugin | Version | Description |
 |--------|---------|-------------|
-| **[plugin-dev](plugins/plugin-dev/)** | 1.2.0 | Plugin development toolkit with 11 skills, validation scripts, and guided workflows |
+| **[plugin-dev](plugins/plugin-dev/)** | 1.4.0 | Plugin development toolkit with 12 skills, validation scripts, and guided workflows |
 | **[superpowers](plugins/superpowers/)** | 4.0.3 | Development workflows: TDD, debugging, planning, code review (fork of [obra/superpowers](https://github.com/obra/superpowers)) |
 | **[doc-auditor](plugins/doc-auditor/)** | 1.0.0 | Documentation auditing with 15 issue categories and interactive repair |
 | **[deep-analysis](plugins/deep-analysis/)** | 0.1.0 | Structured decision analysis with MCP-powered semantic search |
@@ -54,7 +54,7 @@ claude --plugin-dir ./plugins/plugin-dev \
 │   ├── plugin-dev/           # Plugin development toolkit
 │   │   ├── commands/         # create, audit, fix, optimize, brainstorm
 │   │   ├── agents/           # creator, validator, reviewer
-│   │   └── skills/           # 11 skills with examples and scripts
+│   │   └── skills/           # 12 skills with examples and scripts
 │   │
 │   ├── superpowers/          # Workflow skills
 │   │   ├── commands/         # brainstorm, write-plan, execute-plan
@@ -78,7 +78,7 @@ claude --plugin-dir ./plugins/plugin-dev \
 
 The toolkit for building Claude Code plugins:
 
-- **11 skills** covering hooks, MCP, commands, agents, settings, validation, and brainstorming
+- **12 skills** covering hooks, MCP, commands, agents, settings, validation, brainstorming, and SkillForge
 - **50+ validation rules** with severity ratings (CRITICAL/WARNING/INFO)
 - **Utility scripts** for schema validation, hook testing, and linting
 - **Guided workflows** for plugin creation, repair, and design exploration

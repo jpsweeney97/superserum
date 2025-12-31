@@ -1,5 +1,14 @@
 # SkillCreator Sync Workflow Design
 
+> **⚠️ SUPERSEDED (2025-12-31):** The upstream repository was renamed from `tripleyak/skill-creator-and-improver` to `tripleyak/SkillForge` and the skill was renamed from `skillcreator` to `skillforge`.
+>
+> - Migration documentation: [`plugins/plugin-dev/docs/migrations/skillcreator-to-skillforge.md`](../../plugins/plugin-dev/docs/migrations/skillcreator-to-skillforge.md)
+> - Current workflow: [`.github/workflows/sync-skillforge.yml`](../../.github/workflows/sync-skillforge.yml)
+>
+> *Original plan preserved below for historical reference.*
+
+---
+
 **Goal:** Keep `plugins/plugin-dev/skills/skillcreator/` synchronized with the upstream repository [tripleyak/skill-creator-and-improver](https://github.com/tripleyak/skill-creator-and-improver).
 
 **Constraints:**

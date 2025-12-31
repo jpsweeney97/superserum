@@ -1,5 +1,14 @@
 # SkillCreator Sync Workflow Implementation Plan
 
+> **⚠️ SUPERSEDED (2025-12-31):** The upstream repository was renamed from `tripleyak/skill-creator-and-improver` to `tripleyak/SkillForge` and the skill was renamed from `skillcreator` to `skillforge`.
+>
+> - Migration documentation: [`plugins/plugin-dev/docs/migrations/skillcreator-to-skillforge.md`](../../plugins/plugin-dev/docs/migrations/skillcreator-to-skillforge.md)
+> - Current workflow: [`.github/workflows/sync-skillforge.yml`](../../.github/workflows/sync-skillforge.yml)
+>
+> *Original plan preserved below for historical reference.*
+
+---
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Create a GitHub Actions workflow that automatically syncs `plugins/plugin-dev/skills/skillcreator/` from upstream releases.

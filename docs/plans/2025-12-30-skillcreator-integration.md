@@ -1,14 +1,16 @@
 # SkillCreator Integration into Plugin-Dev
 
-> **⚠️ SUPERSEDED:** This plan has been replaced by an automated sync workflow approach.
-> See: [2025-12-30-skillcreator-sync-design.md](./2025-12-30-skillcreator-sync-design.md)
+> **⚠️ SUPERSEDED (2025-12-31):** This plan and the subsequent sync workflow have been superseded.
 >
-> The sync workflow automatically keeps plugin-dev's skillcreator in sync with the upstream
-> [tripleyak/skill-creator-and-improver](https://github.com/tripleyak/skill-creator-and-improver) repository.
+> The upstream repository was renamed from `tripleyak/skill-creator-and-improver` to `tripleyak/SkillForge`
+> and the skill was renamed from `skillcreator` to `skillforge`.
+>
+> - Migration documentation: [`plugins/plugin-dev/docs/migrations/skillcreator-to-skillforge.md`](../../plugins/plugin-dev/docs/migrations/skillcreator-to-skillforge.md)
+> - Current workflow: [`.github/workflows/sync-skillforge.yml`](../../.github/workflows/sync-skillforge.yml)
+>
+> *Original plan preserved below for historical reference.*
 
 ---
-
-*Original plan preserved below for reference:*
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
