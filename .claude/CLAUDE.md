@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | Plugin | Purpose |
 |--------|---------|
-| **plugin-dev** | Plugin development toolkit (12 skills, 5 commands, 50+ validation rules) |
+| **plugin-dev** | Plugin development toolkit (12 skills, 6 commands, 50+ validation rules) |
 | **superpowers** | Development workflow: TDD, brainstorming, planning, code review (14 skills) |
 | **doc-auditor** | Documentation audit/repair with 15 issue categories |
 | **deep-analysis** | Structured decision analysis with 6 frameworks and MCP semantic search |
@@ -43,8 +43,11 @@ uv run python -m server                      # Test server locally
 
 ```
 /plugin-dev:create-plugin           # 8-phase guided creation workflow
+/plugin-dev:create-skill            # SkillForge 5-phase skill creation
 /plugin-dev:audit-plugin [path]     # Comprehensive validation (50+ rules)
 /plugin-dev:fix-plugin [path]       # Interactive repair with auto-fixes
+/plugin-dev:optimize-plugin [path]  # Six-lens improvement analysis
+/plugin-dev:brainstorm              # Design exploration before implementation
 ```
 
 ## Architecture
@@ -53,7 +56,7 @@ uv run python -m server                      # Test server locally
 plugins/
 ├── plugin-dev/           # Plugin development toolkit
 │   ├── .claude-plugin/plugin.json
-│   ├── commands/         # create, audit, fix, optimize, brainstorm
+│   ├── commands/         # create-plugin, create-skill, audit, fix, optimize, brainstorm
 │   ├── agents/           # creator, reviewer, validator
 │   └── skills/           # 12 skills with references/, examples/, scripts/
 ├── superpowers/          # Workflow skills (obra/superpowers fork)

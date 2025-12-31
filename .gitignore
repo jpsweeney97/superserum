@@ -4,6 +4,9 @@
 # External repos (cloned for reference, not part of this project)
 skill-creator-and-improver/
 
+# External plugin symlinks (for local development/testing)
+plugins/docs-kb
+
 # OS
 .DS_Store
 
