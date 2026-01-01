@@ -176,9 +176,75 @@ class AgentPanel:
 
     def _run_quality_agent(self) -> AgentResult:
         """Score artifact quality and flag issues."""
-        # Phase 2.3: Placeholder - returns empty
+        import re
+        import uuid
+
+        gaps: list[Gap] = []
+        scanned = 0
+
+        def parse_frontmatter(content: str) -> dict:
+            """Extract YAML frontmatter from markdown."""
+            match = re.match(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
+            if not match:
+                return {}
+            try:
+                import yaml
+
+                return yaml.safe_load(match.group(1)) or {}
+            except Exception:
+                # Simple fallback parsing
+                result = {}
+                for line in match.group(1).split("\n"):
+                    if ":" in line:
+                        key, value = line.split(":", 1)
+                        result[key.strip()] = value.strip()
+                return result
+
+        # Check user skills for quality
+        if self.user_skills_dir.exists():
+            for skill_dir in self.user_skills_dir.iterdir():
+                if not skill_dir.is_dir():
+                    continue
+                skill_md = skill_dir / "SKILL.md"
+                if not skill_md.exists():
+                    continue
+
+                scanned += 1
+                skill_name = skill_dir.name
+                content = skill_md.read_text()
+                frontmatter = parse_frontmatter(content)
+
+                # Check for description
+                if not frontmatter.get("description"):
+                    gaps.append(
+                        Gap(
+                            gap_id=f"gap-quality-{uuid.uuid4().hex[:6]}",
+                            gap_type=GapType.QUALITY_ISSUE,
+                            title=f"Missing description: {skill_name}",
+                            description=f"Skill '{skill_name}' lacks a description field in frontmatter",
+                            source_agent="quality-scorer",
+                            confidence=0.9,
+                            priority=2,
+                        )
+                    )
+
+                # Check content length (excluding frontmatter)
+                body = re.sub(r"^---.*?---\s*", "", content, flags=re.DOTALL)
+                if len(body.strip()) < 100:
+                    gaps.append(
+                        Gap(
+                            gap_id=f"gap-quality-{uuid.uuid4().hex[:6]}",
+                            gap_type=GapType.QUALITY_ISSUE,
+                            title=f"Minimal content: {skill_name}",
+                            description=f"Skill '{skill_name}' has very short content (< 100 chars)",
+                            source_agent="quality-scorer",
+                            confidence=0.8,
+                            priority=3,
+                        )
+                    )
+
         return AgentResult(
             agent_name="quality-scorer",
-            gaps=[],
-            artifacts_scanned=0,
+            gaps=gaps,
+            artifacts_scanned=scanned,
         )

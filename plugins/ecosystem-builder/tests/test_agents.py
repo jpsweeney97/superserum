@@ -251,3 +251,79 @@ class TestWorkflowAnalyzerAgent:
             "hook" in g.description.lower() or g.gap_type == GapType.WORKFLOW_HOLE
             for g in result.gaps
         )
+
+
+class TestQualityScorerAgent:
+    """Tests for quality scorer agent."""
+
+    def test_quality_flags_missing_description(self, tmp_path: Path) -> None:
+        """Quality agent should flag skills without descriptions."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        skill_dir = skills_dir / "no-desc"
+        skill_dir.mkdir()
+        # Skill without description field
+        (skill_dir / "SKILL.md").write_text("---\nname: no-desc\n---\n# No Description")
+
+        panel = AgentPanel(
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+        result = panel._run_quality_agent()
+
+        assert result.agent_name == "quality-scorer"
+        assert any(
+            g.gap_type == GapType.QUALITY_ISSUE and "description" in g.title.lower()
+            for g in result.gaps
+        )
+
+    def test_quality_flags_short_content(self, tmp_path: Path) -> None:
+        """Quality agent should flag skills with minimal content."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        skill_dir = skills_dir / "short-skill"
+        skill_dir.mkdir()
+        # Very short skill
+        (skill_dir / "SKILL.md").write_text("---\nname: short\ndescription: Short\n---\n# S")
+
+        panel = AgentPanel(
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+        result = panel._run_quality_agent()
+
+        assert any(
+            g.gap_type == GapType.QUALITY_ISSUE and "content" in g.description.lower()
+            for g in result.gaps
+        )
+
+    def test_quality_high_score_for_complete_skill(self, tmp_path: Path) -> None:
+        """Quality agent should not flag well-structured skills."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        skill_dir = skills_dir / "complete-skill"
+        skill_dir.mkdir()
+        (skill_dir / "references").mkdir()
+        (skill_dir / "examples").mkdir()
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: complete\ndescription: A complete skill with examples\n---\n"
+            "# Complete Skill\n\n"
+            "This is a complete skill with proper documentation.\n\n"
+            "## Usage\n\nUse this skill when you need to...\n\n"
+            "## Examples\n\nSee the examples directory.\n"
+        )
+
+        panel = AgentPanel(
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+        result = panel._run_quality_agent()
+
+        # Should not flag this skill
+        assert not any(
+            "complete-skill" in g.title
+            for g in result.gaps
+        )
