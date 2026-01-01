@@ -60,10 +60,24 @@ Response: "I'll start an ecosystem-builder run to generate 5 skills."
 
 "The run is in progress. I'll monitor and report when complete."
 
+## Architecture
+
+### Hybrid Generation Strategy
+
+| Gap Complexity | Method | When Used |
+|---------------|--------|-----------|
+| Simple | Direct template | MISSING_SKILL with confidence ≥ 0.7 |
+| Complex | Subagent | WORKFLOW_HOLE, INCOMPLETE_ARTIFACT, or confidence < 0.7 |
+
+Complex gaps use the `SkillGeneratorAgent` which:
+1. Builds a prompt with gap context and type-specific guidance
+2. Invokes Claude Code's Task tool for generation
+3. Validates response structure before staging
+
 ## Limitations
 
-- Subagent generation: Complex gaps return None (subagent invocation not wired)
-- Gap analysis uses heuristics (expected patterns, structural checks)
+- Subagent generation requires Claude Code runtime (mock callable for tests)
 - Skills are staged, not auto-deployed to production
 - Human review required via `ecosystem-builder review`
 - Validation panel checks structure, quality, integration (no semantic analysis)
+- Gap analysis uses heuristics (expected patterns, structural checks)
