@@ -1,6 +1,6 @@
 """Tests for Task tool adapter."""
 
-from lib.task_adapter import create_subagent_callable, SubagentConfig
+from lib.task_adapter import create_mock_callable, create_subagent_callable, SubagentConfig
 
 
 class TestSubagentConfig:
@@ -12,7 +12,8 @@ class TestSubagentConfig:
 
         assert config.subagent_type == "general-purpose"
         assert config.model == "sonnet"
-        assert config.timeout_ms > 0
+        assert config.timeout_ms == 60000
+        assert config.description == "Generate skill from gap"
 
     def test_custom_config(self) -> None:
         """Config accepts custom values."""
@@ -46,3 +47,9 @@ class TestTaskAdapter:
         # The callable exists but can't actually invoke Task tool in tests
         # We verify the structure is correct
         assert callable_fn is not None
+
+    def test_mock_callable_returns_response(self) -> None:
+        """Mock callable returns the given response."""
+        mock_callable = create_mock_callable("test response")
+        result = mock_callable("any prompt")
+        assert result == "test response"
