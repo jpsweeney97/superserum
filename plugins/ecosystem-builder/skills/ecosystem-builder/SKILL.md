@@ -62,7 +62,8 @@ Response: "I'll start an ecosystem-builder run to generate 5 skills."
 
 ## Limitations
 
-- Phase 1: Gap analysis returns empty (not yet implemented)
-- Phase 1: Build function returns None (not yet implemented)
+- Phase 2: Build function returns None (not yet implemented)
+- Phase 2: Validation always passes (not yet implemented)
+- Gap analysis uses heuristics (expected patterns, structural checks)
 - Skills will be staged, not deployed to production
 - Human review required via `ecosystem-builder review`
