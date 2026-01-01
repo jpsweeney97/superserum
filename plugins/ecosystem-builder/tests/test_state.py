@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from lib.state import StateManager, RunManifest
+from lib.logging import EventLogger, Event
 
 
 class TestStateManager:
@@ -44,3 +45,36 @@ class TestStateManager:
         current = tmp_path / "current"
         assert current.is_symlink()
         assert current.resolve() == (tmp_path / run.run_id).resolve()
+
+
+class TestEventLogger:
+    """Tests for EventLogger."""
+
+    def test_log_event_appends_to_file(self, tmp_path: Path) -> None:
+        """Events should be appended to log.jsonl."""
+        log_file = tmp_path / "log.jsonl"
+        logger = EventLogger(log_file)
+
+        logger.log("run_started", {"artifact_limit": 5})
+        logger.log("gap_found", {"gap_id": "gap-001"})
+
+        lines = log_file.read_text().strip().split("\n")
+        assert len(lines) == 2
+
+        event1 = json.loads(lines[0])
+        assert event1["type"] == "run_started"
+        assert event1["data"]["artifact_limit"] == 5
+        assert "timestamp" in event1
+
+    def test_read_events_returns_all(self, tmp_path: Path) -> None:
+        """Reading should return all logged events."""
+        log_file = tmp_path / "log.jsonl"
+        logger = EventLogger(log_file)
+
+        logger.log("event1", {})
+        logger.log("event2", {})
+
+        events = logger.read_all()
+        assert len(events) == 2
+        assert events[0].type == "event1"
+        assert events[1].type == "event2"
