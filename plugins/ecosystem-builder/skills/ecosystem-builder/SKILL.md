@@ -62,8 +62,8 @@ Response: "I'll start an ecosystem-builder run to generate 5 skills."
 
 ## Limitations
 
-- Phase 2: Build function returns None (not yet implemented)
-- Phase 2: Validation always passes (not yet implemented)
+- Subagent generation: Complex gaps return None (subagent invocation not wired)
 - Gap analysis uses heuristics (expected patterns, structural checks)
-- Skills will be staged, not deployed to production
+- Skills are staged, not auto-deployed to production
 - Human review required via `ecosystem-builder review`
+- Validation panel checks structure, quality, integration (no semantic analysis)
