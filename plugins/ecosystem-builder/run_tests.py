@@ -137,6 +137,51 @@ def test_staging_manager():
     return 4  # tests passed
 
 
+def test_agent_result():
+    """Test AgentResult functionality."""
+    from lib.agents import AgentResult
+    from lib.state import Gap, GapType
+
+    print("\nTesting AgentResult...")
+
+    # Test creation with gaps
+    gaps = [
+        Gap(
+            gap_id="gap-001",
+            gap_type=GapType.MISSING_SKILL,
+            title="Test gap",
+            description="Description",
+            source_agent="catalog",
+            confidence=0.8,
+            priority=1,
+        )
+    ]
+    result = AgentResult(
+        agent_name="catalog",
+        gaps=gaps,
+        artifacts_scanned=15,
+        error=None,
+    )
+    assert result.agent_name == "catalog", "agent_name should match"
+    assert len(result.gaps) == 1, "Should have 1 gap"
+    assert result.artifacts_scanned == 15, "artifacts_scanned should match"
+    assert result.success is True, "success should be True when no error"
+    print("  ✓ AgentResult stores gaps and metadata")
+
+    # Test with error
+    result = AgentResult(
+        agent_name="catalog",
+        gaps=[],
+        artifacts_scanned=0,
+        error="Failed to scan skills directory",
+    )
+    assert result.success is False, "success should be False with error"
+    assert result.error == "Failed to scan skills directory"
+    print("  ✓ AgentResult tracks errors correctly")
+
+    return 2  # tests passed
+
+
 def test_orchestrator():
     """Test Orchestrator functionality."""
     from lib.orchestrator import Orchestrator
@@ -206,6 +251,7 @@ def main():
         total += test_state_manager()
         total += test_event_logger()
         total += test_staging_manager()
+        total += test_agent_result()
         total += test_orchestrator()
 
         print("\n" + "=" * 60)
