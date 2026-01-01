@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from lib.state import Gap
+from lib.state import Gap, GapType
 
 
 @dataclass
@@ -55,11 +55,59 @@ class AgentPanel:
 
     def _run_catalog_agent(self) -> AgentResult:
         """Catalog existing artifacts and find missing skills."""
-        # Phase 2.1: Placeholder - returns empty
+        import uuid
+
+        existing_skills: set[str] = set()
+        scanned = 0
+
+        # Scan user skills
+        if self.user_skills_dir.exists():
+            for skill_dir in self.user_skills_dir.iterdir():
+                if skill_dir.is_dir() and (skill_dir / "SKILL.md").exists():
+                    existing_skills.add(skill_dir.name.lower())
+                    scanned += 1
+
+        # Scan plugin skills
+        if self.plugins_dir.exists():
+            for plugin_dir in self.plugins_dir.iterdir():
+                if not plugin_dir.is_dir():
+                    continue
+                skills_path = plugin_dir / "skills"
+                if skills_path.exists():
+                    for skill_dir in skills_path.iterdir():
+                        if skill_dir.is_dir() and (skill_dir / "SKILL.md").exists():
+                            existing_skills.add(skill_dir.name.lower())
+                            scanned += 1
+
+        # Common skill patterns to check for
+        expected_patterns = [
+            ("testing", "TDD or testing workflow skill"),
+            ("refactoring", "Code refactoring patterns skill"),
+            ("documentation", "Documentation generation skill"),
+            ("code-review", "Code review workflow skill"),
+            ("deployment", "Deployment automation skill"),
+        ]
+
+        gaps: list[Gap] = []
+        for pattern, description in expected_patterns:
+            # Check if any existing skill matches this pattern
+            if not any(pattern in skill for skill in existing_skills):
+                gaps.append(
+                    Gap(
+                        gap_id=f"gap-catalog-{uuid.uuid4().hex[:6]}",
+                        gap_type=GapType.MISSING_SKILL,
+                        title=f"Missing {pattern} skill",
+                        description=description,
+                        source_agent="catalog",
+                        confidence=0.6,
+                        priority=2,
+                    )
+                )
+
         return AgentResult(
             agent_name="catalog",
-            gaps=[],
-            artifacts_scanned=0,
+            gaps=gaps,
+            artifacts_scanned=scanned,
         )
 
     def _run_workflow_agent(self) -> AgentResult:

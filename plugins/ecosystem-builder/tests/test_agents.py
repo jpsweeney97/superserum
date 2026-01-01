@@ -118,7 +118,9 @@ class TestAgentPanel:
 
         results = [
             AgentResult(agent_name="catalog", gaps=[gap1], artifacts_scanned=5),
-            AgentResult(agent_name="workflow-analyzer", gaps=[gap2], artifacts_scanned=3),
+            AgentResult(
+                agent_name="workflow-analyzer", gaps=[gap2], artifacts_scanned=3
+            ),
             AgentResult(agent_name="quality-scorer", gaps=[gap3], artifacts_scanned=5),
         ]
 
@@ -128,3 +130,76 @@ class TestAgentPanel:
         # Higher confidence version should be kept
         gap_001 = next(g for g in merged if g.gap_id == "gap-001")
         assert gap_001.confidence == 0.9
+
+
+class TestCatalogAgent:
+    """Tests for catalog agent functionality."""
+
+    def test_catalog_scans_user_skills(self, tmp_path: Path) -> None:
+        """Catalog agent should scan user skills directory."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        # Create two skills
+        for name in ["skill-a", "skill-b"]:
+            skill_dir = skills_dir / name
+            skill_dir.mkdir()
+            (skill_dir / "SKILL.md").write_text(
+                f"---\nname: {name}\ndescription: Test\n---\n# {name}"
+            )
+
+        panel = AgentPanel(
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+        result = panel._run_catalog_agent()
+
+        assert result.agent_name == "catalog"
+        assert result.artifacts_scanned == 2
+        assert result.success is True
+
+    def test_catalog_scans_plugin_skills(self, tmp_path: Path) -> None:
+        """Catalog agent should scan plugin skills."""
+        plugins_dir = tmp_path / "plugins"
+        plugins_dir.mkdir()
+
+        # Create plugin with skills
+        plugin_dir = plugins_dir / "my-plugin"
+        plugin_dir.mkdir()
+        skills_dir = plugin_dir / "skills" / "my-skill"
+        skills_dir.mkdir(parents=True)
+        (skills_dir / "SKILL.md").write_text("---\nname: my-skill\n---\n# My Skill")
+
+        panel = AgentPanel(
+            user_skills_dir=tmp_path / "user-skills",
+            plugins_dir=plugins_dir,
+        )
+        result = panel._run_catalog_agent()
+
+        assert result.artifacts_scanned >= 1
+
+    def test_catalog_identifies_missing_common_skills(self, tmp_path: Path) -> None:
+        """Catalog agent should flag missing common skill patterns."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        # Only one skill - should flag others as missing
+        skill_dir = skills_dir / "debugging"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: debugging\ndescription: Debug\n---\n# Debug"
+        )
+
+        panel = AgentPanel(
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+        result = panel._run_catalog_agent()
+
+        # Should find gaps for expected but missing patterns
+        assert len(result.gaps) > 0
+        gap_titles = [g.title.lower() for g in result.gaps]
+        # Common patterns that should be suggested
+        assert any(
+            "test" in t or "refactor" in t or "documentation" in t for t in gap_titles
+        )
