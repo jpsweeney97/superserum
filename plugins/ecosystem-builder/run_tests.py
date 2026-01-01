@@ -820,6 +820,50 @@ def test_prompts():
     return 3  # tests passed
 
 
+def test_task_adapter():
+    """Test Task tool adapter functionality."""
+    from lib.task_adapter import create_subagent_callable, SubagentConfig, create_mock_callable
+
+    print("\nTesting TaskAdapter...")
+
+    # Test default config
+    config = SubagentConfig()
+    assert config.subagent_type == "general-purpose", "Default subagent_type should be general-purpose"
+    assert config.model == "sonnet", "Default model should be sonnet"
+    assert config.timeout_ms > 0, "Default timeout should be positive"
+    print("  ✓ default_config")
+
+    # Test custom config
+    config = SubagentConfig(
+        subagent_type="Explore",
+        model="opus",
+        timeout_ms=120000,
+    )
+    assert config.subagent_type == "Explore", "Custom subagent_type should be Explore"
+    assert config.model == "opus", "Custom model should be opus"
+    assert config.timeout_ms == 120000, "Custom timeout should be 120000"
+    print("  ✓ custom_config")
+
+    # Test create_callable returns function
+    callable_fn = create_subagent_callable()
+    assert callable(callable_fn), "create_subagent_callable should return a callable"
+    print("  ✓ create_callable_returns_function")
+
+    # Test callable with config
+    config = SubagentConfig()
+    callable_fn = create_subagent_callable(config)
+    assert callable_fn is not None, "Callable should not be None"
+    print("  ✓ callable_includes_prompt")
+
+    # Test mock callable
+    mock = create_mock_callable("mock response")
+    result = mock("test prompt")
+    assert result == "mock response", "Mock should return configured response"
+    print("  ✓ mock_callable_works")
+
+    return 5  # tests passed
+
+
 def main():
     """Run all tests."""
     print("=" * 60)
@@ -841,6 +885,7 @@ def main():
         total += test_skill_generation()
         total += test_subagent_generation()
         total += test_prompts()
+        total += test_task_adapter()
 
         print("\n" + "=" * 60)
         print(f"ALL TESTS PASSED: {total}/{total}")
