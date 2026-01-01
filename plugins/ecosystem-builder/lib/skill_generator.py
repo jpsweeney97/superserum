@@ -61,13 +61,26 @@ class SkillGeneratorAgent:
                 error=f"LLM generation failed: {e}",
             )
 
-        # Validate response has required structure
-        if not content or "---" not in content:
+        # Validate response has required structure (YAML frontmatter)
+        # Must start with --- and have a closing --- delimiter
+        if not content or not content.strip().startswith("---"):
             return GenerationResult(
                 name=name,
                 gap_id=gap.gap_id,
                 content=None,
                 error="LLM response missing required YAML frontmatter",
+            )
+
+        # Check for closing frontmatter delimiter (second ---)
+        stripped = content.strip()
+        first_delimiter_end = stripped.index("---") + 3
+        remaining = stripped[first_delimiter_end:]
+        if "---" not in remaining:
+            return GenerationResult(
+                name=name,
+                gap_id=gap.gap_id,
+                content=None,
+                error="LLM response missing closing YAML frontmatter delimiter",
             )
 
         return GenerationResult(

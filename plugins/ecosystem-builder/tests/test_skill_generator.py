@@ -118,3 +118,57 @@ Skill for CI/CD integration workflows.
 
         assert result.success is False
         assert "LLM unavailable" in result.error or "unavailable" in result.error.lower()
+
+    def test_generate_handles_invalid_response(self) -> None:
+        """Generation handles LLM response without frontmatter."""
+        agent = SkillGeneratorAgent(llm_callable=lambda prompt: "No frontmatter here")
+        gap = Gap(
+            gap_id="gap-1",
+            gap_type=GapType.WORKFLOW_HOLE,
+            title="test",
+            description="Test",
+            source_agent="test",
+            confidence=0.5,
+            priority=1,
+        )
+
+        result = agent.generate(gap.to_dict())
+
+        assert result.success is False
+        assert "frontmatter" in result.error.lower()
+
+    def test_generate_handles_unclosed_frontmatter(self) -> None:
+        """Generation handles LLM response with unclosed frontmatter."""
+        agent = SkillGeneratorAgent(llm_callable=lambda prompt: "---\nname: test\nNo closing delimiter")
+        gap = Gap(
+            gap_id="gap-1",
+            gap_type=GapType.WORKFLOW_HOLE,
+            title="test",
+            description="Test",
+            source_agent="test",
+            confidence=0.5,
+            priority=1,
+        )
+
+        result = agent.generate(gap.to_dict())
+
+        assert result.success is False
+        assert "frontmatter" in result.error.lower()
+
+    def test_generate_rejects_embedded_delimiter(self) -> None:
+        """Generation rejects content with --- not at start."""
+        agent = SkillGeneratorAgent(llm_callable=lambda prompt: "Hello --- world ---")
+        gap = Gap(
+            gap_id="gap-1",
+            gap_type=GapType.WORKFLOW_HOLE,
+            title="test",
+            description="Test",
+            source_agent="test",
+            confidence=0.5,
+            priority=1,
+        )
+
+        result = agent.generate(gap.to_dict())
+
+        assert result.success is False
+        assert "frontmatter" in result.error.lower()
