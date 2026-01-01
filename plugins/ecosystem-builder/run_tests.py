@@ -573,6 +573,53 @@ Additional content here to meet minimum length requirements.
     return 8  # tests passed
 
 
+def test_skill_generator():
+    """Test SkillGeneratorAgent functionality."""
+    from lib.skill_generator import SkillGeneratorAgent, GenerationResult
+    from lib.state import Gap, GapType
+
+    print("\nTesting SkillGeneratorAgent...")
+
+    # Test GenerationResult success
+    result = GenerationResult(
+        name="test-skill",
+        content="---\nname: test\n---\n# Test",
+        gap_id="gap-123",
+    )
+    assert result.success is True, "Result with content should be success"
+    assert result.error is None, "Success result should have no error"
+    print("  ✓ GenerationResult tracks success state")
+
+    # Test GenerationResult failure
+    result = GenerationResult(
+        name="test-skill",
+        content=None,
+        gap_id="gap-123",
+        error="Generation failed: timeout",
+    )
+    assert result.success is False, "Result without content should not be success"
+    assert "timeout" in result.error, "Error should contain timeout"
+    print("  ✓ GenerationResult tracks failure state")
+
+    # Test agent accepts gap dict
+    agent = SkillGeneratorAgent()
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.WORKFLOW_HOLE,
+        title="ci-cd-integration",
+        description="Complex CI/CD workflow integration",
+        source_agent="workflow",
+        confidence=0.5,
+        priority=1,
+    )
+    result = agent.generate(gap.to_dict())
+    assert isinstance(result, GenerationResult), "Should return GenerationResult"
+    assert result.gap_id == "gap-1", "gap_id should match"
+    print("  ✓ Agent.generate() accepts gap as dict")
+
+    return 3  # tests passed
+
+
 def main():
     """Run all tests."""
     print("=" * 60)
@@ -590,6 +637,7 @@ def main():
         total += test_skill_builder()
         total += test_direct_generation()
         total += test_validator()
+        total += test_skill_generator()
 
         print("\n" + "=" * 60)
         print(f"ALL TESTS PASSED: {total}/{total}")
