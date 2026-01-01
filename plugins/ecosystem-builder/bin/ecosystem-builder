@@ -37,8 +37,11 @@ def cli() -> None:
 @click.option("--artifacts", "-n", type=int, required=True, help="Number of artifacts to build")
 @click.option("--hours", type=float, default=4.0, help="Maximum hours to run")
 @click.option("--cost", type=float, default=50.0, help="Maximum cost in USD")
-def run(artifacts: int, hours: float, cost: float) -> None:
+@click.option("--dry-run", is_flag=True, help="Create run without executing")
+def run(artifacts: int, hours: float, cost: float, dry_run: bool) -> None:
     """Start a new ecosystem-builder run."""
+    from lib.orchestrator import Orchestrator
+
     manager = StateManager()
     manifest = manager.create_run(
         artifact_limit=artifacts,
@@ -51,7 +54,20 @@ def run(artifacts: int, hours: float, cost: float) -> None:
     click.echo(f"  Hours: 0.0/{hours}")
     click.echo(f"  Cost: $0.00/${cost:.2f}")
     click.echo()
-    click.echo("Run started. Use 'ecosystem-builder status' to check progress.")
+
+    if dry_run:
+        click.echo("Dry run - not executing. Use 'ecosystem-builder status' to check.")
+        return
+
+    click.echo("Starting orchestrator...")
+    orchestrator = Orchestrator(manifest=manifest)
+    orchestrator.run()
+
+    click.echo()
+    click.echo(f"Run complete: {manifest.completion_reason}")
+    click.echo(f"  Built: {manifest.progress.built}")
+    click.echo(f"  Passed: {manifest.progress.passed}")
+    click.echo(f"  Failed: {manifest.progress.failed}")
 
 
 @cli.command()
