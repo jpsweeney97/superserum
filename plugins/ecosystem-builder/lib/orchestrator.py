@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from lib.agents import AgentPanel
+from lib.builder import SkillBuilder
 from lib.logging import EventLogger
 from lib.staging import StagingManager
 from lib.state import RunManifest
@@ -37,6 +38,7 @@ class Orchestrator:
             user_skills_dir=user_skills_dir,
             plugins_dir=plugins_dir,
         )
+        self.builder = SkillBuilder()
 
     def run(self) -> None:
         """Execute the main control loop."""
@@ -140,9 +142,21 @@ class Orchestrator:
         return gaps
 
     def _build(self, gap: dict[str, Any]) -> dict[str, Any] | None:
-        """Build an artifact for a gap. Override in subclass or mock."""
-        # Placeholder - Phase 2 will invoke SkillForge
-        return None
+        """Build an artifact for a gap using SkillBuilder."""
+        result = self.builder.build(gap)
+
+        if not result.success:
+            self.logger.log("build_failed", {
+                "gap_id": gap.get("gap_id"),
+                "error": result.error,
+            })
+            return None
+
+        return {
+            "name": result.name,
+            "content": result.content,
+            "method": result.method,
+        }
 
     def _validate(self, artifact: dict[str, Any]) -> bool:
         """Validate an artifact. Override in subclass or mock."""

@@ -122,3 +122,62 @@ class TestOrchestratorAnalyze:
         import json
         opportunities = json.loads(opportunities_file.read_text())
         assert isinstance(opportunities, list)
+
+
+class TestOrchestratorBuild:
+    """Tests for orchestrator build phase."""
+
+    def test_build_uses_skill_builder(self, tmp_path: Path) -> None:
+        """_build should use SkillBuilder and return artifact dict."""
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+            user_skills_dir=tmp_path / "skills",
+            plugins_dir=tmp_path / "plugins",
+        )
+
+        gap = {
+            "gap_id": "gap-1",
+            "gap_type": "missing_skill",
+            "title": "testing",
+            "description": "Add testing skill",
+            "source_agent": "catalog",
+            "confidence": 0.9,
+            "priority": 2,
+        }
+
+        artifact = orchestrator._build(gap)
+
+        assert artifact is not None
+        assert "name" in artifact
+        assert "content" in artifact
+        assert artifact["name"] == "testing"
+
+    def test_build_returns_none_on_failure(self, tmp_path: Path) -> None:
+        """_build should return None when builder fails."""
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+        )
+
+        # Complex gap triggers subagent (which returns error)
+        gap = {
+            "gap_id": "gap-1",
+            "gap_type": "workflow_hole",
+            "title": "complex-workflow",
+            "description": "Complex CI/CD workflow",
+            "source_agent": "workflow",
+            "confidence": 0.5,
+            "priority": 1,
+        }
+
+        artifact = orchestrator._build(gap)
+
+        # Subagent not implemented, should return None
+        assert artifact is None
