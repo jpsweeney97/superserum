@@ -11,6 +11,7 @@ from lib.builder import SkillBuilder
 from lib.logging import EventLogger
 from lib.staging import StagingManager
 from lib.state import RunManifest
+from lib.validator import ValidationPanel
 
 
 class Orchestrator:
@@ -39,6 +40,7 @@ class Orchestrator:
             plugins_dir=plugins_dir,
         )
         self.builder = SkillBuilder()
+        self.validator = ValidationPanel(existing_skills_dir=user_skills_dir)
 
     def run(self) -> None:
         """Execute the main control loop."""
@@ -159,6 +161,18 @@ class Orchestrator:
         }
 
     def _validate(self, artifact: dict[str, Any]) -> bool:
-        """Validate an artifact. Override in subclass or mock."""
-        # Placeholder - Phase 2 will implement validation panel
-        return True
+        """Validate an artifact using ValidationPanel."""
+        result = self.validator.validate(
+            name=artifact["name"],
+            content=artifact["content"],
+        )
+
+        if not result.passed:
+            for check in result.failed_checks:
+                self.logger.log("validation_failed", {
+                    "artifact": artifact["name"],
+                    "check": check.name,
+                    "issues": check.issues,
+                })
+
+        return result.passed

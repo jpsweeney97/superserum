@@ -349,6 +349,80 @@ def test_direct_generation():
     return 2  # tests passed
 
 
+def test_orchestrator_validate():
+    """Test Orchestrator validate phase."""
+    from lib.orchestrator import Orchestrator
+    from lib.state import StateManager
+
+    print("\nTesting Orchestrator validate phase...")
+
+    # Test valid artifact passes
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+
+        artifact = {
+            "name": "test-skill",
+            "content": """---
+name: test-skill
+description: Use when working with "testing" patterns
+---
+
+# Test Skill
+
+## Overview
+
+This skill provides testing guidance with sufficient content length.
+
+## When to Use
+
+- Testing patterns needed
+- Unit test guidance
+
+## Process
+
+Follow testing best practices and patterns for quality code.
+""",
+        }
+
+        passed = orchestrator._validate(artifact)
+        assert passed is True, "Valid artifact should pass validation"
+        print("  ✓ valid artifact passes validation")
+
+    # Test invalid artifact fails
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+        )
+
+        artifact = {
+            "name": "bad-skill",
+            "content": "No frontmatter here",  # Invalid
+        }
+
+        passed = orchestrator._validate(artifact)
+        assert passed is False, "Invalid artifact should fail validation"
+        print("  ✓ invalid artifact fails validation")
+
+    return 2  # tests passed
+
+
 def test_validator():
     """Test ValidationPanel functionality."""
     from lib.validator import ValidationPanel
@@ -512,6 +586,7 @@ def main():
         total += test_staging_manager()
         total += test_agent_result()
         total += test_orchestrator()
+        total += test_orchestrator_validate()
         total += test_skill_builder()
         total += test_direct_generation()
         total += test_validator()

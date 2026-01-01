@@ -181,3 +181,69 @@ class TestOrchestratorBuild:
 
         # Subagent not implemented, should return None
         assert artifact is None
+
+
+class TestOrchestratorValidate:
+    """Tests for orchestrator validate phase."""
+
+    def test_validate_uses_validation_panel(self, tmp_path: Path) -> None:
+        """_validate should use ValidationPanel."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+
+        artifact = {
+            "name": "test-skill",
+            "content": """---
+name: test-skill
+description: Use when working with "testing" patterns
+---
+
+# Test Skill
+
+## Overview
+
+This skill provides testing guidance with sufficient content length.
+
+## When to Use
+
+- Testing patterns needed
+- Unit test guidance
+
+## Process
+
+Follow testing best practices and patterns for quality code.
+""",
+        }
+
+        passed = orchestrator._validate(artifact)
+
+        assert passed is True
+
+    def test_validate_rejects_invalid_artifact(self, tmp_path: Path) -> None:
+        """_validate should reject artifacts that fail checks."""
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+        )
+
+        artifact = {
+            "name": "bad-skill",
+            "content": "No frontmatter here",  # Invalid
+        }
+
+        passed = orchestrator._validate(artifact)
+
+        assert passed is False
