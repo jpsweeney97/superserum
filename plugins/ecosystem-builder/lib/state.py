@@ -59,6 +59,31 @@ class Gap:
 
 
 @dataclass
+class BuildResult:
+    """Result of building an artifact."""
+
+    name: str
+    gap_id: str
+    content: str | None = None
+    error: str | None = None
+    method: Literal["direct", "subagent"] = "direct"
+
+    @property
+    def success(self) -> bool:
+        return self.content is not None and self.error is None
+
+    def to_dict(self) -> dict:
+        """Serialize to dict."""
+        return {
+            "name": self.name,
+            "gap_id": self.gap_id,
+            "content": self.content,
+            "error": self.error,
+            "method": self.method,
+        }
+
+
+@dataclass
 class BudgetItem:
     """A single budget constraint."""
 

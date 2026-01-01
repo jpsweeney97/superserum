@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from lib.state import StateManager, RunManifest, Gap, GapType
+from lib.state import StateManager, RunManifest, Gap, GapType, BuildResult
 from lib.logging import EventLogger, Event
 
 
@@ -128,3 +128,45 @@ class TestGap:
         gap = Gap.from_dict(data)
         assert gap.gap_type == GapType.WORKFLOW_HOLE
         assert gap.title == "No pre-commit validation"
+
+
+class TestBuildResult:
+    """Tests for BuildResult dataclass."""
+
+    def test_success_result(self) -> None:
+        """Successful build has content and no error."""
+        result = BuildResult(
+            name="test-skill",
+            content="---\nname: test\n---\n# Test",
+            gap_id="gap-123",
+        )
+
+        assert result.success is True
+        assert result.name == "test-skill"
+        assert result.error is None
+
+    def test_failure_result(self) -> None:
+        """Failed build has error and no content."""
+        result = BuildResult(
+            name="test-skill",
+            content=None,
+            gap_id="gap-123",
+            error="Generation failed",
+        )
+
+        assert result.success is False
+        assert result.content is None
+        assert result.error == "Generation failed"
+
+    def test_to_dict_serialization(self) -> None:
+        """BuildResult should serialize to dict."""
+        result = BuildResult(
+            name="test-skill",
+            content="# Content",
+            gap_id="gap-123",
+            method="direct",
+        )
+        data = result.to_dict()
+
+        assert data["name"] == "test-skill"
+        assert data["method"] == "direct"
