@@ -97,10 +97,61 @@ def status() -> None:
 
 
 @cli.command()
-def review() -> None:
-    """Review staged artifacts (placeholder)."""
-    click.echo("Review command not yet implemented.")
-    click.echo("Staged artifacts will appear in ~/.claude/ecosystem-builder/staging/")
+@click.option("--all", "show_all", is_flag=True, help="Show all staged artifacts")
+@click.option("--accept", type=str, help="Accept artifact by name")
+@click.option("--reject", type=str, help="Reject artifact by name")
+@click.option("--reason", type=str, default="", help="Rejection reason")
+def review(show_all: bool, accept: str, reject: str, reason: str) -> None:
+    """Review staged artifacts."""
+    from lib.staging import StagingManager
+
+    staging = StagingManager()
+    artifacts = staging.list_staged()
+
+    if accept:
+        try:
+            prod_path = staging.accept(accept)
+            click.echo(f"✓ Accepted '{accept}' → {prod_path}")
+        except FileNotFoundError:
+            click.echo(f"✗ Artifact not found: {accept}", err=True)
+            raise SystemExit(1)
+        return
+
+    if reject:
+        try:
+            rejected_path = staging.reject(reject, reason=reason)
+            click.echo(f"✗ Rejected '{reject}' → {rejected_path}")
+        except FileNotFoundError:
+            click.echo(f"✗ Artifact not found: {reject}", err=True)
+            raise SystemExit(1)
+        return
+
+    # List staged artifacts
+    if not artifacts:
+        click.echo("No staged artifacts.")
+        click.echo("Run 'ecosystem-builder run --artifacts N' to generate skills.")
+        return
+
+    click.echo(f"Staged artifacts ({len(artifacts)}):\n")
+
+    for artifact in artifacts:
+        click.echo(f"  {artifact.name}")
+        click.echo(f"    Type: {artifact.artifact_type}")
+        click.echo(f"    Run: {artifact.run_id}")
+        click.echo(f"    Gap: {artifact.gap_id}")
+        click.echo(f"    Staged: {artifact.staged_at[:19]}")
+
+        # Show preview if --all
+        if show_all:
+            skill_file = artifact.path / "SKILL.md"
+            if skill_file.exists():
+                preview = skill_file.read_text()[:200]
+                click.echo(f"    Preview: {preview}...")
+        click.echo()
+
+    click.echo("Commands:")
+    click.echo("  ecosystem-builder review --accept NAME")
+    click.echo("  ecosystem-builder review --reject NAME --reason 'Why'")
 
 
 if __name__ == "__main__":
