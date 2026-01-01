@@ -6,8 +6,56 @@ import json
 import uuid
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
+from enum import Enum
 from pathlib import Path
 from typing import Literal
+
+
+class GapType(Enum):
+    """Types of ecosystem gaps."""
+
+    MISSING_SKILL = "missing_skill"
+    INCOMPLETE_ARTIFACT = "incomplete_artifact"
+    WORKFLOW_HOLE = "workflow_hole"
+    QUALITY_ISSUE = "quality_issue"
+
+
+@dataclass
+class Gap:
+    """A detected gap in the ecosystem."""
+
+    gap_id: str
+    gap_type: GapType
+    title: str
+    description: str
+    source_agent: str
+    confidence: float  # 0.0 to 1.0
+    priority: int  # 1 = highest
+
+    def to_dict(self) -> dict:
+        """Serialize to dict for JSON storage."""
+        return {
+            "gap_id": self.gap_id,
+            "gap_type": self.gap_type.value,
+            "title": self.title,
+            "description": self.description,
+            "source_agent": self.source_agent,
+            "confidence": self.confidence,
+            "priority": self.priority,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Gap":
+        """Deserialize from dict."""
+        return cls(
+            gap_id=data["gap_id"],
+            gap_type=GapType(data["gap_type"]),
+            title=data["title"],
+            description=data["description"],
+            source_agent=data["source_agent"],
+            confidence=data["confidence"],
+            priority=data["priority"],
+        )
 
 
 @dataclass

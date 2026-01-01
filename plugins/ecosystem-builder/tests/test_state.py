@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from lib.state import StateManager, RunManifest
+from lib.state import StateManager, RunManifest, Gap, GapType
 from lib.logging import EventLogger, Event
 
 
@@ -78,3 +78,53 @@ class TestEventLogger:
         assert len(events) == 2
         assert events[0].type == "event1"
         assert events[1].type == "event2"
+
+
+class TestGap:
+    """Tests for Gap dataclass."""
+
+    def test_gap_creation(self) -> None:
+        """Gap should store all required fields."""
+        gap = Gap(
+            gap_id="gap-001",
+            gap_type=GapType.MISSING_SKILL,
+            title="TDD workflow for Go projects",
+            description="No skill exists for Go-specific TDD workflow",
+            source_agent="workflow-analyzer",
+            confidence=0.8,
+            priority=1,
+        )
+        assert gap.gap_id == "gap-001"
+        assert gap.gap_type == GapType.MISSING_SKILL
+        assert gap.confidence == 0.8
+
+    def test_gap_to_dict(self) -> None:
+        """Gap should serialize to dict."""
+        gap = Gap(
+            gap_id="gap-002",
+            gap_type=GapType.INCOMPLETE_ARTIFACT,
+            title="Missing tests for handoff skill",
+            description="handoff skill has no test coverage",
+            source_agent="quality-scorer",
+            confidence=0.9,
+            priority=2,
+        )
+        data = gap.to_dict()
+        assert data["gap_id"] == "gap-002"
+        assert data["gap_type"] == "incomplete_artifact"
+        assert data["source_agent"] == "quality-scorer"
+
+    def test_gap_from_dict(self) -> None:
+        """Gap should deserialize from dict."""
+        data = {
+            "gap_id": "gap-003",
+            "gap_type": "workflow_hole",
+            "title": "No pre-commit validation",
+            "description": "Common workflow has no hook",
+            "source_agent": "workflow-analyzer",
+            "confidence": 0.7,
+            "priority": 3,
+        }
+        gap = Gap.from_dict(data)
+        assert gap.gap_type == GapType.WORKFLOW_HOLE
+        assert gap.title == "No pre-commit validation"
