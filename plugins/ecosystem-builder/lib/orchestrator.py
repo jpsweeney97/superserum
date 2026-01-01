@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from lib.agents import AgentPanel
 from lib.builder import SkillBuilder
@@ -23,6 +23,7 @@ class Orchestrator:
         staging_dir: Path | None = None,
         user_skills_dir: Path | None = None,
         plugins_dir: Path | None = None,
+        subagent_callable: Callable[[str], str] | None = None,
     ) -> None:
         self.manifest = manifest
         self.logger = EventLogger(manifest.run_dir / "log.jsonl")
@@ -39,7 +40,7 @@ class Orchestrator:
             user_skills_dir=user_skills_dir,
             plugins_dir=plugins_dir,
         )
-        self.builder = SkillBuilder()
+        self.builder = SkillBuilder(subagent_callable=subagent_callable)
         self.validator = ValidationPanel(existing_skills_dir=user_skills_dir)
 
     def run(self) -> None:

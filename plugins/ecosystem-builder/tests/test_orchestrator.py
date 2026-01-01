@@ -247,3 +247,60 @@ Follow testing best practices and patterns for quality code.
         passed = orchestrator._validate(artifact)
 
         assert passed is False
+
+
+class TestOrchestratorSubagent:
+    """Tests for orchestrator subagent integration."""
+
+    def test_orchestrator_passes_callable_to_builder(self, tmp_path: Path) -> None:
+        """Orchestrator wires subagent callable to SkillBuilder."""
+        mock_skill = """---
+name: ci-cd-integration
+description: Use when setting up "CI/CD" workflows.
+---
+
+# CI/CD Integration
+
+## Overview
+
+Skill for CI/CD workflows.
+
+## When to Use
+
+- CI/CD pipeline setup
+- Deployment automation
+
+## Process
+
+1. Configure
+2. Deploy
+"""
+
+        def mock_callable(prompt: str) -> str:
+            return mock_skill
+
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+            subagent_callable=mock_callable,
+        )
+
+        # Complex gap should use subagent
+        gap = {
+            "gap_id": "gap-1",
+            "gap_type": "workflow_hole",
+            "title": "ci-cd-integration",
+            "description": "Complex CI/CD workflow",
+            "source_agent": "workflow",
+            "confidence": 0.5,
+            "priority": 1,
+        }
+
+        artifact = orchestrator._build(gap)
+
+        assert artifact is not None
+        assert artifact["method"] == "subagent"
+        assert "ci-cd-integration" in artifact["content"]
