@@ -63,3 +63,62 @@ class TestOrchestrator:
         assert "gap_analyzed" in log_content
         assert "artifact_built" in log_content
         assert "run_complete" in log_content
+
+
+class TestOrchestratorAnalyze:
+    """Tests for orchestrator analyze phase."""
+
+    def test_analyze_uses_agent_panel(self, tmp_path: Path) -> None:
+        """_analyze should use AgentPanel and return gaps."""
+        # Setup ecosystem
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+        skill_dir = skills_dir / "test-skill"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text("---\nname: test\n---\n# Test")
+
+        plugins_dir = tmp_path / "plugins"
+        plugins_dir.mkdir()
+
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+            user_skills_dir=skills_dir,
+            plugins_dir=plugins_dir,
+        )
+
+        gaps = orchestrator._analyze()
+
+        # Should return gaps from agent panel
+        assert isinstance(gaps, list)
+        # All gaps should be dicts with required fields
+        for gap in gaps:
+            assert "gap_id" in gap
+            assert "gap_type" in gap
+            assert "title" in gap
+
+    def test_analyze_saves_opportunities(self, tmp_path: Path) -> None:
+        """_analyze should save opportunities to opportunities.json."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        state_manager = StateManager(state_dir=tmp_path / "state")
+        manifest = state_manager.create_run(artifact_limit=5)
+
+        orchestrator = Orchestrator(
+            manifest=manifest,
+            staging_dir=tmp_path / "staging",
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+
+        orchestrator._analyze()
+
+        # Check opportunities.json was updated
+        opportunities_file = manifest.run_dir / "opportunities.json"
+        import json
+        opportunities = json.loads(opportunities_file.read_text())
+        assert isinstance(opportunities, list)

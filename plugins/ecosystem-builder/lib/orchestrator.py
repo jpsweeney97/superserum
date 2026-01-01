@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
+from lib.agents import AgentPanel
 from lib.logging import EventLogger
 from lib.staging import StagingManager
 from lib.state import RunManifest
@@ -17,11 +19,24 @@ class Orchestrator:
         self,
         manifest: RunManifest,
         staging_dir: Path | None = None,
+        user_skills_dir: Path | None = None,
+        plugins_dir: Path | None = None,
     ) -> None:
         self.manifest = manifest
         self.logger = EventLogger(manifest.run_dir / "log.jsonl")
         self.staging = StagingManager(staging_dir=staging_dir)
         self.build_queue: list[dict[str, Any]] = []
+
+        # Ecosystem paths
+        if user_skills_dir is None:
+            user_skills_dir = Path.home() / ".claude" / "skills"
+        if plugins_dir is None:
+            plugins_dir = Path.home() / ".claude" / "plugins"
+
+        self.agent_panel = AgentPanel(
+            user_skills_dir=user_skills_dir,
+            plugins_dir=plugins_dir,
+        )
 
     def run(self) -> None:
         """Execute the main control loop."""
@@ -107,13 +122,21 @@ class Orchestrator:
             })
 
     def _analyze(self) -> list[dict[str, Any]]:
-        """Analyze ecosystem for gaps. Override in subclass or mock."""
-        # Placeholder - Phase 2 will implement multi-agent analysis
-        return []
+        """Analyze ecosystem for gaps using agent panel."""
+        results = self.agent_panel.run_all_agents()
+        gaps = self.agent_panel.merge_gaps(results)
+
+        # Convert to dicts and save
+        gap_dicts = [g.to_dict() for g in gaps]
+
+        opportunities_file = self.manifest.run_dir / "opportunities.json"
+        opportunities_file.write_text(json.dumps(gap_dicts, indent=2))
+
+        return gap_dicts
 
     def _prioritize(self, gaps: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Prioritize gaps for building. Override in subclass or mock."""
-        # Placeholder - just return as-is for now
+        # Already sorted by priority in merge_gaps
         return gaps
 
     def _build(self, gap: dict[str, Any]) -> dict[str, Any] | None:
