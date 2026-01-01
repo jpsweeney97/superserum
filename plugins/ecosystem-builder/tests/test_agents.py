@@ -203,3 +203,51 @@ class TestCatalogAgent:
         assert any(
             "test" in t or "refactor" in t or "documentation" in t for t in gap_titles
         )
+
+
+class TestWorkflowAnalyzerAgent:
+    """Tests for workflow analyzer agent."""
+
+    def test_workflow_checks_skill_completeness(self, tmp_path: Path) -> None:
+        """Workflow agent should check if skills have complete structure."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        # Create incomplete skill (no examples, no references)
+        skill_dir = skills_dir / "incomplete-skill"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text("---\nname: incomplete\n---\n# Incomplete")
+
+        panel = AgentPanel(
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+        result = panel._run_workflow_agent()
+
+        assert result.agent_name == "workflow-analyzer"
+        # Should flag incomplete structure
+        assert any(g.gap_type == GapType.INCOMPLETE_ARTIFACT for g in result.gaps)
+
+    def test_workflow_detects_missing_hooks(self, tmp_path: Path) -> None:
+        """Workflow agent should detect skills without hook integration."""
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        # Create skill that could benefit from hooks
+        skill_dir = skills_dir / "pre-commit-check"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: pre-commit-check\ndescription: Run before commits\n---\n# Pre-commit"
+        )
+
+        panel = AgentPanel(
+            user_skills_dir=skills_dir,
+            plugins_dir=tmp_path / "plugins",
+        )
+        result = panel._run_workflow_agent()
+
+        # Should suggest hook integration
+        assert any(
+            "hook" in g.description.lower() or g.gap_type == GapType.WORKFLOW_HOLE
+            for g in result.gaps
+        )

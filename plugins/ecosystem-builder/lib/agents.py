@@ -112,11 +112,66 @@ class AgentPanel:
 
     def _run_workflow_agent(self) -> AgentResult:
         """Analyze workflows for holes."""
-        # Phase 2.2: Placeholder - returns empty
+        import uuid
+
+        gaps: list[Gap] = []
+        scanned = 0
+
+        # Check user skills for completeness
+        if self.user_skills_dir.exists():
+            for skill_dir in self.user_skills_dir.iterdir():
+                if not skill_dir.is_dir():
+                    continue
+                skill_md = skill_dir / "SKILL.md"
+                if not skill_md.exists():
+                    continue
+
+                scanned += 1
+                skill_name = skill_dir.name
+
+                # Check for references directory
+                has_references = (skill_dir / "references").exists()
+                # Check for examples directory
+                has_examples = (skill_dir / "examples").exists()
+                # Check for scripts directory
+                has_scripts = (skill_dir / "scripts").exists()
+
+                if not any([has_references, has_examples, has_scripts]):
+                    gaps.append(
+                        Gap(
+                            gap_id=f"gap-workflow-{uuid.uuid4().hex[:6]}",
+                            gap_type=GapType.INCOMPLETE_ARTIFACT,
+                            title=f"Incomplete structure: {skill_name}",
+                            description=f"Skill '{skill_name}' lacks references, examples, or scripts",
+                            source_agent="workflow-analyzer",
+                            confidence=0.7,
+                            priority=3,
+                        )
+                    )
+
+                # Check for hook-worthy skills
+                content = skill_md.read_text().lower()
+                hook_triggers = ["pre-commit", "before commit", "on save", "pre-push"]
+                if any(trigger in content for trigger in hook_triggers):
+                    # Check if hooks exist in same plugin
+                    hooks_file = skill_dir.parent.parent / "hooks" / "hooks.json"
+                    if not hooks_file.exists():
+                        gaps.append(
+                            Gap(
+                                gap_id=f"gap-workflow-{uuid.uuid4().hex[:6]}",
+                                gap_type=GapType.WORKFLOW_HOLE,
+                                title=f"Missing hook for: {skill_name}",
+                                description=f"Skill '{skill_name}' mentions hook triggers but no hooks.json exists",
+                                source_agent="workflow-analyzer",
+                                confidence=0.75,
+                                priority=2,
+                            )
+                        )
+
         return AgentResult(
             agent_name="workflow-analyzer",
-            gaps=[],
-            artifacts_scanned=0,
+            gaps=gaps,
+            artifacts_scanned=scanned,
         )
 
     def _run_quality_agent(self) -> AgentResult:
