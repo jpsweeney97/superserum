@@ -349,6 +349,156 @@ def test_direct_generation():
     return 2  # tests passed
 
 
+def test_validator():
+    """Test ValidationPanel functionality."""
+    from lib.validator import ValidationPanel
+    from lib.state import ValidationResult
+
+    print("\nTesting ValidationPanel...")
+
+    # Test structure check - valid
+    panel = ValidationPanel()
+    content = """---
+name: test-skill
+description: Use when testing
+---
+
+# Test Skill
+
+## Overview
+
+Content here.
+"""
+    check = panel._check_structure(content)
+    assert check.passed is True, "Valid structure should pass"
+    assert len(check.issues) == 0, "No issues expected"
+    print("  ✓ valid_structure_passes")
+
+    # Test structure check - missing frontmatter
+    content = """# Test Skill
+
+No frontmatter here.
+"""
+    check = panel._check_structure(content)
+    assert check.passed is False, "Missing frontmatter should fail"
+    assert any("frontmatter" in i.lower() for i in check.issues), "Should mention frontmatter"
+    print("  ✓ missing_frontmatter_fails")
+
+    # Test structure check - missing required fields
+    content = """---
+name: test-skill
+---
+
+# Test
+"""
+    check = panel._check_structure(content)
+    assert check.passed is False, "Missing description should fail"
+    assert any("description" in i.lower() for i in check.issues), "Should mention description"
+    print("  ✓ missing_required_fields_fails")
+
+    # Test content quality - good content
+    content = """---
+name: test-skill
+description: Use when working with "testing patterns" or need test guidance
+---
+
+# Test Skill
+
+## Overview
+
+This skill provides guidance for testing patterns.
+
+## When to Use
+
+- Working with unit tests
+- Need testing patterns
+- Writing integration tests
+
+## Process
+
+Detailed process content here with enough words to meet the minimum length requirement.
+More content to ensure we have sufficient body text for the quality check.
+"""
+    check = panel._check_content_quality(content)
+    assert check.passed is True, "Good content should pass"
+    print("  ✓ good_content_passes")
+
+    # Test content quality - short body
+    content = """---
+name: test
+description: Use when testing
+---
+
+# Test
+
+Short.
+"""
+    check = panel._check_content_quality(content)
+    assert check.passed is False, "Short body should fail"
+    assert any("length" in i.lower() or "short" in i.lower() for i in check.issues)
+    print("  ✓ short_body_fails")
+
+    # Test integration check - unique name
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        panel = ValidationPanel(existing_skills_dir=skills_dir)
+        check = panel._check_integration("new-skill", "content")
+        assert check.passed is True, "Unique name should pass"
+        print("  ✓ unique_name_passes")
+
+    # Test integration check - conflicting name
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        skills_dir = tmp_path / "skills"
+        (skills_dir / "existing-skill").mkdir(parents=True)
+
+        panel = ValidationPanel(existing_skills_dir=skills_dir)
+        check = panel._check_integration("existing-skill", "content")
+        assert check.passed is False, "Conflicting name should fail"
+        assert any("conflict" in i.lower() or "exists" in i.lower() for i in check.issues)
+        print("  ✓ conflicting_name_fails")
+
+    # Test full validation
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        skills_dir = tmp_path / "skills"
+        skills_dir.mkdir()
+
+        panel = ValidationPanel(existing_skills_dir=skills_dir)
+        content = """---
+name: test-skill
+description: Use when working with "testing" patterns
+---
+
+# Test Skill
+
+## Overview
+
+This skill provides testing guidance with enough content to pass quality checks.
+
+## When to Use
+
+- Testing scenarios
+- Test patterns needed
+- Quality assurance
+
+## Process
+
+Follow these steps for effective testing patterns and workflows.
+Additional content here to meet minimum length requirements.
+"""
+        result = panel.validate("test-skill", content)
+        assert isinstance(result, ValidationResult), "Should return ValidationResult"
+        assert len(result.checks) == 3, "Should have 3 checks"
+        assert result.passed is True, "All checks should pass"
+        print("  ✓ validate_runs_all_checks")
+
+    return 8  # tests passed
+
+
 def main():
     """Run all tests."""
     print("=" * 60)
@@ -364,6 +514,7 @@ def main():
         total += test_orchestrator()
         total += test_skill_builder()
         total += test_direct_generation()
+        total += test_validator()
 
         print("\n" + "=" * 60)
         print(f"ALL TESTS PASSED: {total}/{total}")
