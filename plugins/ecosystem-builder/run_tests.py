@@ -240,6 +240,115 @@ def test_orchestrator():
     return 2  # tests passed
 
 
+def test_skill_builder():
+    """Test SkillBuilder functionality."""
+    from lib.builder import SkillBuilder
+    from lib.state import Gap, GapType
+
+    print("\nTesting SkillBuilder...")
+
+    builder = SkillBuilder()
+
+    # Test classify simple gap
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.MISSING_SKILL,
+        title="testing",
+        description="Add testing skill",
+        source_agent="catalog",
+        confidence=0.8,
+        priority=2,
+    )
+    assert builder._classify_complexity(gap) == "simple", "MISSING_SKILL should be simple"
+    print("  ✓ classify_simple_gap")
+
+    # Test classify complex gap
+    gap = Gap(
+        gap_id="gap-2",
+        gap_type=GapType.WORKFLOW_HOLE,
+        title="ci-cd-integration",
+        description="Complex workflow for CI/CD",
+        source_agent="workflow",
+        confidence=0.5,
+        priority=1,
+    )
+    assert builder._classify_complexity(gap) == "complex", "WORKFLOW_HOLE should be complex"
+    print("  ✓ classify_complex_gap")
+
+    # Test build simple direct generation
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.MISSING_SKILL,
+        title="testing",
+        description="Add testing skill for pytest patterns",
+        source_agent="catalog",
+        confidence=0.9,
+        priority=2,
+    )
+    result = builder.build(gap.to_dict())
+    assert result.success is True, "Build should succeed"
+    assert result.method == "direct", "Method should be direct"
+    assert "---" in result.content, "Should have frontmatter"
+    assert "name:" in result.content, "Should have name field"
+    assert "description:" in result.content, "Should have description field"
+    print("  ✓ build_simple_direct_generation")
+
+    return 3  # tests passed
+
+
+def test_direct_generation():
+    """Test direct skill generation."""
+    import yaml
+    from lib.builder import SkillBuilder
+    from lib.state import Gap, GapType
+
+    print("\nTesting DirectGeneration...")
+
+    builder = SkillBuilder()
+
+    # Test generates valid frontmatter
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.MISSING_SKILL,
+        title="code-review",
+        description="Skill for reviewing code quality",
+        source_agent="catalog",
+        confidence=0.85,
+        priority=2,
+    )
+    result = builder.build(gap.to_dict())
+    content = result.content
+
+    lines = content.split("\n")
+    assert lines[0] == "---", "Should start with frontmatter"
+    yaml_end = lines.index("---", 1)
+    frontmatter = "\n".join(lines[1:yaml_end])
+    metadata = yaml.safe_load(frontmatter)
+    assert "name" in metadata, "Should have name in metadata"
+    assert "description" in metadata, "Should have description in metadata"
+    assert metadata["name"] == "code-review", "Name should match"
+    print("  ✓ generates_valid_frontmatter")
+
+    # Test generates body structure
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.MISSING_SKILL,
+        title="documentation",
+        description="Skill for documentation patterns",
+        source_agent="catalog",
+        confidence=0.85,
+        priority=2,
+    )
+    result = builder.build(gap.to_dict())
+    content = result.content
+
+    assert "# " in content, "Should have heading"
+    assert "## " in content or "When to Use" in content, "Should have sections"
+    print("  ✓ generates_body_structure")
+
+    return 2  # tests passed
+
+
 def main():
     """Run all tests."""
     print("=" * 60)
@@ -253,6 +362,8 @@ def main():
         total += test_staging_manager()
         total += test_agent_result()
         total += test_orchestrator()
+        total += test_skill_builder()
+        total += test_direct_generation()
 
         print("\n" + "=" * 60)
         print(f"ALL TESTS PASSED: {total}/{total}")
