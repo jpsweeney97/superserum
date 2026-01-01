@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""
+Ecosystem Builder CLI
+
+Autonomous workflow that expands the skill ecosystem by finding gaps,
+building artifacts, and staging for review.
+
+Usage:
+    ecosystem-builder run --artifacts 5
+    ecosystem-builder status
+    ecosystem-builder review
+"""
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["click>=8.0"]
+# ///
+
+import sys
+from pathlib import Path
+
+# Add lib to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+import click
+
+from lib.state import StateManager
+
+
+@click.group()
+@click.version_option(version="0.1.0")
+def cli() -> None:
+    """Ecosystem Builder - autonomous skill ecosystem expansion."""
+    pass
+
+
+@cli.command()
+@click.option("--artifacts", "-n", type=int, required=True, help="Number of artifacts to build")
+@click.option("--hours", type=float, default=4.0, help="Maximum hours to run")
+@click.option("--cost", type=float, default=50.0, help="Maximum cost in USD")
+def run(artifacts: int, hours: float, cost: float) -> None:
+    """Start a new ecosystem-builder run."""
+    manager = StateManager()
+    manifest = manager.create_run(
+        artifact_limit=artifacts,
+        hour_limit=hours,
+        cost_limit=cost,
+    )
+
+    click.echo(f"Created run: {manifest.run_id}")
+    click.echo(f"  Artifacts: 0/{artifacts}")
+    click.echo(f"  Hours: 0.0/{hours}")
+    click.echo(f"  Cost: $0.00/${cost:.2f}")
+    click.echo()
+    click.echo("Run started. Use 'ecosystem-builder status' to check progress.")
+
+
+@cli.command()
+def status() -> None:
+    """Show status of current or recent runs."""
+    manager = StateManager()
+    manifest = manager.load_current()
+
+    if manifest is None:
+        click.echo("No active run. Use 'ecosystem-builder run' to start one.")
+        return
+
+    click.echo(f"Run: {manifest.run_id}")
+    click.echo(f"Status: {manifest.status}")
+    click.echo(f"Started: {manifest.started}")
+    click.echo()
+    click.echo("Budget:")
+    click.echo(f"  Artifacts: {manifest.budget.artifacts.used}/{manifest.budget.artifacts.limit}")
+    click.echo(f"  Hours: {manifest.budget.hours.used:.1f}/{manifest.budget.hours.limit:.1f}")
+    click.echo(f"  Cost: ${manifest.budget.cost_usd.used:.2f}/${manifest.budget.cost_usd.limit:.2f}")
+    click.echo()
+    click.echo("Progress:")
+    click.echo(f"  Analyzed: {manifest.progress.analyzed}")
+    click.echo(f"  Built: {manifest.progress.built}")
+    click.echo(f"  Passed: {manifest.progress.passed}")
+    click.echo(f"  Failed: {manifest.progress.failed}")
+
+
+@cli.command()
+def review() -> None:
+    """Review staged artifacts (placeholder)."""
+    click.echo("Review command not yet implemented.")
+    click.echo("Staged artifacts will appear in ~/.claude/ecosystem-builder/staging/")
+
+
+if __name__ == "__main__":
+    cli()
