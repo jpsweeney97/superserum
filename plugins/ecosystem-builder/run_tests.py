@@ -691,6 +691,79 @@ Skill for CI/CD integration workflows.
     return 2  # tests passed
 
 
+def test_subagent_generation():
+    """Test subagent-based skill generation."""
+    from lib.builder import SkillBuilder
+    from lib.state import Gap, GapType
+
+    print("\nTesting SubagentGeneration...")
+
+    # Test complex gap uses subagent
+    mock_response = """---
+name: ci-cd-integration
+description: Use when setting up "CI/CD" workflows.
+---
+
+# CI/CD Integration
+
+## Overview
+
+Complex CI/CD workflow skill.
+
+## When to Use
+
+- CI/CD pipeline setup
+- Continuous deployment integration
+
+## Process
+
+1. Configure pipeline
+2. Deploy
+"""
+
+    builder = SkillBuilder(subagent_callable=lambda prompt: mock_response)
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.WORKFLOW_HOLE,
+        title="ci-cd-integration",
+        description="Complex CI/CD workflow",
+        source_agent="workflow",
+        confidence=0.5,
+        priority=1,
+    )
+
+    result = builder.build(gap.to_dict())
+
+    assert result.success is True, "Complex gap with subagent should succeed"
+    assert result.method == "subagent", "Should use subagent method"
+    assert "ci-cd-integration" in result.content, "Content should include skill name"
+    print("  ✓ complex_gap_uses_subagent")
+
+    # Test subagent failure returns error
+    def failing_subagent(prompt: str) -> str:
+        raise RuntimeError("Agent unavailable")
+
+    builder = SkillBuilder(subagent_callable=failing_subagent)
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.WORKFLOW_HOLE,
+        title="test",
+        description="Test",
+        source_agent="test",
+        confidence=0.5,
+        priority=1,
+    )
+
+    result = builder.build(gap.to_dict())
+
+    assert result.success is False, "Failing subagent should not succeed"
+    assert result.method == "subagent", "Should use subagent method"
+    assert "unavailable" in result.error.lower(), "Error should mention unavailable"
+    print("  ✓ subagent_failure_returns_error")
+
+    return 2  # tests passed
+
+
 def test_prompts():
     """Test prompt template functionality."""
     from lib.prompts import build_skill_generation_prompt
@@ -766,6 +839,7 @@ def main():
         total += test_validator()
         total += test_skill_generator()
         total += test_skill_generation()
+        total += test_subagent_generation()
         total += test_prompts()
 
         print("\n" + "=" * 60)

@@ -111,3 +111,72 @@ class TestDirectGeneration:
         # Should have expected sections
         assert "# " in content  # Has heading
         assert "## " in content or "When to Use" in content
+
+
+class TestSubagentGeneration:
+    """Tests for subagent-based skill generation."""
+
+    def test_complex_gap_uses_subagent(self) -> None:
+        """Complex gaps route to subagent generation."""
+        mock_response = """---
+name: ci-cd-integration
+description: Use when setting up "CI/CD" workflows.
+---
+
+# CI/CD Integration
+
+## Overview
+
+Complex CI/CD workflow skill.
+
+## When to Use
+
+- CI/CD pipeline setup
+- Continuous deployment integration
+
+## Process
+
+1. Configure pipeline
+2. Deploy
+"""
+
+        builder = SkillBuilder(
+            subagent_callable=lambda prompt: mock_response
+        )
+        gap = Gap(
+            gap_id="gap-1",
+            gap_type=GapType.WORKFLOW_HOLE,
+            title="ci-cd-integration",
+            description="Complex CI/CD workflow",
+            source_agent="workflow",
+            confidence=0.5,
+            priority=1,
+        )
+
+        result = builder.build(gap.to_dict())
+
+        assert result.success is True
+        assert result.method == "subagent"
+        assert "ci-cd-integration" in result.content
+
+    def test_subagent_failure_returns_error(self) -> None:
+        """Subagent failure returns BuildResult with error."""
+        def failing_subagent(prompt: str) -> str:
+            raise RuntimeError("Agent unavailable")
+
+        builder = SkillBuilder(subagent_callable=failing_subagent)
+        gap = Gap(
+            gap_id="gap-1",
+            gap_type=GapType.WORKFLOW_HOLE,
+            title="test",
+            description="Test",
+            source_agent="test",
+            confidence=0.5,
+            priority=1,
+        )
+
+        result = builder.build(gap.to_dict())
+
+        assert result.success is False
+        assert result.method == "subagent"
+        assert "unavailable" in result.error.lower()

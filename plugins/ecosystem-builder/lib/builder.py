@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
+from lib.skill_generator import SkillGeneratorAgent
 from lib.state import BuildResult, Gap, GapType
 
 
@@ -14,6 +15,7 @@ class SkillBuilder:
     """Builds skills using hybrid direct/subagent strategy."""
 
     confidence_threshold: float = 0.7
+    subagent_callable: Callable[[str], str] | None = None
 
     def build(self, gap_dict: dict[str, Any]) -> BuildResult:
         """Build a skill for the given gap."""
@@ -62,13 +64,15 @@ description: {description}
         )
 
     def _build_subagent(self, gap: Gap) -> BuildResult:
-        """Build using subagent (placeholder for Phase 3b)."""
-        # Placeholder - would invoke Task tool with skillforge
+        """Build using SkillGeneratorAgent."""
+        agent = SkillGeneratorAgent(llm_callable=self.subagent_callable)
+        result = agent.generate(gap.to_dict())
+
         return BuildResult(
-            name=self._normalize_name(gap.title),
-            gap_id=gap.gap_id,
-            content=None,
-            error="Subagent generation not yet implemented",
+            name=result.name,
+            gap_id=result.gap_id,
+            content=result.content,
+            error=result.error,
             method="subagent",
         )
 
