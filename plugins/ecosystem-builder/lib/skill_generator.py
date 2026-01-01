@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
+from lib.prompts import build_skill_generation_prompt
 from lib.state import Gap
 
 
@@ -25,22 +26,54 @@ class GenerationResult:
 
 @dataclass
 class SkillGeneratorAgent:
-    """Generates skills for complex gaps using enhanced reasoning."""
+    """Generates skills for complex gaps using enhanced reasoning.
+
+    Accepts an optional llm_callable for testing. In production,
+    this would invoke the Task tool with a skill generation agent.
+    """
+
+    llm_callable: Callable[[str], str] | None = None
 
     def generate(self, gap_dict: dict[str, Any]) -> GenerationResult:
-        """Generate a skill for the given gap.
-
-        This is the interface for subagent-based generation.
-        Currently returns a placeholder; will be wired to Task tool.
-        """
+        """Generate a skill for the given gap."""
         gap = Gap.from_dict(gap_dict)
+        name = self._normalize_name(gap.title)
 
-        # Placeholder: will be replaced with actual generation
+        if self.llm_callable is None:
+            # No LLM configured - return placeholder
+            return GenerationResult(
+                name=name,
+                gap_id=gap.gap_id,
+                content=None,
+                error="No LLM callable configured for skill generation",
+            )
+
+        # Build prompt and invoke LLM
+        prompt = build_skill_generation_prompt(gap)
+
+        try:
+            content = self.llm_callable(prompt)
+        except Exception as e:
+            return GenerationResult(
+                name=name,
+                gap_id=gap.gap_id,
+                content=None,
+                error=f"LLM generation failed: {e}",
+            )
+
+        # Validate response has required structure
+        if not content or "---" not in content:
+            return GenerationResult(
+                name=name,
+                gap_id=gap.gap_id,
+                content=None,
+                error="LLM response missing required YAML frontmatter",
+            )
+
         return GenerationResult(
-            name=self._normalize_name(gap.title),
+            name=name,
             gap_id=gap.gap_id,
-            content=None,
-            error="Subagent generation not yet wired",
+            content=content,
         )
 
     def _normalize_name(self, title: str) -> str:
