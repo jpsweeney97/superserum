@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from lib.state import StateManager, RunManifest, Gap, GapType, BuildResult
+from lib.state import StateManager, RunManifest, Gap, GapType, BuildResult, ValidationCheck, ValidationResult
 from lib.logging import EventLogger, Event
 
 
@@ -170,3 +170,58 @@ class TestBuildResult:
 
         assert data["name"] == "test-skill"
         assert data["method"] == "direct"
+
+
+class TestValidationResult:
+    """Tests for validation result dataclasses."""
+
+    def test_check_passed(self) -> None:
+        """Passed check has no issues."""
+        check = ValidationCheck(
+            name="structure",
+            passed=True,
+            issues=[],
+        )
+
+        assert check.passed is True
+        assert len(check.issues) == 0
+
+    def test_check_failed_with_issues(self) -> None:
+        """Failed check has issues list."""
+        check = ValidationCheck(
+            name="content_quality",
+            passed=False,
+            issues=["Description missing trigger phrases", "Body too short"],
+        )
+
+        assert check.passed is False
+        assert len(check.issues) == 2
+
+    def test_validation_result_all_passed(self) -> None:
+        """ValidationResult passes when all checks pass."""
+        result = ValidationResult(
+            artifact_name="test-skill",
+            checks=[
+                ValidationCheck(name="structure", passed=True, issues=[]),
+                ValidationCheck(name="content", passed=True, issues=[]),
+                ValidationCheck(name="integration", passed=True, issues=[]),
+            ],
+        )
+
+        assert result.passed is True
+        assert len(result.failed_checks) == 0
+
+    def test_validation_result_any_failed(self) -> None:
+        """ValidationResult fails when any check fails."""
+        result = ValidationResult(
+            artifact_name="test-skill",
+            checks=[
+                ValidationCheck(name="structure", passed=True, issues=[]),
+                ValidationCheck(name="content", passed=False, issues=["Too short"]),
+                ValidationCheck(name="integration", passed=True, issues=[]),
+            ],
+        )
+
+        assert result.passed is False
+        assert len(result.failed_checks) == 1
+        assert result.failed_checks[0].name == "content"

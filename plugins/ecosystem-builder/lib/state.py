@@ -84,6 +84,31 @@ class BuildResult:
 
 
 @dataclass
+class ValidationCheck:
+    """Result of a single validation check."""
+
+    name: str
+    passed: bool
+    issues: list[str] = field(default_factory=list)
+
+
+@dataclass
+class ValidationResult:
+    """Result of validation panel."""
+
+    artifact_name: str
+    checks: list[ValidationCheck]
+
+    @property
+    def passed(self) -> bool:
+        return all(c.passed for c in self.checks)
+
+    @property
+    def failed_checks(self) -> list[ValidationCheck]:
+        return [c for c in self.checks if not c.passed]
+
+
+@dataclass
 class BudgetItem:
     """A single budget constraint."""
 
