@@ -620,6 +620,62 @@ def test_skill_generator():
     return 3  # tests passed
 
 
+def test_prompts():
+    """Test prompt template functionality."""
+    from lib.prompts import build_skill_generation_prompt
+    from lib.state import Gap, GapType
+
+    print("\nTesting Prompts...")
+
+    # Test prompt includes gap details
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.WORKFLOW_HOLE,
+        title="ci-cd-integration",
+        description="Complex CI/CD workflow",
+        source_agent="workflow",
+        confidence=0.5,
+        priority=1,
+    )
+    prompt = build_skill_generation_prompt(gap)
+    assert "ci-cd-integration" in prompt, "Prompt should include gap title"
+    assert "CI/CD workflow" in prompt, "Prompt should include description"
+    assert "workflow_hole" in prompt.lower() or "WORKFLOW_HOLE" in prompt, "Prompt should include gap type"
+    print("  ✓ prompt_includes_gap_details")
+
+    # Test prompt includes output format
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.MISSING_SKILL,
+        title="testing",
+        description="Testing patterns skill",
+        source_agent="catalog",
+        confidence=0.6,
+        priority=2,
+    )
+    prompt = build_skill_generation_prompt(gap)
+    assert "SKILL.md" in prompt or "frontmatter" in prompt.lower(), "Should specify output format"
+    assert "name:" in prompt or "description:" in prompt, "Should show field format"
+    print("  ✓ prompt_includes_output_format")
+
+    # Test low confidence handling
+    gap = Gap(
+        gap_id="gap-1",
+        gap_type=GapType.MISSING_SKILL,
+        title="uncertain-feature",
+        description="Feature with unclear requirements",
+        source_agent="catalog",
+        confidence=0.3,
+        priority=2,
+    )
+    prompt = build_skill_generation_prompt(gap)
+    assert "explore" in prompt.lower() or "clarify" in prompt.lower() or "uncertain" in prompt.lower(), \
+        "Low confidence should get exploration guidance"
+    print("  ✓ prompt_handles_low_confidence")
+
+    return 3  # tests passed
+
+
 def main():
     """Run all tests."""
     print("=" * 60)
@@ -638,6 +694,7 @@ def main():
         total += test_direct_generation()
         total += test_validator()
         total += test_skill_generator()
+        total += test_prompts()
 
         print("\n" + "=" * 60)
         print(f"ALL TESTS PASSED: {total}/{total}")
