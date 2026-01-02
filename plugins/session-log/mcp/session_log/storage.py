@@ -1,6 +1,7 @@
 """SQLite storage for session metadata."""
 
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
 
 SCHEMA = """
@@ -59,7 +60,6 @@ def index_session(metadata: dict, db_path: Path | None = None) -> bool:
 
     conn = init_db(db_path)
     try:
-        from datetime import datetime, timezone
         indexed_at = datetime.now(timezone.utc).isoformat()
 
         conn.execute(
