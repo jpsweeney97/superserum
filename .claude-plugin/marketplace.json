@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "plugin-dev",
-      "source": "plugin-dev",
+      "source": "./plugins/plugin-dev",
       "description": "Plugin development toolkit: validation, creation, optimization",
       "version": "1.4.0",
       "keywords": ["development", "validation", "skills", "commands", "agents"],
@@ -20,7 +20,7 @@
     },
     {
       "name": "deep-analysis",
-      "source": "deep-analysis",
+      "source": "./plugins/deep-analysis",
       "description": "Structured decision analysis with MCP semantic search",
       "version": "0.1.0",
       "keywords": ["analysis", "decisions", "mcp", "semantic-search"],
@@ -30,7 +30,7 @@
     },
     {
       "name": "doc-auditor",
-      "source": "doc-auditor",
+      "source": "./plugins/doc-auditor",
       "description": "Documentation audit and repair",
       "version": "1.0.0",
       "keywords": ["documentation", "audit", "quality"],
@@ -40,7 +40,7 @@
     },
     {
       "name": "ecosystem-builder",
-      "source": "ecosystem-builder",
+      "source": "./plugins/ecosystem-builder",
       "description": "Multi-project orchestration for Claude Code",
       "version": "0.1.0",
       "keywords": ["orchestration", "multi-project", "automation"],
@@ -50,7 +50,7 @@
     },
     {
       "name": "persistent-tasks",
-      "source": "persistent-tasks",
+      "source": "./plugins/persistent-tasks",
       "description": "Cross-session task persistence with dependency tracking",
       "version": "0.1.0",
       "keywords": ["tasks", "persistence", "mcp"],
