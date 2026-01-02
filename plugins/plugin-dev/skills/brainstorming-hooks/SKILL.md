@@ -20,8 +20,9 @@ Claude: Uses 6-step workflow
 3. Type decision (command vs prompt)
 4. Architecture constraints (parallel execution, timeouts)
 5. Security review (5-point checklist)
-6. Output design (exit codes, JSON fields)
-7. Write design document → handoff to implementing-hooks
+6. Output design (exit codes, JSON fields) → write design document
+
+→ Handoff to implementing-hooks
 ```
 
 ## Triggers
@@ -75,6 +76,8 @@ Ask one question at a time:
 
 **Output:** "When {event}, {action} must always happen because {reason}."
 
+**Example:** "When Claude uses the Write tool on a .env file, the write must be blocked because credentials must never be modified by automation."
+
 ### Step 2: Event Selection
 
 | Event | Fires When | Blocks? | Use For |
@@ -108,6 +111,7 @@ Ask one question at a time:
 | PreToolUse | `updatedInput` | Modify tool args before execution |
 | PermissionRequest | `updatedInput` | Modify and auto-approve |
 | SessionStart | `CLAUDE_ENV_FILE` | Persist env vars for session |
+| SessionStart | `additionalContext` | Load project context |
 | UserPromptSubmit | `additionalContext` | Inject context for Claude |
 
 ### Step 3: Type Decision
