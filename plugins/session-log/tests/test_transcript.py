@@ -104,3 +104,56 @@ def test_parse_transcript_handles_empty_lines(tmp_path):
 
     result = parse_transcript(transcript)
     assert result.user_message_count == 2
+
+
+def test_bash_command_extraction(tmp_path):
+    """Test that Bash commands are extracted from tool calls."""
+    import json
+
+    from session_log.transcript import parse_transcript
+
+    transcript = tmp_path / "test.jsonl"
+
+    entries = [
+        {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "name": "Bash", "input": {"command": "ls -la"}},
+        ]}},
+        {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "name": "Bash", "input": {"command": "git status"}},
+        ]}},
+        {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "name": "Read", "input": {"file_path": "/tmp/test.py"}},
+        ]}},
+    ]
+
+    transcript.write_text("\n".join(json.dumps(e) for e in entries))
+
+    result = parse_transcript(transcript)
+
+    assert result.commands_run == ["ls -la", "git status"]
+    assert len(result.tool_calls) == 3
+
+
+def test_bash_command_with_missing_command_field(tmp_path):
+    """Test that Bash tool calls without command field are handled."""
+    import json
+
+    from session_log.transcript import parse_transcript
+
+    transcript = tmp_path / "test.jsonl"
+
+    entries = [
+        {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "name": "Bash", "input": {}},  # No command
+        ]}},
+        {"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "name": "Bash", "input": {"command": "echo test"}},
+        ]}},
+    ]
+
+    transcript.write_text("\n".join(json.dumps(e) for e in entries))
+
+    result = parse_transcript(transcript)
+
+    # Should only include the one with a command
+    assert result.commands_run == ["echo test"]
