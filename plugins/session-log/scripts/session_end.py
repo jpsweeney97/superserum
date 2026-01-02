@@ -146,11 +146,15 @@ def handle_session_end(input_data: dict, state_dir: Path | None = None, db_path:
         "title": title,
         "summary_path": str(summary_path),
     }
-    index_session(metadata, db_path=db_path)
+    indexed = index_session(metadata, db_path=db_path)
+
+    if not indexed:
+        print("Warning: Failed to index session in database", file=sys.stderr)
 
     return {
         "success": True,
         "summary_path": str(summary_path),
+        "indexed": indexed,
     }
 
 
