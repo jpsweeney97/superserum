@@ -103,8 +103,8 @@ def test_session_end_handles_nonexistent_transcript():
         assert "Transcript not found" in result["reason"]
 
 
-def test_session_end_scaffold_returns_not_implemented():
-    """SessionEnd scaffold returns success with not-implemented message."""
+def test_session_end_skips_minimal_transcript():
+    """SessionEnd skips transcripts with fewer than 2 user messages."""
     from scripts.session_end import handle_session_end
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -112,15 +112,18 @@ def test_session_end_scaffold_returns_not_implemented():
         state = {
             "session_id": "test-123",
             "start_time": "2026-01-01T10:00:00+00:00",
-            "cwd": "/project",
+            "cwd": tmpdir,
             "branch": "main",
             "commit_start": "abc1234",
         }
         (state_dir / "session_state.json").write_text(json.dumps(state))
 
-        # Create a fake transcript file
+        # Create a minimal transcript with only 1 user message
         transcript_file = Path(tmpdir) / "transcript.jsonl"
-        transcript_file.write_text('{"type": "message"}\n')
+        transcript_file.write_text(
+            '{"type": "user", "message": {"content": "Hi"}}\n'
+            '{"type": "assistant", "message": {"content": [{"type": "text", "text": "Hello!"}]}}\n'
+        )
 
         result = handle_session_end(
             {"transcript_path": str(transcript_file)},
@@ -128,4 +131,4 @@ def test_session_end_scaffold_returns_not_implemented():
         )
 
         assert result["success"] is True
-        assert "not yet implemented" in result["message"]
+        assert "too short" in result["reason"]

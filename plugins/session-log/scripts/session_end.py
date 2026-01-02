@@ -2,8 +2,16 @@
 """SessionEnd hook: Generates session summary from transcript."""
 
 import json
+import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+
+# Add mcp directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "mcp"))
+
+from session_log.transcript import parse_transcript
+from session_log.summarizer import generate_summary, generate_title, get_summary_filename
 
 
 def get_state_dir() -> Path:
@@ -34,6 +42,45 @@ def load_session_state(state_dir: Path | None = None) -> dict | None:
     return json.loads(state_file.read_text())
 
 
+def get_git_info(cwd: str) -> tuple[str | None, int]:
+    """Get current HEAD commit and count of new commits.
+
+    Args:
+        cwd: Working directory to run git commands in.
+
+    Returns:
+        Tuple of (commit hash, commits made count).
+    """
+    try:
+        commit = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        commit_hash = commit.stdout.strip() if commit.returncode == 0 else None
+
+        # Count commits (simplified - would need start commit for accurate count)
+        return commit_hash, 0
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return None, 0
+
+
+def ensure_sessions_dir(cwd: str) -> Path:
+    """Ensure .claude/sessions/ directory exists.
+
+    Args:
+        cwd: Project working directory.
+
+    Returns:
+        Path to sessions directory.
+    """
+    sessions_dir = Path(cwd) / ".claude" / "sessions"
+    sessions_dir.mkdir(parents=True, exist_ok=True)
+    return sessions_dir
+
+
 def handle_session_end(input_data: dict, state_dir: Path | None = None) -> dict:
     """Handle SessionEnd event.
 
@@ -53,10 +100,38 @@ def handle_session_end(input_data: dict, state_dir: Path | None = None) -> dict:
     if not transcript_path or not Path(transcript_path).exists():
         return {"success": False, "reason": "Transcript not found"}
 
-    # TODO: Parse transcript and generate summary
-    # This will be implemented in Phase 2
+    cwd = input_data.get("cwd", session_state.get("cwd", "."))
 
-    return {"success": True, "message": "Summary generation not yet implemented"}
+    # Parse transcript
+    transcript_data = parse_transcript(Path(transcript_path))
+
+    # Skip empty sessions
+    if transcript_data.user_message_count < 2:
+        return {"success": True, "reason": "Session too short, skipping"}
+
+    # Get git info
+    commit_end, commits_made = get_git_info(cwd)
+
+    # Generate summary
+    summary = generate_summary(
+        transcript_data=transcript_data,
+        session_state=session_state,
+        commit_end=commit_end,
+        commits_made=commits_made,
+    )
+
+    # Write summary file
+    title = generate_title(transcript_data, session_state.get("branch"))
+    filename = get_summary_filename(session_state, title)
+
+    sessions_dir = ensure_sessions_dir(cwd)
+    summary_path = sessions_dir / filename
+    summary_path.write_text(summary)
+
+    return {
+        "success": True,
+        "summary_path": str(summary_path),
+    }
 
 
 def main():
