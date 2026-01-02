@@ -68,7 +68,10 @@ def get_git_info(cwd: str) -> tuple[str | None, int]:
 
         # Count commits (simplified - would need start commit for accurate count)
         return commit_hash, 0
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+    except subprocess.TimeoutExpired:
+        print("Warning: Git command timed out", file=sys.stderr)
+        return None, 0
+    except FileNotFoundError:
         return None, 0
 
 

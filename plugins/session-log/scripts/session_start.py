@@ -36,7 +36,11 @@ def get_git_info(cwd: str) -> dict:
             "branch": branch.stdout.strip() if branch.returncode == 0 else None,
             "commit": commit.stdout.strip() if commit.returncode == 0 else None,
         }
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+    except subprocess.TimeoutExpired:
+        print("Warning: Git command timed out", file=sys.stderr)
+        return {"branch": None, "commit": None}
+    except FileNotFoundError:
+        # Git not installed - not worth logging
         return {"branch": None, "commit": None}
 
 
