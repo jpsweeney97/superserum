@@ -33,15 +33,25 @@ def extract_files_from_tool(name: str, input_data: dict) -> set[str]:
 
 def parse_transcript(path: Path) -> TranscriptData:
     """Parse a transcript JSONL file and extract session data."""
+    import sys
+
     result = TranscriptData()
     text_parts = []
 
     with open(path) as f:
-        for line in f:
+        for line_num, line in enumerate(f, start=1):
             if not line.strip():
                 continue
 
-            entry = json.loads(line)
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError as e:
+                print(
+                    f"Warning: Skipping malformed JSON at line {line_num}: {e}",
+                    file=sys.stderr,
+                )
+                continue
+
             msg_type = entry.get("type")
             message = entry.get("message", {})
 

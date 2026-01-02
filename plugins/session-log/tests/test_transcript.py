@@ -56,3 +56,51 @@ def test_parse_transcript_extracts_text_content(sample_transcript):
 
     assert "Found the issue" in result.assistant_text
     assert "Fixed!" in result.assistant_text
+
+
+def test_parse_transcript_handles_malformed_json(tmp_path):
+    """Test that malformed JSON lines are skipped with warning."""
+    import sys
+    from io import StringIO
+
+    from session_log.transcript import parse_transcript
+
+    transcript = tmp_path / "test.jsonl"
+    transcript.write_text(
+        '{"type": "user", "message": {}}\n'
+        "not valid json\n"
+        '{"type": "assistant", "message": {"content": []}}\n'
+    )
+
+    # Capture stderr
+    old_stderr = sys.stderr
+    sys.stderr = StringIO()
+
+    try:
+        result = parse_transcript(transcript)
+        stderr_output = sys.stderr.getvalue()
+    finally:
+        sys.stderr = old_stderr
+
+    # Should process valid lines
+    assert result.user_message_count == 1
+    assert result.assistant_message_count == 1
+
+    # Should warn about invalid line
+    assert "malformed JSON" in stderr_output.lower() or "line 2" in stderr_output
+
+
+def test_parse_transcript_handles_empty_lines(tmp_path):
+    """Test that empty lines are skipped silently."""
+    from session_log.transcript import parse_transcript
+
+    transcript = tmp_path / "test.jsonl"
+    transcript.write_text(
+        '{"type": "user", "message": {}}\n'
+        "\n"
+        "   \n"
+        '{"type": "user", "message": {}}\n'
+    )
+
+    result = parse_transcript(transcript)
+    assert result.user_message_count == 2
