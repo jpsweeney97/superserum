@@ -14,5 +14,8 @@
     "consistency"
   ],
   "commands": "./commands/",
-  "agents": "./agents/"
+  "agents": [
+    "./agents/coherence-analyzer.md",
+    "./agents/issue-detector.md"
+  ]
 }

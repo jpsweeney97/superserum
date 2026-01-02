@@ -17,7 +17,6 @@ Install plugins:
 /plugin install deep-analysis@superserum
 /plugin install doc-auditor@superserum
 /plugin install ecosystem-builder@superserum
-/plugin install persistent-tasks@superserum
 ```
 
 ## Plugins
@@ -28,7 +27,6 @@ Install plugins:
 | **[deep-analysis](plugins/deep-analysis/)** | 0.1.0 | Structured decision analysis with MCP semantic search |
 | **[doc-auditor](plugins/doc-auditor/)** | 1.0.0 | Documentation auditing with 15 issue categories |
 | **[ecosystem-builder](plugins/ecosystem-builder/)** | 0.1.0 | Multi-project orchestration for Claude Code |
-| **[persistent-tasks](plugins/persistent-tasks/)** | 0.1.0 | Cross-session task persistence with MCP |
 
 ## Plugin Highlights
 
@@ -80,22 +78,13 @@ Multi-project orchestration:
 - **Cross-project coordination**: manage dependencies between projects
 - **Orchestration agents**: coordinate work across multiple codebases
 
-### persistent-tasks
-
-Cross-session task persistence:
-
-- **Task continuity**: resume work across Claude Code sessions
-- **Dependency tracking**: understand task relationships
-- **MCP integration**: persistent storage via MCP server
-
 ## Dependencies
 
 | Component | Requirements |
 |-----------|--------------|
 | All plugins | Claude Code |
 | deep-analysis MCP | Python 3.12+, uv, mcp>=1.0.0, txtai>=7.0.0 |
-| ecosystem-builder MCP | Python 3.12+, uv |
-| persistent-tasks MCP | Python 3.12+, uv |
+| ecosystem-builder | Python 3.12+, uv |
 | Hook scripts | Bash, jq |
 
 ### Setting Up MCP Servers
@@ -104,14 +93,13 @@ Cross-session task persistence:
 # deep-analysis
 cd plugins/deep-analysis/mcp
 uv sync && uv run python -m server
+```
 
-# ecosystem-builder
-cd plugins/ecosystem-builder/mcp
-uv sync && uv run python -m server
+### Setting Up ecosystem-builder
 
-# persistent-tasks
-cd plugins/persistent-tasks/mcp
-uv sync && uv run python -m server
+```bash
+cd plugins/ecosystem-builder
+uv sync
 ```
 
 ## Development

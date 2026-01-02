@@ -47,16 +47,6 @@
       "author": { "name": "JP Sweeney" },
       "license": "MIT",
       "homepage": "https://github.com/jpsweeney97/superserum/tree/main/plugins/ecosystem-builder"
-    },
-    {
-      "name": "persistent-tasks",
-      "source": "./plugins/persistent-tasks",
-      "description": "Cross-session task persistence with dependency tracking",
-      "version": "0.1.0",
-      "keywords": ["tasks", "persistence", "mcp"],
-      "author": { "name": "JP Sweeney" },
-      "license": "MIT",
-      "homepage": "https://github.com/jpsweeney97/superserum/tree/main/plugins/persistent-tasks"
     }
   ]
 }

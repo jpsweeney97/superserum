@@ -133,14 +133,14 @@ type(scope): description
 
 # Examples:
 feat(plugin-dev): add new validation rule for hooks
-fix(superpowers): correct TDD skill trigger phrase
+fix(ecosystem-builder): correct orchestration logic
 docs(deep-analysis): update MCP setup instructions
 refactor(doc-auditor): simplify issue detection logic
 ```
 
 **Types:** `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 
-**Scope:** Plugin name or component (e.g., `plugin-dev`, `superpowers`, `hooks`, `mcp`)
+**Scope:** Plugin name or component (e.g., `plugin-dev`, `ecosystem-builder`, `hooks`, `mcp`)
 
 ## Code Standards
 
@@ -323,8 +323,8 @@ git push origin main --tags
 ### Tag Format
 
 Tags follow the pattern `<plugin>-v<version>`:
-- `plugin-dev-v1.3.0`
-- `superpowers-v4.1.0`
+- `plugin-dev-v1.4.0`
+- `ecosystem-builder-v0.1.0`
 - `deep-analysis-v0.2.0`
 
 ## Getting Help

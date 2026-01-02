@@ -7,14 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Changed
 
-- **Repository**: Initial monorepo setup consolidating four Claude Code plugins
-- **Documentation**: Official Claude Code documentation in `docs/claude-code-documentation/`
+- **Marketplace**: Removed persistent-tasks from marketplace (not yet committed to repository)
+- **doc-auditor**: Fixed `agents` manifest field to use explicit file paths
 
 ---
 
 ## Plugin: plugin-dev
+
+### [1.4.0] - 2025-12-30
+
+#### Added
+
+- **Skills**:
+  - `skillforge`: Intelligent skill creation with 5-phase methodology
+  - `create-skill`: SkillForge-powered skill generation
+
+#### Changed
+
+- Version bump to 1.4.0
 
 ### [1.2.0] - 2025-12-29
 
@@ -68,57 +80,6 @@ Initial release of the plugin development toolkit.
 
 ---
 
-## Plugin: superpowers
-
-### [4.0.3] - 2025-12-29
-
-Fork of [obra/superpowers](https://github.com/obra/superpowers) by Jesse Vincent.
-
-#### Included
-
-- **Skills** (14 total):
-  - `using-superpowers`: Skill discovery and usage patterns
-  - `brainstorming`: Creative exploration before implementation
-  - `writing-plans`: Spec-to-plan conversion methodology
-  - `executing-plans`: Plan execution with review checkpoints
-  - `test-driven-development`: TDD workflow enforcement
-  - `systematic-debugging`: Root cause analysis before fixes
-  - `dispatching-parallel-agents`: Independent task parallelization
-  - `subagent-driven-development`: In-session plan execution
-  - `using-git-worktrees`: Isolated development environments
-  - `finishing-a-development-branch`: Merge/PR/cleanup decisions
-  - `requesting-code-review`: Post-implementation verification
-  - `receiving-code-review`: Critical feedback evaluation
-  - `verification-before-completion`: Evidence-before-claims protocol
-  - `writing-skills`: Skill authoring methodology
-
----
-
-## Plugin: doc-auditor
-
-### [1.0.0] - 2025-12-29
-
-Initial release of the documentation auditing toolkit.
-
-#### Added
-
-- **Commands**:
-  - `/doc-auditor:scan`: Scan docs for issues across 15 categories
-  - `/doc-auditor:fix`: Interactive repair session
-  - `/doc-auditor:report`: Coherence analysis report
-
-- **Agents**:
-  - `coherence-analyzer`: Documentation design coherence analysis
-  - `issue-detector`: Multi-category issue detection
-
-- **Issue Categories** (15):
-  - Structural issues, broken links, outdated content
-  - Inconsistent terminology, missing sections
-  - Template non-compliance, accessibility issues
-  - And 8 more categories
-
----
-
 ## Plugin: deep-analysis
 
 ### [0.1.0] - 2025-12-29
@@ -147,19 +108,64 @@ Initial release of structured decision analysis with MCP integration.
 
 ---
 
+## Plugin: doc-auditor
+
+### [1.0.0] - 2025-12-29
+
+Initial release of the documentation auditing toolkit.
+
+#### Added
+
+- **Commands**:
+  - `/doc-auditor:scan`: Scan docs for issues across 15 categories
+  - `/doc-auditor:fix`: Interactive repair session
+  - `/doc-auditor:report`: Coherence analysis report
+
+- **Agents**:
+  - `coherence-analyzer`: Documentation design coherence analysis
+  - `issue-detector`: Multi-category issue detection
+
+- **Issue Categories** (15):
+  - Structural issues, broken links, outdated content
+  - Inconsistent terminology, missing sections
+  - Template non-compliance, accessibility issues
+  - And 8 more categories
+
+---
+
+## Plugin: ecosystem-builder
+
+### [0.1.0] - 2026-01-01
+
+Initial release of multi-project orchestration for Claude Code.
+
+#### Added
+
+- **Skills**:
+  - Orchestration skills for multi-project coordination
+
+- **Commands**:
+  - Project orchestration commands
+
+- **Library**:
+  - Python library for cross-project coordination
+  - Mock mode for testing (`--mock` flag)
+
+---
+
 ## Versioning Notes
 
 Each plugin maintains independent versioning:
 
 | Plugin | Version | Status |
 |--------|---------|--------|
-| plugin-dev | 1.2.0 | Stable |
-| superpowers | 4.0.3 | Fork (upstream: obra/superpowers) |
-| doc-auditor | 1.0.0 | Stable |
+| plugin-dev | 1.4.0 | Stable |
 | deep-analysis | 0.1.0 | Alpha |
+| doc-auditor | 1.0.0 | Stable |
+| ecosystem-builder | 0.1.0 | Alpha |
 
-[Unreleased]: https://github.com/jp/claude-code-plugin-development/compare/main...HEAD
-[1.2.0]: https://github.com/jp/claude-code-plugin-development/releases/tag/plugin-dev-v1.2.0
-[1.0.0]: https://github.com/jp/claude-code-plugin-development/releases/tag/plugin-dev-v1.0.0
-[4.0.3]: https://github.com/jp/claude-code-plugin-development/releases/tag/superpowers-v4.0.3
-[0.1.0]: https://github.com/jp/claude-code-plugin-development/releases/tag/deep-analysis-v0.1.0
+[Unreleased]: https://github.com/jpsweeney97/superserum/compare/main...HEAD
+[1.4.0]: https://github.com/jpsweeney97/superserum/releases/tag/plugin-dev-v1.4.0
+[1.2.0]: https://github.com/jpsweeney97/superserum/releases/tag/plugin-dev-v1.2.0
+[1.0.0]: https://github.com/jpsweeney97/superserum/releases/tag/plugin-dev-v1.0.0
+[0.1.0]: https://github.com/jpsweeney97/superserum/releases/tag/deep-analysis-v0.1.0
