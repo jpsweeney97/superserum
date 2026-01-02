@@ -1,7 +1,8 @@
-"""Tests for MCP server security utilities."""
+"""Tests for MCP server security utilities and tool handlers."""
 
 import pytest
 from pathlib import Path
+from unittest.mock import patch
 
 
 class TestGetSessionPathValidation:
@@ -62,3 +63,139 @@ class TestGetSessionPathValidation:
 
         result = validate_summary_path(str(symlink), claude_dir)
         assert result is None
+
+
+class TestGetToolDefinitions:
+    """Test the get_tool_definitions function."""
+
+    def test_returns_expected_tools(self):
+        """Test that get_tool_definitions returns both tools."""
+        from tool_handlers import get_tool_definitions
+
+        tools = get_tool_definitions()
+
+        assert len(tools) == 2
+        tool_names = {t["name"] for t in tools}
+        assert tool_names == {"list_sessions", "get_session"}
+
+    def test_list_sessions_has_correct_schema(self):
+        """Test that list_sessions tool has correct input schema."""
+        from tool_handlers import get_tool_definitions
+
+        tools = get_tool_definitions()
+        list_sessions_tool = next(t for t in tools if t["name"] == "list_sessions")
+
+        schema = list_sessions_tool["inputSchema"]
+        assert "project" in schema["properties"]
+        assert "after" in schema["properties"]
+        assert "before" in schema["properties"]
+        assert "limit" in schema["properties"]
+
+    def test_get_session_has_required_filename(self):
+        """Test that get_session tool requires filename."""
+        from tool_handlers import get_tool_definitions
+
+        tools = get_tool_definitions()
+        get_session_tool = next(t for t in tools if t["name"] == "get_session")
+
+        assert "filename" in get_session_tool["inputSchema"].get("required", [])
+
+
+class TestHandleTool:
+    """Test the handle_tool function."""
+
+    def test_list_sessions_returns_json(self):
+        """Test list_sessions returns JSON formatted results."""
+        from tool_handlers import handle_tool
+
+        with patch("tool_handlers.db_list_sessions", return_value=[]):
+            result = handle_tool("list_sessions", {})
+
+        assert len(result) == 1
+        assert result[0].type == "text"
+        assert "[]" in result[0].text
+
+    def test_list_sessions_with_filters(self):
+        """Test list_sessions passes filters correctly."""
+        from tool_handlers import handle_tool
+
+        mock_sessions = [
+            {"filename": "test.md", "project": "test-project"}
+        ]
+
+        with patch("tool_handlers.db_list_sessions", return_value=mock_sessions) as mock:
+            result = handle_tool("list_sessions", {
+                "project": "test-project",
+                "after": "2025-01-01",
+                "before": "2025-12-31",
+                "limit": 10,
+            })
+
+            mock.assert_called_once_with(
+                project="test-project",
+                after="2025-01-01",
+                before="2025-12-31",
+                limit=10,
+            )
+
+        assert "test-project" in result[0].text
+
+    def test_get_session_not_found(self):
+        """Test get_session with nonexistent session."""
+        from tool_handlers import handle_tool
+
+        with patch("tool_handlers.db_get_session", return_value=None):
+            result = handle_tool("get_session", {"filename": "nonexistent.md"})
+
+        assert "not found" in result[0].text.lower()
+
+    def test_get_session_missing_filename(self):
+        """Test get_session without filename parameter."""
+        from tool_handlers import handle_tool
+
+        result = handle_tool("get_session", {})
+
+        assert "filename required" in result[0].text.lower()
+
+    def test_get_session_returns_content(self, tmp_path):
+        """Test get_session returns markdown content when path is valid."""
+        from tool_handlers import handle_tool
+
+        mock_session = {
+            "filename": "test.md",
+            "summary_path": str(tmp_path / "test.md"),
+        }
+
+        # Create a mock markdown file
+        (tmp_path / "test.md").write_text("# Test Session\n\nContent here.")
+
+        with patch("tool_handlers.db_get_session", return_value=mock_session):
+            with patch("tool_handlers.validate_summary_path", return_value=str(tmp_path / "test.md")):
+                result = handle_tool("get_session", {"filename": "test.md"})
+
+        assert "Test Session" in result[0].text
+
+    def test_get_session_invalid_path_returns_metadata(self):
+        """Test get_session returns metadata when path validation fails."""
+        from tool_handlers import handle_tool
+
+        mock_session = {
+            "filename": "test.md",
+            "summary_path": "/some/path/test.md",
+            "project": "test-project",
+        }
+
+        with patch("tool_handlers.db_get_session", return_value=mock_session):
+            with patch("tool_handlers.validate_summary_path", return_value=None):
+                result = handle_tool("get_session", {"filename": "test.md"})
+
+        # Should return JSON metadata when path validation fails
+        assert "test-project" in result[0].text
+
+    def test_unknown_tool(self):
+        """Test calling unknown tool."""
+        from tool_handlers import handle_tool
+
+        result = handle_tool("unknown_tool", {})
+
+        assert "unknown tool" in result[0].text.lower()
