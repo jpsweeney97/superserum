@@ -21,7 +21,7 @@ async def list_tools():
 async def call_tool(name: str, arguments: dict):
     """Handle tool calls."""
     results = handle_tool(name, arguments)
-    return [TextContent(type=r.type, text=r.text) for r in results]
+    return [TextContent(type="text", text=r.text) for r in results]
 
 
 async def run():
