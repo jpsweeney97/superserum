@@ -1,7 +1,13 @@
 # Superserum Marketplace Design
 
+> **⚠️ SUPERSEDED (2026-01-02):** Implemented
+>
+> - Replacement: PR #5 https://github.com/jpsweeney97/superserum/pull/5
+>
+> *Original preserved for historical reference.*
+
 **Date:** 2026-01-02
-**Status:** Ready for implementation
+**Status:** Implemented
 
 ## Summary
 

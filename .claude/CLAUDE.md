@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-- Claude Code plugin marketplace (superserum) with five plugins
+- Claude Code plugin marketplace (superserum) with four plugins
 - Each plugin extends Claude Code via skills, commands, agents, hooks, and/or MCP integrations
 - Plugin-specific details in each plugin's README
 
@@ -16,7 +16,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | **deep-analysis** | Structured decision analysis with 6 frameworks and MCP semantic search |
 | **doc-auditor** | Documentation audit/repair with 15 issue categories |
 | **ecosystem-builder** | Multi-project orchestration for Claude Code |
-| **persistent-tasks** | Cross-session task persistence with MCP |
 
 ## Commands
 
@@ -63,15 +62,16 @@ plugins/
 ├── deep-analysis/        # Decision analysis + MCP
 │   ├── .mcp.json         # MCP server config
 │   ├── mcp/              # Python server (txtai, mcp>=1.0)
+│   ├── commands/         # analyze command
 │   └── skills/           # 6 analytical frameworks
 ├── doc-auditor/          # Documentation auditing
 │   ├── commands/         # report, scan, repair
+│   ├── agents/           # coherence-analyzer, issue-detector
 │   └── hooks/            # Optional pre-commit validation
-├── ecosystem-builder/    # Multi-project orchestration
-│   ├── .mcp.json         # Project registry MCP
-│   └── agents/           # Orchestration agents
-└── persistent-tasks/     # Cross-session task persistence
-    └── .mcp.json         # Task persistence MCP
+└── ecosystem-builder/    # Multi-project orchestration
+    ├── commands/         # orchestration commands
+    ├── skills/           # orchestration skills
+    └── lib/              # Python orchestration library
 ```
 
 ## Plugin Conventions
