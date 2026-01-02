@@ -106,16 +106,18 @@ After each change: re-run all tests. Stay green.
 
 **Sample input templates:**
 
+**PreToolUse:**
 ```json
-// PreToolUse
 {
   "session_id": "test",
   "hook_event_name": "PreToolUse",
   "tool_name": "Write",
   "tool_input": { "file_path": "/path/to/file.txt", "content": "..." }
 }
+```
 
-// PostToolUse
+**PostToolUse:**
+```json
 {
   "session_id": "test",
   "hook_event_name": "PostToolUse",
@@ -123,8 +125,10 @@ After each change: re-run all tests. Stay green.
   "tool_input": { "file_path": "/path/to/file.txt" },
   "tool_response": { "success": true }
 }
+```
 
-// UserPromptSubmit
+**UserPromptSubmit:**
+```json
 {
   "session_id": "test",
   "hook_event_name": "UserPromptSubmit",
@@ -153,7 +157,7 @@ After each change: re-run all tests. Stay green.
 - [ ] Test malformed JSON
 - [ ] Test missing fields
 - [ ] Test path traversal (if applicable)
-- [ ] Security checklist passed
+- [ ] Security checklist passed (see brainstorming-hooks Step 5)
 
 **Deployment:**
 - [ ] Hook in correct location (settings or plugin hooks.json)
@@ -197,7 +201,7 @@ Before marking complete:
 | Tested with real input | Command and output shown |
 | Integration tested | `claude --debug` output |
 | Edge cases handled | All REFACTOR tests pass |
-| Security checklist passed | 5 checks confirmed |
+| Security checklist passed | 5 checks from brainstorming-hooks confirmed |
 
 ## References
 
