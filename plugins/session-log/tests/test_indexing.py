@@ -1,9 +1,6 @@
 """Tests for session indexing."""
 
-import json
-from pathlib import Path
 
-import pytest
 
 
 def test_index_session_stores_metadata(tmp_path):

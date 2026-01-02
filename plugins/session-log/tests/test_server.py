@@ -1,6 +1,5 @@
 """Tests for MCP server security utilities and tool handlers."""
 
-import pytest
 from pathlib import Path
 from unittest.mock import patch
 

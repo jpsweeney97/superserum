@@ -1,8 +1,5 @@
 """Tests for query functions."""
 
-import json
-import tempfile
-from pathlib import Path
 
 import pytest
 

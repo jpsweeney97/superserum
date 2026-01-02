@@ -1,8 +1,6 @@
 """Integration tests for SessionEnd hook."""
 
 import json
-import tempfile
-from pathlib import Path
 
 import pytest
 

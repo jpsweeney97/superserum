@@ -3,7 +3,6 @@
 import tempfile
 from pathlib import Path
 
-import pytest
 
 
 def test_get_collection_creates_persistent_storage():

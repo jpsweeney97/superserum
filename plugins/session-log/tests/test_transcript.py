@@ -1,6 +1,5 @@
 """Tests for transcript parser."""
 
-from pathlib import Path
 
 import pytest
 
