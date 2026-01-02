@@ -31,7 +31,7 @@ def load_session_state(state_dir: Path | None = None) -> dict | None:
         state_dir: Optional override for state directory (for testing).
 
     Returns:
-        Dict with session state, or None if state file doesn't exist.
+        Dict with session state, or None if state file doesn't exist or is malformed.
     """
     if state_dir is None:
         state_dir = get_state_dir()
@@ -40,7 +40,11 @@ def load_session_state(state_dir: Path | None = None) -> dict | None:
     if not state_file.exists():
         return None
 
-    return json.loads(state_file.read_text())
+    try:
+        return json.loads(state_file.read_text())
+    except json.JSONDecodeError as e:
+        print(f"Warning: Malformed session state file: {e}", file=sys.stderr)
+        return None
 
 
 def get_git_info(cwd: str) -> tuple[str | None, int]:

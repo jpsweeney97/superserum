@@ -132,3 +132,14 @@ def test_session_end_skips_minimal_transcript():
 
         assert result["success"] is True
         assert "too short" in result["reason"]
+
+
+def test_load_session_state_handles_malformed_json(tmp_path):
+    """Test that malformed JSON in state file returns None."""
+    from scripts.session_end import load_session_state
+
+    state_file = tmp_path / "session_state.json"
+    state_file.write_text("not valid json {")
+
+    result = load_session_state(state_dir=tmp_path)
+    assert result is None
