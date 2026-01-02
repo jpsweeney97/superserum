@@ -127,3 +127,33 @@ def test_session_end_skips_short_sessions(session_setup):
     sessions_dir = session_setup["project_dir"] / ".claude" / "sessions"
     summaries = list(sessions_dir.glob("*.md"))
     assert len(summaries) == 0
+
+
+def test_session_end_indexes_session(session_setup, tmp_path):
+    """SessionEnd indexes the session in SQLite."""
+    from scripts.session_end import handle_session_end
+    from session_log.queries import list_sessions
+
+    # Use a temporary database for this test
+    db_path = tmp_path / "test_index.db"
+
+    input_data = {
+        "session_id": "test-123",
+        "transcript_path": str(session_setup["transcript"]),
+        "cwd": str(session_setup["project_dir"]),
+        "reason": "exit",
+    }
+
+    result = handle_session_end(
+        input_data,
+        state_dir=session_setup["state_dir"],
+        db_path=db_path,
+    )
+
+    assert result["success"] is True
+
+    # Check session was indexed
+    sessions = list_sessions(db_path=db_path)
+    assert len(sessions) == 1
+    assert sessions[0]["project"] == "project"
+    assert sessions[0]["branch"] == "feat/test"

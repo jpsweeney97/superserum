@@ -11,7 +11,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "mcp"))
 
 from session_log.transcript import parse_transcript
-from session_log.summarizer import generate_summary, generate_title, get_summary_filename
+from session_log.summarizer import generate_summary, generate_title, get_summary_filename, calculate_duration_minutes
+from session_log.storage import index_session
 
 
 def get_state_dir() -> Path:
@@ -81,12 +82,13 @@ def ensure_sessions_dir(cwd: str) -> Path:
     return sessions_dir
 
 
-def handle_session_end(input_data: dict, state_dir: Path | None = None) -> dict:
+def handle_session_end(input_data: dict, state_dir: Path | None = None, db_path: Path | None = None) -> dict:
     """Handle SessionEnd event.
 
     Args:
         input_data: Hook input data containing transcript_path, etc.
         state_dir: Optional override for state directory (for testing).
+        db_path: Optional override for database path (for testing).
 
     Returns:
         Dict with 'success' key indicating operation result.
@@ -127,6 +129,24 @@ def handle_session_end(input_data: dict, state_dir: Path | None = None) -> dict:
     sessions_dir = ensure_sessions_dir(cwd)
     summary_path = sessions_dir / filename
     summary_path.write_text(summary)
+
+    # Index in SQLite
+    metadata = {
+        "filename": filename,
+        "date": session_state.get("start_time"),
+        "project": Path(cwd).name,
+        "branch": session_state.get("branch"),
+        "duration_minutes": calculate_duration_minutes(
+            session_state.get("start_time", datetime.now(timezone.utc).isoformat()),
+            datetime.now(timezone.utc),
+        ),
+        "commits_made": commits_made,
+        "files_touched": len(transcript_data.files_touched),
+        "commands_run": len(transcript_data.commands_run),
+        "title": title,
+        "summary_path": str(summary_path),
+    }
+    index_session(metadata, db_path=db_path)
 
     return {
         "success": True,
