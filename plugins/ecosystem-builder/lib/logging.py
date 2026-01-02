@@ -46,15 +46,28 @@ class EventLogger:
         return event
 
     def read_all(self) -> list[Event]:
-        """Read all events from the log."""
+        """Read all events from the log.
+
+        Skips malformed lines rather than failing entirely.
+        """
         events = []
-        for line in self.log_file.read_text().strip().split("\n"):
+        try:
+            content = self.log_file.read_text()
+        except (OSError, UnicodeDecodeError):
+            # Log file unreadable - return empty list
+            return []
+
+        for line in content.strip().split("\n"):
             if not line:
                 continue
-            data = json.loads(line)
-            events.append(Event(
-                type=data["type"],
-                data=data["data"],
-                timestamp=data["timestamp"],
-            ))
+            try:
+                data = json.loads(line)
+                events.append(Event(
+                    type=data["type"],
+                    data=data["data"],
+                    timestamp=data["timestamp"],
+                ))
+            except (json.JSONDecodeError, KeyError):
+                # Skip malformed entries, continue processing
+                continue
         return events

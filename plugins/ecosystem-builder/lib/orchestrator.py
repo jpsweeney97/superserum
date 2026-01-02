@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Callable
 
@@ -109,8 +110,13 @@ class Orchestrator:
 
         except Exception as e:
             self.manifest.status = "failed"
-            self.manifest.completion_reason = str(e)
-            self.logger.log("run_failed", {"error": str(e)})
+            self.manifest.completion_reason = f"{type(e).__name__}: {e}"
+            self.logger.log("run_failed", {
+                "error_type": type(e).__name__,
+                "error_message": str(e),
+                "run_id": self.manifest.run_id,
+                "progress": asdict(self.manifest.progress),
+            })
             raise
 
         finally:

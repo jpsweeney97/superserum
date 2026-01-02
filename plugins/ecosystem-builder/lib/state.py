@@ -173,8 +173,14 @@ class RunManifest:
         return self._state_dir / self.run_id
 
     def save(self) -> None:
-        """Persist manifest to disk."""
+        """Persist manifest to disk.
+
+        Uses atomic write pattern: write to temp file, then rename.
+        Raises RuntimeError on failure with context.
+        """
         manifest_path = self.run_dir / "manifest.json"
+        temp_path = manifest_path.with_suffix(".tmp")
+
         data = {
             "run_id": self.run_id,
             "started": self.started,
@@ -188,7 +194,16 @@ class RunManifest:
             "status": self.status,
             "completion_reason": self.completion_reason,
         }
-        manifest_path.write_text(json.dumps(data, indent=2))
+
+        try:
+            temp_path.write_text(json.dumps(data, indent=2))
+            temp_path.replace(manifest_path)  # Atomic on POSIX
+        except OSError as e:
+            # Clean up temp file if it exists
+            temp_path.unlink(missing_ok=True)
+            raise RuntimeError(
+                f"Failed to save manifest to {manifest_path}: {e}"
+            ) from e
 
     @classmethod
     def load(cls, run_dir: Path) -> RunManifest:

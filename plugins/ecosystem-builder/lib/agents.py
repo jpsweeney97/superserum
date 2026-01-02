@@ -150,7 +150,11 @@ class AgentPanel:
                     )
 
                 # Check for hook-worthy skills
-                content = skill_md.read_text().lower()
+                try:
+                    content = skill_md.read_text().lower()
+                except (OSError, UnicodeDecodeError):
+                    # Skip unreadable files
+                    continue
                 hook_triggers = ["pre-commit", "before commit", "on save", "pre-push"]
                 if any(trigger in content for trigger in hook_triggers):
                     # Check if hooks exist in same plugin
@@ -183,16 +187,19 @@ class AgentPanel:
         scanned = 0
 
         def parse_frontmatter(content: str) -> dict:
-            """Extract YAML frontmatter from markdown."""
+            """Extract YAML frontmatter from markdown.
+
+            Falls back to simple key:value parsing if YAML is malformed.
+            """
+            import yaml
+
             match = re.match(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
             if not match:
                 return {}
             try:
-                import yaml
-
                 return yaml.safe_load(match.group(1)) or {}
-            except Exception:
-                # Simple fallback parsing
+            except yaml.YAMLError:
+                # Fallback to simple key:value parsing for malformed YAML
                 result = {}
                 for line in match.group(1).split("\n"):
                     if ":" in line:
@@ -211,7 +218,11 @@ class AgentPanel:
 
                 scanned += 1
                 skill_name = skill_dir.name
-                content = skill_md.read_text()
+                try:
+                    content = skill_md.read_text()
+                except (OSError, UnicodeDecodeError):
+                    # Skip unreadable files
+                    continue
                 frontmatter = parse_frontmatter(content)
 
                 # Check for description
