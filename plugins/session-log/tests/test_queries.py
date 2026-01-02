@@ -89,3 +89,22 @@ def test_get_session_returns_none_for_missing(db_with_sessions):
     result = get_session("nonexistent.md", db_path=db_with_sessions)
 
     assert result is None
+
+
+def test_list_sessions_closes_connection_on_error(tmp_path):
+    """Test that database connection is closed even when query fails."""
+    from unittest.mock import patch, MagicMock
+    from session_log.queries import list_sessions
+
+    db_path = tmp_path / "test.db"
+    db_path.touch()  # Create file so existence check passes
+
+    mock_conn = MagicMock()
+    mock_conn.execute.side_effect = Exception("Query failed")
+
+    with patch("session_log.queries.init_db", return_value=mock_conn):
+        with pytest.raises(Exception, match="Query failed"):
+            list_sessions(db_path=db_path)
+
+    # Connection should still be closed
+    mock_conn.close.assert_called_once()

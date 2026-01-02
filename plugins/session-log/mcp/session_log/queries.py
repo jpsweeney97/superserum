@@ -32,34 +32,35 @@ def list_sessions(
         return []
 
     conn = init_db(db_path)
+    try:
+        query = "SELECT * FROM sessions WHERE 1=1"
+        params: list[Any] = []
 
-    query = "SELECT * FROM sessions WHERE 1=1"
-    params: list[Any] = []
+        if project:
+            query += " AND project = ?"
+            params.append(project)
 
-    if project:
-        query += " AND project = ?"
-        params.append(project)
+        if after:
+            query += " AND date >= ?"
+            params.append(after)
 
-    if after:
-        query += " AND date >= ?"
-        params.append(after)
+        if before:
+            query += " AND date <= ?"
+            params.append(before)
 
-    if before:
-        query += " AND date <= ?"
-        params.append(before)
+        query += " ORDER BY date DESC LIMIT ?"
+        params.append(limit)
 
-    query += " ORDER BY date DESC LIMIT ?"
-    params.append(limit)
+        cursor = conn.execute(query, params)
+        columns = [desc[0] for desc in cursor.description]
 
-    cursor = conn.execute(query, params)
-    columns = [desc[0] for desc in cursor.description]
+        results = []
+        for row in cursor.fetchall():
+            results.append(dict(zip(columns, row)))
 
-    results = []
-    for row in cursor.fetchall():
-        results.append(dict(zip(columns, row)))
-
-    conn.close()
-    return results
+        return results
+    finally:
+        conn.close()
 
 
 def get_session(filename: str, db_path: Path | None = None) -> dict[str, Any] | None:
@@ -79,17 +80,17 @@ def get_session(filename: str, db_path: Path | None = None) -> dict[str, Any] | 
         return None
 
     conn = init_db(db_path)
+    try:
+        cursor = conn.execute(
+            "SELECT * FROM sessions WHERE filename = ?",
+            (filename,),
+        )
+        columns = [desc[0] for desc in cursor.description]
+        row = cursor.fetchone()
 
-    cursor = conn.execute(
-        "SELECT * FROM sessions WHERE filename = ?",
-        (filename,),
-    )
-    columns = [desc[0] for desc in cursor.description]
-    row = cursor.fetchone()
+        if row is None:
+            return None
 
-    conn.close()
-
-    if row is None:
-        return None
-
-    return dict(zip(columns, row))
+        return dict(zip(columns, row))
+    finally:
+        conn.close()

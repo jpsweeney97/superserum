@@ -41,7 +41,7 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
     return conn
 
 
-def index_session(metadata: dict, db_path: Path | None = None) -> None:
+def index_session(metadata: dict, db_path: Path | None = None) -> bool:
     """Index a session in SQLite.
 
     Args:
@@ -50,35 +50,42 @@ def index_session(metadata: dict, db_path: Path | None = None) -> None:
             Optional: branch, duration_minutes, commits_made,
                       files_touched, commands_run, title
         db_path: Optional override for database path (for testing).
+
+    Returns:
+        True if indexing succeeded, False otherwise.
     """
     if db_path is None:
         db_path = get_db_path()
 
     conn = init_db(db_path)
+    try:
+        from datetime import datetime, timezone
+        indexed_at = datetime.now(timezone.utc).isoformat()
 
-    from datetime import datetime, timezone
-    indexed_at = datetime.now(timezone.utc).isoformat()
-
-    conn.execute(
-        """
-        INSERT OR REPLACE INTO sessions
-        (filename, date, project, branch, duration_minutes, commits_made,
-         files_touched, commands_run, title, summary_path, indexed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            metadata["filename"],
-            metadata["date"],
-            metadata["project"],
-            metadata.get("branch"),
-            metadata.get("duration_minutes"),
-            metadata.get("commits_made"),
-            metadata.get("files_touched"),
-            metadata.get("commands_run"),
-            metadata.get("title"),
-            metadata["summary_path"],
-            indexed_at,
-        ),
-    )
-    conn.commit()
-    conn.close()
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO sessions
+            (filename, date, project, branch, duration_minutes, commits_made,
+             files_touched, commands_run, title, summary_path, indexed_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                metadata["filename"],
+                metadata["date"],
+                metadata["project"],
+                metadata.get("branch"),
+                metadata.get("duration_minutes"),
+                metadata.get("commits_made"),
+                metadata.get("files_touched"),
+                metadata.get("commands_run"),
+                metadata.get("title"),
+                metadata["summary_path"],
+                indexed_at,
+            ),
+        )
+        conn.commit()
+        return True
+    except Exception:
+        return False
+    finally:
+        conn.close()
