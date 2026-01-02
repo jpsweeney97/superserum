@@ -7,12 +7,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Add mcp directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "mcp"))
-
 from session_log.transcript import parse_transcript
 from session_log.summarizer import generate_summary, generate_title, get_summary_filename, calculate_duration_minutes
 from session_log.storage import index_session
+from session_log.search import embed_session
 
 
 def get_state_dir() -> Path:
@@ -91,13 +89,19 @@ def ensure_sessions_dir(cwd: str) -> Path:
     return sessions_dir
 
 
-def handle_session_end(input_data: dict, state_dir: Path | None = None, db_path: Path | None = None) -> dict:
+def handle_session_end(
+    input_data: dict,
+    state_dir: Path | None = None,
+    db_path: Path | None = None,
+    chroma_path: Path | None = None,
+) -> dict:
     """Handle SessionEnd event.
 
     Args:
         input_data: Hook input data containing transcript_path, session_id, etc.
         state_dir: Optional override for state directory (for testing).
         db_path: Optional override for database path (for testing).
+        chroma_path: Optional override for ChromaDB path (for testing).
 
     Returns:
         Dict with 'success' key indicating operation result.
@@ -169,10 +173,26 @@ def handle_session_end(input_data: dict, state_dir: Path | None = None, db_path:
     if not indexed:
         print(f"Warning: Failed to index session in database: {index_error}", file=sys.stderr)
 
+    # Embed in ChromaDB for semantic search
+    embedded = embed_session(
+        session_id=filename,
+        content=summary,
+        metadata={
+            "project": Path(cwd).name,
+            "branch": session_state.get("branch"),
+            "date": session_state.get("start_time"),
+        },
+        db_path=chroma_path,
+    )
+
+    if not embedded:
+        print("Warning: Failed to embed session in ChromaDB", file=sys.stderr)
+
     return {
         "success": True,
         "summary_path": str(summary_path),
         "indexed": indexed,
+        "embedded": embedded,
     }
 
 

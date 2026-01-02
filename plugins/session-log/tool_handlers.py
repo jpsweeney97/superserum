@@ -10,6 +10,7 @@ from pathlib import Path
 
 from session_log.queries import list_sessions as db_list_sessions
 from session_log.queries import get_session as db_get_session
+from session_log.search import search_sessions as db_search_sessions
 from security import validate_summary_path
 
 
@@ -63,6 +64,29 @@ TOOL_DEFINITIONS = [
             "required": ["filename"],
         },
     },
+    {
+        "name": "search_sessions",
+        "description": "Semantic search across session summaries. Find sessions by meaning, not just keywords.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Natural language search query (e.g., 'authentication bugs', 'database migrations')",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Maximum number of results (default: 10)",
+                    "default": 10,
+                },
+                "project": {
+                    "type": "string",
+                    "description": "Filter by project name",
+                },
+            },
+            "required": ["query"],
+        },
+    },
 ]
 
 
@@ -110,10 +134,31 @@ def handle_get_session(arguments: dict) -> list[ToolResult]:
     return [ToolResult(type="text", text=json.dumps(session, indent=2))]
 
 
+def handle_search_sessions(
+    arguments: dict,
+    chroma_path: Path | None = None,
+) -> list[ToolResult]:
+    """Handle search_sessions tool call."""
+    query = arguments.get("query")
+    if not query:
+        return [ToolResult(type="text", text="Error: query required")]
+
+    results = db_search_sessions(
+        query=query,
+        limit=arguments.get("limit", 10),
+        project=arguments.get("project"),
+        db_path=chroma_path,
+    )
+
+    return [ToolResult(type="text", text=json.dumps(results, indent=2))]
+
+
 def handle_tool(name: str, arguments: dict) -> list[ToolResult]:
     """Route tool call to appropriate handler."""
     if name == "list_sessions":
         return handle_list_sessions(arguments)
     elif name == "get_session":
         return handle_get_session(arguments)
+    elif name == "search_sessions":
+        return handle_search_sessions(arguments)
     return [ToolResult(type="text", text=f"Unknown tool: {name}")]

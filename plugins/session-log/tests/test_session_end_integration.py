@@ -157,3 +157,33 @@ def test_session_end_indexes_session(session_setup, tmp_path):
     assert len(sessions) == 1
     assert sessions[0]["project"] == "project"
     assert sessions[0]["branch"] == "feat/test"
+
+
+def test_session_end_embeds_in_chromadb(session_setup, tmp_path):
+    """SessionEnd embeds session summary in ChromaDB."""
+    from scripts.session_end import handle_session_end
+    from session_log.search import get_collection
+
+    db_path = tmp_path / "test_index.db"
+    chroma_path = tmp_path / "chroma"
+
+    input_data = {
+        "session_id": "test-123",
+        "transcript_path": str(session_setup["transcript"]),
+        "cwd": str(session_setup["project_dir"]),
+        "reason": "exit",
+    }
+
+    result = handle_session_end(
+        input_data,
+        state_dir=session_setup["state_dir"],
+        db_path=db_path,
+        chroma_path=chroma_path,
+    )
+
+    assert result["success"] is True
+    assert result.get("embedded") is True
+
+    # Verify embedding was stored
+    collection = get_collection(chroma_path)
+    assert collection.count() == 1

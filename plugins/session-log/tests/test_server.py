@@ -69,14 +69,14 @@ class TestGetToolDefinitions:
     """Test the get_tool_definitions function."""
 
     def test_returns_expected_tools(self):
-        """Test that get_tool_definitions returns both tools."""
+        """Test that get_tool_definitions returns all tools."""
         from tool_handlers import get_tool_definitions
 
         tools = get_tool_definitions()
 
-        assert len(tools) == 2
+        assert len(tools) == 3
         tool_names = {t["name"] for t in tools}
-        assert tool_names == {"list_sessions", "get_session"}
+        assert tool_names == {"list_sessions", "get_session", "search_sessions"}
 
     def test_list_sessions_has_correct_schema(self):
         """Test that list_sessions tool has correct input schema."""

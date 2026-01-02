@@ -1,6 +1,7 @@
 """ChromaDB semantic search for session summaries."""
 
 from pathlib import Path
+from typing import Any
 
 import chromadb
 from chromadb.config import Settings
@@ -60,3 +61,47 @@ def embed_session(
         return True
     except Exception:
         return False
+
+
+def search_sessions(
+    query: str,
+    limit: int = 10,
+    project: str | None = None,
+    db_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Search sessions by semantic similarity.
+
+    Args:
+        query: Natural language search query.
+        limit: Maximum number of results to return.
+        project: Optional filter by project name.
+        db_path: Optional override for ChromaDB storage path (for testing).
+
+    Returns:
+        List of dicts with id, content, metadata, and distance.
+    """
+    collection = get_collection(db_path)
+
+    if collection.count() == 0:
+        return []
+
+    where_filter = {"project": project} if project else None
+
+    results = collection.query(
+        query_texts=[query],
+        n_results=limit,
+        where=where_filter,
+    )
+
+    # Flatten results (query returns nested lists)
+    output = []
+    if results["ids"] and results["ids"][0]:
+        for i, session_id in enumerate(results["ids"][0]):
+            output.append({
+                "id": session_id,
+                "content": results["documents"][0][i] if results["documents"] else None,
+                "metadata": results["metadatas"][0][i] if results["metadatas"] else None,
+                "distance": results["distances"][0][i] if results["distances"] else None,
+            })
+
+    return output
