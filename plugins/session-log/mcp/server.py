@@ -9,6 +9,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
 from session_log.queries import list_sessions, get_session
+from security import validate_summary_path
 
 server = Server("session-log")
 
@@ -81,11 +82,13 @@ async def call_tool(name: str, arguments: dict):
         if session is None:
             return [TextContent(type="text", text=f"Session not found: {filename}")]
 
-        # Read the actual markdown content
+        # Read the actual markdown content with path validation
         summary_path = session.get("summary_path")
-        if summary_path and Path(summary_path).exists():
-            content = Path(summary_path).read_text()
-            return [TextContent(type="text", text=content)]
+        if summary_path:
+            validated_path = validate_summary_path(summary_path)
+            if validated_path:
+                content = Path(validated_path).read_text()
+                return [TextContent(type="text", text=content)]
 
         return [TextContent(type="text", text=json.dumps(session, indent=2))]
 
