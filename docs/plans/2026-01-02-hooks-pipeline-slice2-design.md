@@ -1,5 +1,10 @@
 # Plugin Development Pipeline — Slice 2: Hooks
 
+> **✅ IMPLEMENTED (2026-01-02):** Skills created per this design.
+>
+> - `plugins/plugin-dev/skills/brainstorming-hooks/SKILL.md`
+> - `plugins/plugin-dev/skills/implementing-hooks/SKILL.md`
+
 ## Overview
 
 This design specifies two skills for the hooks pipeline:
