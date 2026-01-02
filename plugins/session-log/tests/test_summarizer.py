@@ -77,3 +77,48 @@ def test_generate_summary_creates_title(sample_transcript_data, session_state):
 
     # Title should be in the markdown
     assert "# Session:" in summary
+
+
+def test_calculate_duration_with_naive_datetime():
+    """Test that naive datetime in start_time is handled correctly."""
+    from session_log.summarizer import calculate_duration_minutes
+
+    # Naive datetime string (no timezone)
+    naive_start = "2025-01-01T10:00:00"
+    end_time = datetime(2025, 1, 1, 10, 30, 0, tzinfo=timezone.utc)
+
+    # Should not crash and should return reasonable duration
+    duration = calculate_duration_minutes(naive_start, end_time)
+    assert duration == 30
+
+
+def test_calculate_duration_with_aware_datetime():
+    """Test that aware datetime is handled correctly."""
+    from session_log.summarizer import calculate_duration_minutes
+
+    aware_start = "2025-01-01T10:00:00+00:00"
+    end_time = datetime(2025, 1, 1, 10, 45, 0, tzinfo=timezone.utc)
+
+    duration = calculate_duration_minutes(aware_start, end_time)
+    assert duration == 45
+
+
+def test_get_summary_filename_with_naive_datetime():
+    """Test that naive datetime in session state is handled correctly."""
+    from session_log.summarizer import get_summary_filename
+
+    session_state = {"start_time": "2025-01-01T10:00:00"}  # Naive
+    filename = get_summary_filename(session_state, "Test Title")
+
+    assert filename.startswith("2025-01-01")
+    assert "test-title" in filename
+
+
+def test_get_summary_filename_with_invalid_datetime():
+    """Test that invalid datetime falls back gracefully."""
+    from session_log.summarizer import get_summary_filename
+
+    session_state = {"start_time": "not-a-date"}
+    # Should not crash, should fall back to current time
+    filename = get_summary_filename(session_state, "Test")
+    assert filename.endswith(".md")

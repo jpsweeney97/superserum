@@ -31,6 +31,11 @@ def generate_slug(title: str) -> str:
 def calculate_duration_minutes(start_time: str, end_time: datetime) -> int:
     """Calculate session duration in minutes."""
     start = datetime.fromisoformat(start_time)
+    # Handle timezone-naive datetimes by assuming UTC
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=timezone.utc)
+    if end_time.tzinfo is None:
+        end_time = end_time.replace(tzinfo=timezone.utc)
     delta = end_time - start
     return max(1, int(delta.total_seconds() / 60))
 
@@ -106,7 +111,10 @@ def generate_summary(
 def get_summary_filename(session_state: dict, title: str) -> str:
     """Generate the summary filename."""
     start_time = session_state.get("start_time", datetime.now(timezone.utc).isoformat())
-    dt = datetime.fromisoformat(start_time)
+    try:
+        dt = datetime.fromisoformat(start_time)
+    except ValueError:
+        dt = datetime.now(timezone.utc)
     date_str = dt.strftime("%Y-%m-%d_%H-%M-%S")
     slug = generate_slug(title)
     return f"{date_str}_{slug}.md"
