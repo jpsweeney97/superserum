@@ -1,5 +1,6 @@
 """ChromaDB semantic search for session summaries."""
 
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -39,7 +40,7 @@ def embed_session(
     content: str,
     metadata: dict | None = None,
     db_path: Path | None = None,
-) -> bool:
+) -> tuple[bool, str | None]:
     """Embed and store a session summary.
 
     Args:
@@ -49,7 +50,7 @@ def embed_session(
         db_path: Optional override for ChromaDB storage path (for testing).
 
     Returns:
-        True if successful, False otherwise.
+        Tuple of (success, error_message). error_message is None on success.
     """
     try:
         collection = get_collection(db_path)
@@ -58,9 +59,19 @@ def embed_session(
             documents=[content],
             metadatas=[metadata] if metadata else None,
         )
-        return True
-    except Exception:
-        return False
+        return True, None
+    except ValueError as e:
+        error_msg = f"Invalid embedding input: {e}"
+        print(f"embed_session failed: {error_msg}", file=sys.stderr)
+        return False, error_msg
+    except RuntimeError as e:
+        error_msg = f"ChromaDB runtime error: {e}"
+        print(f"embed_session failed: {error_msg}", file=sys.stderr)
+        return False, error_msg
+    except Exception as e:
+        error_msg = f"Unexpected error: {e}"
+        print(f"embed_session failed: {error_msg}", file=sys.stderr)
+        return False, error_msg
 
 
 def search_sessions(
@@ -79,29 +90,40 @@ def search_sessions(
 
     Returns:
         List of dicts with id, content, metadata, and distance.
+        Returns empty list on error.
     """
-    collection = get_collection(db_path)
+    try:
+        collection = get_collection(db_path)
 
-    if collection.count() == 0:
+        if collection.count() == 0:
+            return []
+
+        where_filter = {"project": project} if project else None
+
+        results = collection.query(
+            query_texts=[query],
+            n_results=limit,
+            where=where_filter,
+        )
+
+        # Flatten results (query returns nested lists)
+        output = []
+        if results["ids"] and results["ids"][0]:
+            for i, session_id in enumerate(results["ids"][0]):
+                output.append({
+                    "id": session_id,
+                    "content": results["documents"][0][i] if results["documents"] else None,
+                    "metadata": results["metadatas"][0][i] if results["metadatas"] else None,
+                    "distance": results["distances"][0][i] if results["distances"] else None,
+                })
+
+        return output
+    except ValueError as e:
+        print(f"search_sessions failed: Invalid query: {e}", file=sys.stderr)
         return []
-
-    where_filter = {"project": project} if project else None
-
-    results = collection.query(
-        query_texts=[query],
-        n_results=limit,
-        where=where_filter,
-    )
-
-    # Flatten results (query returns nested lists)
-    output = []
-    if results["ids"] and results["ids"][0]:
-        for i, session_id in enumerate(results["ids"][0]):
-            output.append({
-                "id": session_id,
-                "content": results["documents"][0][i] if results["documents"] else None,
-                "metadata": results["metadatas"][0][i] if results["metadatas"] else None,
-                "distance": results["distances"][0][i] if results["distances"] else None,
-            })
-
-    return output
+    except RuntimeError as e:
+        print(f"search_sessions failed: ChromaDB error: {e}", file=sys.stderr)
+        return []
+    except Exception as e:
+        print(f"search_sessions failed: {e}", file=sys.stderr)
+        return []

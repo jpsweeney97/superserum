@@ -47,6 +47,24 @@ def load_session_state(session_id: str, state_dir: Path | None = None) -> dict |
         return None
 
 
+def delete_state_file(session_id: str, state_dir: Path | None = None) -> None:
+    """Delete session state file after successful processing.
+
+    Args:
+        session_id: The session ID whose state file should be deleted.
+        state_dir: Optional override for state directory (for testing).
+    """
+    if state_dir is None:
+        state_dir = get_state_dir()
+
+    state_file = state_dir / f"session_{session_id}.json"
+    try:
+        if state_file.exists():
+            state_file.unlink()
+    except OSError as e:
+        print(f"Warning: Failed to delete state file: {e}", file=sys.stderr)
+
+
 def get_git_info(cwd: str) -> tuple[str | None, int]:
     """Get current HEAD commit and count of new commits.
 
@@ -174,7 +192,7 @@ def handle_session_end(
         print(f"Warning: Failed to index session in database: {index_error}", file=sys.stderr)
 
     # Embed in ChromaDB for semantic search
-    embedded = embed_session(
+    embedded, embed_error = embed_session(
         session_id=filename,
         content=summary,
         metadata={
@@ -186,7 +204,10 @@ def handle_session_end(
     )
 
     if not embedded:
-        print("Warning: Failed to embed session in ChromaDB", file=sys.stderr)
+        print(f"Warning: Failed to embed session in ChromaDB: {embed_error}", file=sys.stderr)
+
+    # Clean up state file after successful processing
+    delete_state_file(session_id, state_dir)
 
     return {
         "success": True,

@@ -103,8 +103,9 @@ def test_list_sessions_closes_connection_on_error(tmp_path):
     mock_conn.execute.side_effect = Exception("Query failed")
 
     with patch("session_log.queries.init_db", return_value=mock_conn):
-        with pytest.raises(Exception, match="Query failed"):
-            list_sessions(db_path=db_path)
+        # Now returns empty list instead of raising
+        result = list_sessions(db_path=db_path)
 
+    assert result == []
     # Connection should still be closed
     mock_conn.close.assert_called_once()

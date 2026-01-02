@@ -155,3 +155,25 @@ def test_load_session_state_handles_malformed_json(tmp_path):
 
     result = load_session_state("test-123", state_dir=tmp_path)
     assert result is None
+
+
+def test_delete_state_file_removes_file(tmp_path):
+    """delete_state_file removes the session state file."""
+    from scripts.session_end import delete_state_file
+
+    state_file = tmp_path / "session_test-123.json"
+    state_file.write_text('{"session_id": "test-123"}')
+
+    assert state_file.exists()
+
+    delete_state_file("test-123", state_dir=tmp_path)
+
+    assert not state_file.exists()
+
+
+def test_delete_state_file_handles_missing_file(tmp_path):
+    """delete_state_file handles non-existent file gracefully."""
+    from scripts.session_end import delete_state_file
+
+    # Should not raise an exception
+    delete_state_file("nonexistent", state_dir=tmp_path)

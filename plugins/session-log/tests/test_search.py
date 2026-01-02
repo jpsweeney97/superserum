@@ -24,7 +24,7 @@ def test_embed_session_stores_document():
     with tempfile.TemporaryDirectory() as tmpdir:
         db_path = Path(tmpdir)
 
-        success = embed_session(
+        success, error = embed_session(
             session_id="2026-01-02_10-30-00_test-session",
             content="Fixed authentication bug in login flow",
             metadata={"project": "myapp", "branch": "fix/auth"},
@@ -32,10 +32,31 @@ def test_embed_session_stores_document():
         )
 
         assert success is True
+        assert error is None
 
         # Verify it was stored
         collection = get_collection(db_path)
         assert collection.count() == 1
+
+
+def test_embed_session_returns_error_on_failure():
+    """embed_session returns error message on failure."""
+    from unittest.mock import patch
+    from session_log.search import embed_session
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir)
+
+        with patch("session_log.search.get_collection", side_effect=RuntimeError("Connection failed")):
+            success, error = embed_session(
+                session_id="test-session",
+                content="Test content",
+                db_path=db_path,
+            )
+
+        assert success is False
+        assert error is not None
+        assert "ChromaDB runtime error" in error
 
 
 def test_search_sessions_finds_relevant_content():

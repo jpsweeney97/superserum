@@ -22,6 +22,13 @@ class ToolResult:
     text: str
 
 
+def _clamp_limit(limit: int | None, default: int, max_limit: int = 1000) -> int:
+    """Clamp limit to valid range [1, max_limit]."""
+    if limit is None:
+        return default
+    return min(max(1, limit), max_limit)
+
+
 # Tool definitions for list_tools
 TOOL_DEFINITIONS = [
     {
@@ -101,7 +108,7 @@ def handle_list_sessions(arguments: dict) -> list[ToolResult]:
         project=arguments.get("project"),
         after=arguments.get("after"),
         before=arguments.get("before"),
-        limit=arguments.get("limit", 50),
+        limit=_clamp_limit(arguments.get("limit"), default=50),
     )
     return [ToolResult(type="text", text=json.dumps(results, indent=2))]
 
@@ -118,20 +125,25 @@ def handle_get_session(arguments: dict) -> list[ToolResult]:
 
     # Read the actual markdown content with path validation
     summary_path = session.get("summary_path")
-    if summary_path:
-        validated_path = validate_summary_path(summary_path)
-        if validated_path:
-            try:
-                content = Path(validated_path).read_text()
-                return [ToolResult(type="text", text=content)]
-            except PermissionError:
-                return [ToolResult(type="text", text=f"Error: Permission denied reading {filename}")]
-            except UnicodeDecodeError:
-                return [ToolResult(type="text", text=f"Error: File encoding issue for {filename}")]
-            except OSError as e:
-                return [ToolResult(type="text", text=f"Error reading session file: {e}")]
+    if not summary_path:
+        return [ToolResult(type="text", text=f"Error: Session {filename} has no summary_path")]
 
-    return [ToolResult(type="text", text=json.dumps(session, indent=2))]
+    validated_path = validate_summary_path(summary_path)
+    if not validated_path:
+        return [ToolResult(
+            type="text",
+            text=f"Error: Summary path validation failed for {filename} (path outside allowed directory or does not exist)",
+        )]
+
+    try:
+        content = Path(validated_path).read_text()
+        return [ToolResult(type="text", text=content)]
+    except PermissionError:
+        return [ToolResult(type="text", text=f"Error: Permission denied reading {filename}")]
+    except UnicodeDecodeError:
+        return [ToolResult(type="text", text=f"Error: File encoding issue for {filename}")]
+    except OSError as e:
+        return [ToolResult(type="text", text=f"Error reading session file: {e}")]
 
 
 def handle_search_sessions(
@@ -145,7 +157,7 @@ def handle_search_sessions(
 
     results = db_search_sessions(
         query=query,
-        limit=arguments.get("limit", 10),
+        limit=_clamp_limit(arguments.get("limit"), default=10),
         project=arguments.get("project"),
         db_path=chroma_path,
     )

@@ -189,8 +189,9 @@ class TestHandleTool:
             with patch("tool_handlers.validate_summary_path", return_value=None):
                 result = handle_tool("get_session", {"filename": "test.md"})
 
-        # Should return JSON metadata when path validation fails
-        assert "test-project" in result[0].text
+        # Should return explicit error when path validation fails
+        assert "Error:" in result[0].text
+        assert "path validation failed" in result[0].text.lower()
 
     def test_unknown_tool(self):
         """Test calling unknown tool."""

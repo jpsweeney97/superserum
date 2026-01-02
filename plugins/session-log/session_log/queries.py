@@ -1,5 +1,7 @@
 """Query functions for session data."""
 
+import sqlite3
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +26,7 @@ def list_sessions(
 
     Returns:
         List of session dictionaries ordered by date descending.
+        Returns empty list on error.
     """
     if db_path is None:
         db_path = get_db_path()
@@ -59,6 +62,12 @@ def list_sessions(
             results.append(dict(zip(columns, row)))
 
         return results
+    except sqlite3.Error as e:
+        print(f"list_sessions failed: Database error: {e}", file=sys.stderr)
+        return []
+    except Exception as e:
+        print(f"list_sessions failed: {e}", file=sys.stderr)
+        return []
     finally:
         conn.close()
 
@@ -72,6 +81,7 @@ def get_session(filename: str, db_path: Path | None = None) -> dict[str, Any] | 
 
     Returns:
         Session dictionary or None if not found.
+        Returns None on error (errors logged to stderr).
     """
     if db_path is None:
         db_path = get_db_path()
@@ -92,5 +102,11 @@ def get_session(filename: str, db_path: Path | None = None) -> dict[str, Any] | 
             return None
 
         return dict(zip(columns, row))
+    except sqlite3.Error as e:
+        print(f"get_session failed for {filename!r:.50}: Database error: {e}", file=sys.stderr)
+        return None
+    except Exception as e:
+        print(f"get_session failed for {filename!r:.50}: {e}", file=sys.stderr)
+        return None
     finally:
         conn.close()
