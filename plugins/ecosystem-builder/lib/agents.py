@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 import uuid
 
@@ -153,8 +154,8 @@ class AgentPanel:
                 # Check for hook-worthy skills
                 try:
                     content = skill_md.read_text().lower()
-                except (OSError, UnicodeDecodeError):
-                    # Skip unreadable files
+                except (OSError, UnicodeDecodeError) as e:
+                    logging.warning(f"Skipping unreadable skill {skill_md}: {e}")
                     continue
                 hook_triggers = ["pre-commit", "before commit", "on save", "pre-push"]
                 if any(trigger in content for trigger in hook_triggers):
@@ -216,8 +217,8 @@ class AgentPanel:
                 skill_name = skill_dir.name
                 try:
                     content = skill_md.read_text()
-                except (OSError, UnicodeDecodeError):
-                    # Skip unreadable files
+                except (OSError, UnicodeDecodeError) as e:
+                    logging.warning(f"Skipping unreadable skill {skill_md}: {e}")
                     continue
                 frontmatter = parse_frontmatter(content)
 

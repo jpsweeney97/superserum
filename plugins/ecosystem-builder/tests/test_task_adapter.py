@@ -1,5 +1,7 @@
 """Tests for Task tool adapter."""
 
+import pytest
+
 from lib.task_adapter import (
     create_dynamic_mock_callable,
     create_mock_callable,
@@ -105,3 +107,27 @@ class TestDynamicMockCallable:
         metadata = yaml.safe_load(frontmatter)
 
         assert metadata["name"] == "ci-cd-integration"
+
+
+class TestSubagentConfigValidation:
+    """Tests for SubagentConfig __post_init__ validation."""
+
+    def test_timeout_below_minimum_raises(self) -> None:
+        """Timeout below 1000ms should raise ValueError."""
+        with pytest.raises(ValueError, match="timeout_ms must be >= 1000"):
+            SubagentConfig(timeout_ms=999)
+
+    def test_timeout_above_maximum_raises(self) -> None:
+        """Timeout above 600000ms should raise ValueError."""
+        with pytest.raises(ValueError, match="timeout_ms must be <= 600000"):
+            SubagentConfig(timeout_ms=600001)
+
+    def test_boundary_values_valid(self) -> None:
+        """Boundary values should be accepted."""
+        # Minimum valid timeout
+        config_min = SubagentConfig(timeout_ms=1000)
+        assert config_min.timeout_ms == 1000
+
+        # Maximum valid timeout
+        config_max = SubagentConfig(timeout_ms=600000)
+        assert config_max.timeout_ms == 600000

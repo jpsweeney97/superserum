@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -107,15 +108,24 @@ class StagingManager:
                 if not metadata_file.exists():
                     continue
 
-                metadata = json.loads(metadata_file.read_text())
-                artifacts.append(StagedArtifact(
-                    name=metadata["name"],
-                    artifact_type=metadata["artifact_type"],
-                    path=artifact_dir,
-                    run_id=metadata["run_id"],
-                    gap_id=metadata["gap_id"],
-                    staged_at=metadata["staged_at"],
-                ))
+                try:
+                    metadata = json.loads(metadata_file.read_text())
+                except (OSError, json.JSONDecodeError) as e:
+                    logging.warning(f"Skipping artifact with corrupt metadata at {artifact_dir}: {e}")
+                    continue
+
+                try:
+                    artifacts.append(StagedArtifact(
+                        name=metadata["name"],
+                        artifact_type=metadata["artifact_type"],
+                        path=artifact_dir,
+                        run_id=metadata["run_id"],
+                        gap_id=metadata["gap_id"],
+                        staged_at=metadata["staged_at"],
+                    ))
+                except KeyError as e:
+                    logging.warning(f"Skipping artifact with incomplete metadata at {artifact_dir}: missing {e}")
+                    continue
 
         return artifacts
 

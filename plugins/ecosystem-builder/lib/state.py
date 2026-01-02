@@ -244,7 +244,14 @@ class RunManifest:
     def load(cls, run_dir: Path) -> RunManifest:
         """Load manifest from disk."""
         manifest_path = run_dir / "manifest.json"
-        data = json.loads(manifest_path.read_text())
+        try:
+            data = json.loads(manifest_path.read_text())
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Manifest not found for run at {run_dir}") from None
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Corrupted manifest at {manifest_path}: {e}") from e
+        except OSError as e:
+            raise RuntimeError(f"Failed to read manifest from {manifest_path}: {e}") from e
 
         budget = Budget(
             artifacts=BudgetItem(**data["budget"]["artifacts"]),

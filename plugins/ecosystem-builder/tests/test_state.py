@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from lib.state import StateManager, RunManifest, Gap, GapType, BuildResult, ValidationCheck, ValidationResult
+from lib.state import StateManager, RunManifest, Gap, GapType, BuildResult, ValidationCheck, ValidationResult, BudgetItem
 from lib.logging import EventLogger, Event
 
 
@@ -225,3 +225,124 @@ class TestValidationResult:
         assert result.passed is False
         assert len(result.failed_checks) == 1
         assert result.failed_checks[0].name == "content"
+
+
+class TestGapValidation:
+    """Tests for Gap __post_init__ validation."""
+
+    def test_empty_gap_id_raises(self) -> None:
+        """Empty gap_id should raise ValueError."""
+        with pytest.raises(ValueError, match="gap_id cannot be empty"):
+            Gap(
+                gap_id="",
+                gap_type=GapType.MISSING_SKILL,
+                title="Test",
+                description="Test",
+                source_agent="test",
+                confidence=0.5,
+                priority=1,
+            )
+
+    def test_confidence_below_zero_raises(self) -> None:
+        """Confidence below 0.0 should raise ValueError."""
+        with pytest.raises(ValueError, match="confidence must be in"):
+            Gap(
+                gap_id="gap-001",
+                gap_type=GapType.MISSING_SKILL,
+                title="Test",
+                description="Test",
+                source_agent="test",
+                confidence=-0.1,
+                priority=1,
+            )
+
+    def test_confidence_above_one_raises(self) -> None:
+        """Confidence above 1.0 should raise ValueError."""
+        with pytest.raises(ValueError, match="confidence must be in"):
+            Gap(
+                gap_id="gap-001",
+                gap_type=GapType.MISSING_SKILL,
+                title="Test",
+                description="Test",
+                source_agent="test",
+                confidence=1.1,
+                priority=1,
+            )
+
+    def test_priority_below_one_raises(self) -> None:
+        """Priority below 1 should raise ValueError."""
+        with pytest.raises(ValueError, match="priority must be >= 1"):
+            Gap(
+                gap_id="gap-001",
+                gap_type=GapType.MISSING_SKILL,
+                title="Test",
+                description="Test",
+                source_agent="test",
+                confidence=0.5,
+                priority=0,
+            )
+
+    def test_boundary_values_valid(self) -> None:
+        """Boundary values should be accepted."""
+        # confidence=0.0 is valid
+        gap1 = Gap(
+            gap_id="gap-001",
+            gap_type=GapType.MISSING_SKILL,
+            title="Test",
+            description="Test",
+            source_agent="test",
+            confidence=0.0,
+            priority=1,
+        )
+        assert gap1.confidence == 0.0
+
+        # confidence=1.0 is valid
+        gap2 = Gap(
+            gap_id="gap-002",
+            gap_type=GapType.MISSING_SKILL,
+            title="Test",
+            description="Test",
+            source_agent="test",
+            confidence=1.0,
+            priority=1,
+        )
+        assert gap2.confidence == 1.0
+
+
+class TestBuildResultValidation:
+    """Tests for BuildResult __post_init__ validation."""
+
+    def test_empty_name_raises(self) -> None:
+        """Empty name should raise ValueError."""
+        with pytest.raises(ValueError, match="name cannot be empty"):
+            BuildResult(name="", content="# Content", gap_id="gap-123")
+
+    def test_both_content_and_error_raises(self) -> None:
+        """Having both content and error should raise ValueError."""
+        with pytest.raises(ValueError, match="cannot have both content and error"):
+            BuildResult(
+                name="test-skill",
+                content="# Content",
+                gap_id="gap-123",
+                error="Some error",
+            )
+
+
+class TestBudgetItemValidation:
+    """Tests for BudgetItem __post_init__ validation."""
+
+    def test_negative_limit_raises(self) -> None:
+        """Negative limit should raise ValueError."""
+        with pytest.raises(ValueError, match="limit must be non-negative"):
+            BudgetItem(limit=-1, used=0)
+
+    def test_negative_used_raises(self) -> None:
+        """Negative used should raise ValueError."""
+        with pytest.raises(ValueError, match="used must be non-negative"):
+            BudgetItem(limit=10, used=-1)
+
+    def test_zero_values_valid(self) -> None:
+        """Zero values should be accepted."""
+        item = BudgetItem(limit=0, used=0)
+        assert item.limit == 0
+        assert item.used == 0

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -40,8 +41,13 @@ class EventLogger:
             "timestamp": event.timestamp,
         })
 
-        with self.log_file.open("a") as f:
-            f.write(line + "\n")
+        try:
+            with self.log_file.open("a") as f:
+                f.write(line + "\n")
+        except OSError as e:
+            raise RuntimeError(
+                f"Failed to log event '{event_type}' to {self.log_file}: {e}"
+            ) from e
 
         return event
 
@@ -53,11 +59,15 @@ class EventLogger:
         events = []
         try:
             content = self.log_file.read_text()
-        except (OSError, UnicodeDecodeError):
-            # Log file unreadable - return empty list
+        except OSError as e:
+            logging.warning(f"Failed to read log file {self.log_file}: {e}")
+            return []
+        except UnicodeDecodeError as e:
+            logging.warning(f"Log file {self.log_file} contains invalid encoding: {e}")
             return []
 
-        for line in content.strip().split("\n"):
+        lines = content.strip().split("\n")
+        for line_num, line in enumerate(lines, 1):
             if not line:
                 continue
             try:
@@ -67,7 +77,7 @@ class EventLogger:
                     data=data["data"],
                     timestamp=data["timestamp"],
                 ))
-            except (json.JSONDecodeError, KeyError):
-                # Skip malformed entries, continue processing
+            except (json.JSONDecodeError, KeyError) as e:
+                logging.warning(f"Skipping malformed log entry at line {line_num}: {e}")
                 continue
         return events

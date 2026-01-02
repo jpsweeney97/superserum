@@ -77,7 +77,7 @@ description: {description}
 
     def _title_case(self, title: str) -> str:
         """Convert to title case."""
-        return " ".join(word.capitalize() for word in title.split("-"))
+        return " ".join(word.capitalize() for word in title.replace("-", " ").split())
 
     def _generate_description(self, gap: Gap) -> str:
         """Generate description with trigger phrases."""
