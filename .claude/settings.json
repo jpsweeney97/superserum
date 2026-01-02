@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./plugins/plugin-dev/skills/*/scripts/*.sh:*)",
+      "Bash(cd plugins/deep-analysis/mcp && uv sync)",
+      "Bash(cd plugins/deep-analysis/mcp && uv run python -m server)",
+      "Read(plugins/**)",
+      "Read(docs/**)",
+      "Edit(plugins/**)",
+      "Edit(docs/**)"
+    ],
+    "deny": [
+      "Edit(.claude/settings.json)"
+    ]
+  }
+}

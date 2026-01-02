@@ -1,13 +1,45 @@
 ---
-name: Writing Skills
-description: This skill applies TDD methodology to skill development. Use when "testing skills", "skill TDD", "pressure testing skills", or "validating skill effectiveness". For skill structure, see skill-development. For full creation methodology, see skillforge.
+name: implementing-skills
+description: Use when building a skill from a design, "implement this skill",
+  "write the skill", "TDD for skills", "pressure testing skills", or
+  "validating skill effectiveness". For structure reference, see skill-development.
+  For deep creation methodology, see skillforge.
 ---
 
-# Writing Skills
+# Implementing Skills
 
-**Writing skills IS Test-Driven Development applied to process documentation.**
+Build skills using test-driven development: write failing tests first, then write the skill to pass them.
 
-## Related
+## Pipeline Context
+
+This skill is **Stage 3: Implement** in the plugin development pipeline.
+
+| Aspect | Value |
+|--------|-------|
+| This stage | Build skill from design using TDD |
+| Previous | `/brainstorming-skills` (design document) |
+| Next | `/optimizing-plugins` or personal use |
+
+**Full pipeline:** See `references/pipeline-overview.md` in brainstorming-plugins.
+
+## Prerequisites Check
+
+Before proceeding, verify:
+
+1. **Design document exists?**
+   - If yes: "I see the design at `[path]`. Proceeding with implementation."
+   - If no: "I don't see a design document. Should we start with `/brainstorming-skills`?"
+
+2. **Design has required sections?**
+   - Purpose statement
+   - Trigger phrases (3-5)
+   - Scope boundaries (in/out)
+
+If any section is missing, ask: "The design is missing [sections]. Should we complete it first?"
+
+**No formal design?** You can proceed with a clear mental model, but document what you're building first.
+
+## Related Skills
 
 For **file structure** (directories, SKILL.md format, progressive disclosure), see the `skill-development` skill.
 
@@ -235,9 +267,30 @@ Same Iron Law: No skill without failing test first.
 Same cycle: RED (baseline) → GREEN (write skill) → REFACTOR (close loopholes).
 Same benefits: Better quality, fewer surprises, bulletproof results.
 
+## Output
+
+Working skill in correct location:
+- Plugin skill: `plugin-name/skills/skill-name/SKILL.md`
+- Personal skill: `~/.claude/skills/skill-name/SKILL.md`
+
+Plus any references/, scripts/, examples/ as designed.
+
+## Next Step
+
+Choose one and run:
+
+| Situation | Command |
+|-----------|---------|
+| More components to build | `/brainstorming-{component}` for next component |
+| Plugin complete, want polish | `/optimizing-plugins` |
+| Personal use only | Done — skill is active |
+
 ## References
 
-- `references/testing-skills-with-subagents.md` - Pressure scenario methodology
+- `references/testing-skills-with-subagents.md` - Full TDD methodology for skills
+- `references/pressure-scenario-design.md` - Designing effective pressure scenarios
+- `references/bulletproofing-rationalization.md` - Countering agent rationalizations
 - `references/persuasion-principles.md` - Psychology of rationalization resistance
-- `references/graphviz-conventions.dot` - Flowchart style rules
 - `references/anthropic-best-practices.md` - Official Anthropic guidance
+- brainstorming-skills — Design phase (if design needed)
+- brainstorming-plugins/references/pipeline-overview.md — Full pipeline

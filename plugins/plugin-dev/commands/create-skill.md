@@ -52,5 +52,5 @@ python ${CLAUDE_PLUGIN_ROOT}/skills/skillforge/scripts/quick_validate.py <skill-
 ## Related
 
 - `skill-development` - Structural reference for skill anatomy
-- `writing-skills` - TDD testing methodology
+- `implementing-skills` - TDD testing methodology
 - `skill-reviewer` agent - Post-creation quality review

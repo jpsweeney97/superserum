@@ -16,7 +16,7 @@ The plugin-dev toolkit provides **12 specialized skills** to help you build high
 | 6 | Agent Development | `agent-development` | Autonomous agents |
 | 7 | Skill Development | `skill-development` | Skill structure reference |
 | 8 | Plugin Audit | `plugin-audit` | 50+ validation rules |
-| 9 | Writing Skills | `writing-skills` | TDD methodology |
+| 9 | Implementing Skills | `implementing-skills` | TDD methodology |
 | 10 | Plugin Optimization | `optimizing-plugins` | Six-lens improvement |
 | 11 | Plugin Brainstorming | `brainstorming-plugins` | Design before implementation |
 | 12 | SkillForge | `skillforge` | Rigorous 5-phase creation |
@@ -35,9 +35,9 @@ Each skill follows best practices with progressive disclosure: lean core documen
 | `/brainstorm` | `brainstorming-plugins` | Design exploration |
 
 **Skill relationships:**
-- **Writing Skills** ↔ **Skill Development**: Complementary peers (process vs structure)
+- **Implementing Skills** ↔ **Skill Development**: Complementary peers (process vs structure)
 - **Plugin Audit** → **Plugin Optimization**: Run audit first to fix issues, then optimize
-- **SkillForge** → **Writing Skills** + **Skill Development**: Full methodology using both
+- **SkillForge** → **Implementing Skills** + **Skill Development**: Full methodology using both
 
 ## Guided Workflow Command
 
