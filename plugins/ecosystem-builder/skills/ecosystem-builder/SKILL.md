@@ -4,7 +4,7 @@ description: |
   Trigger autonomous ecosystem expansion. Use when asked to "build skills", "expand ecosystem", "find gaps", or "generate artifacts".
 license: MIT
 metadata:
-  version: 0.1.0
+  version: 0.2.0
   model: claude-opus-4-5-20251101
   domains: [meta, automation, skills]
   type: orchestrator
@@ -35,6 +35,10 @@ When the user asks to:
 
 2. **Start the run:**
    ```bash
+   # For testing (uses mock callable)
+   ~/.claude/plugins/ecosystem-builder/bin/ecosystem-builder run --artifacts N --mock
+
+   # For production (requires Claude Code callable)
    ~/.claude/plugins/ecosystem-builder/bin/ecosystem-builder run --artifacts N
    ```
 
