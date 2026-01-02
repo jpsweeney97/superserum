@@ -7,7 +7,6 @@ making it testable with standard pytest without requiring the MCP package.
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from session_log.queries import list_sessions as db_list_sessions
 from session_log.queries import get_session as db_get_session
