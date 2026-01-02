@@ -1,5 +1,16 @@
 # Plugin Development Pipeline - Slice 1 Design
 
+> **⚠️ IMPLEMENTED (2026-01-02):** Skills created and integrated into plugin-dev.
+>
+> - brainstorming-skills: `plugins/plugin-dev/skills/brainstorming-skills/`
+> - implementing-skills: `plugins/plugin-dev/skills/implementing-skills/`
+> - brainstorming-plugins: Updated with triage focus
+> - optimizing-plugins: Updated with prerequisites/handoff
+> - Stub skills: Created for future slices (hooks, agents, commands)
+> - deploying-plugins: Deferred (per Minimalist lens - manual README sufficient for MVP)
+>
+> *Original design preserved for reference.*
+
 ## Overview
 
 Comprehensive refactor of plugin-dev skills to create a clear, staged pipeline for plugin development.

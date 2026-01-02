@@ -1,132 +1,120 @@
 ---
 name: brainstorming-plugins
-description: This skill guides plugin design through collaborative dialogue. Use when user wants to "build a plugin", "create a plugin", "design a plugin for X", or asks what components they need. Explores requirements, selects component types, and outputs plugin design document.
+description: Use when starting plugin development, "build a plugin", "create a plugin for X", or unsure which components are needed. Identifies which components your plugin needs, then hands off to component-specific design skills.
 ---
 
-# Brainstorming Plugins
+# Plugin Component Triage
 
-Design Claude Code plugins through collaborative dialogue before implementation.
+Identify which components your plugin needs, then hand off to component-specific design skills.
 
-## Overview
+## Fast Path
 
-This skill turns plugin ideas into well-formed designs through natural conversation. The goal: understand the problem, select the right components, and produce a design document for `/plugin-dev:create-plugin`.
+If user request explicitly mentions component type, skip triage:
+
+| User Says | Skip To |
+|-----------|---------|
+| "I want to build a skill for X" | `/brainstorming-skills` |
+| "I need a hook that Y" | `/brainstorming-hooks` |
+| "Create a command for Z" | `/brainstorming-commands` |
+| "Build an agent that W" | `/brainstorming-agents` |
+
+**Only use triage when:** User is unsure what components they need, or describes a problem without specifying component type.
+
+## Prerequisites
+
+None — this is the entry point.
 
 ## The Process
 
-1. **Understand the idea** — Ask questions one at a time to clarify purpose, users, and constraints
-2. **Explore approaches** — Propose 2-3 approaches with trade-offs; lead with your recommendation
-3. **Present the design** — Show design in 200-300 word sections; validate each
-4. **Document and handoff** — Write to `docs/plans/`, offer implementation paths
+### 1. Understand the Problem
 
-## Starting the Conversation
+Ask one question at a time:
+- What problem does this solve?
+- Who uses it? (User explicitly? Claude automatically? Both?)
+- When should it activate? (Explicit command? Automatic trigger? Event-driven?)
 
-Before asking questions:
-- Check project context (existing plugins, patterns, conventions)
-- Read any existing docs the user mentions
-- Understand if this extends an existing plugin or creates a new one
+### 2. Distribution & Scope
 
-Then ask one question at a time. Prefer multiple choice when possible.
-
-## Key Questions
-
-### 1. Problem Clarity
-
-- What problem does this plugin solve?
-- Who uses it? (The user explicitly? Claude automatically? Both?)
-- When does it activate? (Explicit command? Automatic trigger? Event-driven?)
-
-### 2. Component Selection
-
-Use the decision framework in [references/component-decision-guide.md](references/component-decision-guide.md).
-
-Quick reference:
-
-| User Need | Component | Why |
-|-----------|-----------|-----|
-| "Claude needs to know about X" | **Skill** | Knowledge that loads on trigger |
-| "User runs action X explicitly" | **Command** | `/plugin:action` invocation |
-| "Delegate to separate context" | **Agent** | Isolated execution, custom tools |
-| "X must ALWAYS happen on event Y" | **Hook** | Deterministic, guaranteed |
-| "Connect to external service X" | **MCP Server** | Provides tools for external APIs |
-| "Code intelligence for language X" | **LSP Server** | Diagnostics, go-to-definition |
-
-### 3. Hook Events (if using hooks)
-
-Which events matter?
-- `PreToolUse` / `PostToolUse` — Before/after tool execution
-- `UserPromptSubmit` — When user sends a message
-- `SessionStart` / `SessionEnd` — Session lifecycle
-- `Stop` / `SubagentStop` — When execution stops
-
-Hook types: `command` (shell), `prompt` (LLM), `agent` (tools)
-
-### 4. Distribution & Scope
-
+Before selecting components, understand the context:
 - Who uses this? (Personal, team, community?)
-- Installation scope: `user`, `project`, `local`, or `managed`?
-- Needs marketplace distribution?
+- Installation scope: user, project, or managed?
+- Does it need marketplace distribution?
 
-### 5. Simplicity Check
+This affects complexity decisions — a personal tool can be simpler.
 
+### 3. Component Selection
+
+Use decision matrix:
+
+| Need | Component | Why |
+|------|-----------|-----|
+| "Claude needs knowledge about X" | Skill | On-demand guidance |
+| "User runs action X explicitly" | Command | User-initiated action |
+| "Delegate complex work" | Agent | Isolated execution |
+| "X must ALWAYS happen on event Y" | Hook | Guaranteed automation |
+| "Connect to external service X" | MCP Server | External API tools |
+
+Present your recommendation with rationale for each component.
+
+### 4. Simplicity Check (YAGNI)
+
+Before confirming:
 - What's the minimum that solves the problem?
-- Can one component type handle it, or multiple needed?
-- YAGNI: What can we remove and still succeed?
+- Can one component type handle it, or are multiple truly needed?
+- What can we remove and still succeed?
 
-## Exploring Approaches
+Challenge your own recommendations. Simpler is better.
 
-Before presenting a design, propose 2-3 approaches with trade-offs.
+### 5. Confirm & Handoff
 
-**How to present options:**
-- Lead with your recommended approach and explain why
-- Present options conversationally, not as a dry list
-- Include concrete trade-offs for each approach
-- For plugins: trade-offs often involve component choice
+Present final recommendation: "For this plugin, I recommend:
+- Skill for [reason]
+- Hook for [reason]"
 
-**Example:**
-> "I'd recommend a **Skill + Command** combination. The Skill gives Claude
-> the knowledge automatically, and the Command lets users invoke it explicitly
-> when needed.
->
-> Alternative approaches:
-> - **Agent only**: More isolated, but overkill if we don't need separate context
-> - **Hook-based**: Would run automatically, but you said this should be optional"
+Get user confirmation before handoff.
 
-## Presenting the Design
+## Next Step
 
-Once you've agreed on an approach, present the design incrementally.
+Run the command for your first component:
 
-### Structure
+| Component | Command |
+|-----------|---------|
+| Skill | `/brainstorming-skills` |
+| Hook | `/brainstorming-hooks` |
+| Agent | `/brainstorming-agents` |
+| Command | `/brainstorming-commands` |
 
-Present in 200-300 word sections. After each section, ask: "Does this look right so far?"
+Copy-paste the command above to continue.
 
-Sections to cover:
-1. **Problem & Users** — What it solves, who uses it
-2. **Component Architecture** — Which components, why each one
-3. **Trigger Strategy** — How/when things activate
-4. **Data Flow** — How components interact (if multiple)
-5. **Error Handling** — What can go wrong, how to handle it
-6. **Testing approach** — How to verify it works
+## Pipeline Context
 
-Be ready to go back and clarify if something doesn't make sense.
+This skill is **Stage 1: Triage** in the plugin development pipeline.
 
-## After the Design
+For the full pipeline overview including stages, data flow, entry points, and failure handling, see:
+- [references/pipeline-overview.md](references/pipeline-overview.md)
 
-**Documentation:**
-- Write the validated design to `docs/plans/YYYY-MM-DD-<plugin-name>-design.md`
-- Use `elements-of-style:writing-clearly-and-concisely` skill if available
-- Commit the design document to git
-
-**Implementation (if continuing):**
-- Ask: "Ready to set up for implementation?"
-- Use `superpowers:using-git-worktrees` to create isolated workspace
-- Use `superpowers:writing-plans` for detailed implementation plan
-- Or use `/plugin-dev:create-plugin` for guided implementation
+| Aspect | Value |
+|--------|-------|
+| This stage | Identify components needed |
+| Prerequisite | None (this is the entry point) |
+| Hands off to | `/brainstorming-{component}` |
 
 ## Key Principles
 
-- **One question at a time** — Don't overwhelm with multiple questions
-- **Multiple choice preferred** — Easier to answer than open-ended when possible
-- **Explore alternatives** — Always propose 2-3 approaches before settling
-- **YAGNI ruthlessly** — Remove unnecessary features from all designs
-- **Incremental validation** — Present design in sections, validate each
-- **Be flexible** — Go back and clarify when something doesn't make sense
+- **One question at a time** — Don't overwhelm
+- **Prefer multiple choice** — Easier to answer when possible
+- **Explain WHY each component** — Not just what
+- **YAGNI ruthlessly** — Challenge every component
+- **User confirms before handoff** — No surprises
+
+## What This Skill Does NOT Do
+
+- Detailed component design (→ brainstorming-{component})
+- Implementation guidance (→ implementing-{component})
+- Optimization (→ optimizing-plugins)
+- Deployment (→ deploying-plugins)
+
+## References
+
+- [references/pipeline-overview.md](references/pipeline-overview.md) — Full pipeline stages and data flow
+- [references/component-decision-guide.md](references/component-decision-guide.md) — Detailed component selection criteria

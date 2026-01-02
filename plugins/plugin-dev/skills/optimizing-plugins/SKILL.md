@@ -35,6 +35,33 @@ The optimizer examines plugins through six scored lenses, producing a prioritize
 - `skills overlap confusingly` - Unclear boundaries between skills
 - `score my plugin` - Get baseline quality measurement
 
+## Prerequisites
+
+| Prerequisite | Source |
+|--------------|--------|
+| Working plugin (all components implemented) | implementing-{component} skills |
+| Plugin passes basic functionality tests | Component-level testing |
+| Audit passed (recommended) | plugin-audit |
+
+**Single component?** This skill works for single-skill plugins too.
+The 6 lenses still apply.
+
+**Skipping straight here?** If you have a working plugin but skipped
+earlier stages, that's fine. Optimization identifies issues regardless
+of how the plugin was built.
+
+## Pipeline Context
+
+This skill is **Stage 4: Optimize** in the plugin development pipeline.
+
+See: `brainstorming-plugins` for full pipeline overview.
+
+| Aspect | Value |
+|--------|-------|
+| This stage | Polish plugin from "good" to "great" |
+| Prerequisite | `/implementing-{component}` (working plugin) |
+| Hands off to | `/deploying-plugins` or back to implementing |
+
 ## Quick Start
 
 ```bash
@@ -225,14 +252,33 @@ Write to `docs/plans/YYYY-MM-DD-<plugin>-optimization.md`:
 
 ---
 
-## After the Session
+## Handoff
+
+"Plugin optimized. What's next?"
+
+| Situation | Next Step |
+|-----------|-----------|
+| Ready to publish | → `/deploying-plugins` |
+| Need to implement optimization suggestions | → `/implementing-{component}` for changes |
+| Discovered design issues | → `/brainstorming-{component}` to redesign |
+| Personal use, no distribution | Done |
+
+## After Optimization
+
+**If implementing suggestions:**
+- Use `/implementing-skills`, `/implementing-hooks`, etc. for changes
+- Re-run optimization after significant changes
+
+**If publishing:**
+- Use `/deploying-plugins` for marketplace packaging
+- Optimization design document serves as quality evidence
 
 **Documentation:**
 - Write design to `docs/plans/YYYY-MM-DD-<plugin>-optimization.md`
 - Validate: `python scripts/validate_design.py <doc>`
 - Commit the design document
 
-**Implementation:**
+**Implementation tracking:**
 - Initialize tracking: `python scripts/progress_tracker.py init <doc>`
 - Use superpowers:using-git-worktrees for isolated workspace
 - Use superpowers:writing-plans for implementation plan
@@ -280,6 +326,12 @@ After optimization session:
 
 ## References
 
+**Pipeline skills:**
+- deploying-plugins — Next stage (marketplace packaging)
+- implementing-skills — For implementing optimization suggestions
+- brainstorming-skills — If redesign needed
+
+**Optimization methodology:**
 - [Lenses & Scoring](references/lenses.md) - Detailed criteria and rubrics
 - [Thinking Models](references/thinking-models.md) - 11 analytical models
 - [Expert Perspectives](references/expert-perspectives.md) - Simulated expert views
