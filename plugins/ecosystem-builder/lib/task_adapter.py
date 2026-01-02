@@ -10,6 +10,7 @@ the same interface for production use.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Callable
 
@@ -74,3 +75,55 @@ def create_mock_callable(response: str) -> Callable[[str], str]:
         return response
 
     return mock_invoke
+
+
+def create_dynamic_mock_callable() -> Callable[[str], str]:
+    """Create a dynamic mock that generates contextual skill content.
+
+    Extracts skill name from the prompt and generates appropriate content.
+    """
+
+    def dynamic_mock(prompt: str) -> str:
+        name = _extract_skill_name(prompt)
+        title = " ".join(word.capitalize() for word in name.split("-"))
+
+        return f'''---
+name: {name}
+description: Use when working with "{title.lower()}" patterns or workflows.
+---
+
+# {title}
+
+## Overview
+
+This skill provides guidance for {title.lower()} patterns.
+
+## When to Use
+
+- Working with {title.lower()} patterns
+- Need guidance on {title.lower()} workflows
+
+## Process
+
+1. Analyze requirements
+2. Apply patterns
+3. Validate results
+'''
+
+    return dynamic_mock
+
+
+def _extract_skill_name(prompt: str) -> str:
+    """Extract skill name from generation prompt."""
+    patterns = [
+        r'\*\*Title:\*\*\s*(\S+)',  # Match **Title:** format from prompts.py
+        r'Title:\s*(\S+)',  # Plain Title: format
+        r'for:\s*(\S+)',
+        r'["\']([\w-]+)["\']',
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, prompt, re.IGNORECASE)
+        if match:
+            name = match.group(1)
+            return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+    return "generated-skill"

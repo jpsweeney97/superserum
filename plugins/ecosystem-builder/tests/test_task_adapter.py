@@ -1,6 +1,11 @@
 """Tests for Task tool adapter."""
 
-from lib.task_adapter import create_mock_callable, create_subagent_callable, SubagentConfig
+from lib.task_adapter import (
+    create_dynamic_mock_callable,
+    create_mock_callable,
+    create_subagent_callable,
+    SubagentConfig,
+)
 
 
 class TestSubagentConfig:
@@ -53,3 +58,50 @@ class TestTaskAdapter:
         mock_callable = create_mock_callable("test response")
         result = mock_callable("any prompt")
         assert result == "test response"
+
+
+class TestDynamicMockCallable:
+    """Tests for dynamic mock callable."""
+
+    def test_dynamic_mock_generates_valid_skill(self) -> None:
+        """Dynamic mock produces valid YAML frontmatter."""
+        import yaml
+
+        mock_callable = create_dynamic_mock_callable()
+        prompt = "Generate skill for: ci-cd-integration"
+        result = mock_callable(prompt)
+
+        # Parse frontmatter
+        lines = result.split("\n")
+        assert lines[0] == "---"
+        yaml_end = lines.index("---", 1)
+        frontmatter = "\n".join(lines[1:yaml_end])
+        metadata = yaml.safe_load(frontmatter)
+
+        assert "name" in metadata
+        assert "description" in metadata
+        assert metadata["name"] == "ci-cd-integration"
+
+    def test_dynamic_mock_with_markdown_title_format(self) -> None:
+        """Dynamic mock extracts name from **Title:** markdown format."""
+        import yaml
+
+        mock_callable = create_dynamic_mock_callable()
+        # This matches the format from lib/prompts.py line 19
+        prompt = """Generate a complete Claude Code skill to address this ecosystem gap.
+
+## Gap Analysis
+- **Title:** ci-cd-integration
+- **Type:** workflow_hole
+- **Description:** Test gap
+"""
+        result = mock_callable(prompt)
+
+        # Parse frontmatter
+        lines = result.split("\n")
+        assert lines[0] == "---"
+        yaml_end = lines.index("---", 1)
+        frontmatter = "\n".join(lines[1:yaml_end])
+        metadata = yaml.safe_load(frontmatter)
+
+        assert metadata["name"] == "ci-cd-integration"
