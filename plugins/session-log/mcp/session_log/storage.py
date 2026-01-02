@@ -39,3 +39,46 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
     conn.executescript(SCHEMA)
     conn.commit()
     return conn
+
+
+def index_session(metadata: dict, db_path: Path | None = None) -> None:
+    """Index a session in SQLite.
+
+    Args:
+        metadata: Session metadata dictionary with required keys:
+            - filename, date, project, summary_path
+            Optional: branch, duration_minutes, commits_made,
+                      files_touched, commands_run, title
+        db_path: Optional override for database path (for testing).
+    """
+    if db_path is None:
+        db_path = get_db_path()
+
+    conn = init_db(db_path)
+
+    from datetime import datetime, timezone
+    indexed_at = datetime.now(timezone.utc).isoformat()
+
+    conn.execute(
+        """
+        INSERT OR REPLACE INTO sessions
+        (filename, date, project, branch, duration_minutes, commits_made,
+         files_touched, commands_run, title, summary_path, indexed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            metadata["filename"],
+            metadata["date"],
+            metadata["project"],
+            metadata.get("branch"),
+            metadata.get("duration_minutes"),
+            metadata.get("commits_made"),
+            metadata.get("files_touched"),
+            metadata.get("commands_run"),
+            metadata.get("title"),
+            metadata["summary_path"],
+            indexed_at,
+        ),
+    )
+    conn.commit()
+    conn.close()
