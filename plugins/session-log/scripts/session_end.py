@@ -128,7 +128,12 @@ def handle_session_end(input_data: dict, state_dir: Path | None = None, db_path:
 
     sessions_dir = ensure_sessions_dir(cwd)
     summary_path = sessions_dir / filename
-    summary_path.write_text(summary)
+
+    try:
+        summary_path.write_text(summary)
+    except OSError as e:
+        print(f"Warning: Failed to write summary: {e}", file=sys.stderr)
+        return {"success": False, "reason": f"Failed to write summary: {e}"}
 
     # Index in SQLite
     metadata = {

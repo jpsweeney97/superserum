@@ -78,7 +78,11 @@ def handle_session_start(input_data: dict, state_dir: Path | None = None) -> dic
     }
 
     state_file = state_dir / "session_state.json"
-    state_file.write_text(json.dumps(state, indent=2))
+    try:
+        state_file.write_text(json.dumps(state, indent=2))
+    except OSError as e:
+        print(f"Warning: Failed to write session state: {e}", file=sys.stderr)
+        return {"success": False, "reason": str(e)}
 
     return {"success": True}
 
