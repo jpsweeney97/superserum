@@ -1,0 +1,62 @@
+{
+  "name": "superserum",
+  "owner": {
+    "name": "JP Sweeney"
+  },
+  "metadata": {
+    "description": "Plugins that enhance Claude Code capabilities",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "plugin-dev",
+      "source": "plugin-dev",
+      "description": "Plugin development toolkit: validation, creation, optimization",
+      "version": "1.4.0",
+      "keywords": ["development", "validation", "skills", "commands", "agents"],
+      "author": { "name": "JP Sweeney" },
+      "license": "MIT",
+      "homepage": "https://github.com/jpsweeney97/superserum/tree/main/plugins/plugin-dev"
+    },
+    {
+      "name": "deep-analysis",
+      "source": "deep-analysis",
+      "description": "Structured decision analysis with MCP semantic search",
+      "version": "0.1.0",
+      "keywords": ["analysis", "decisions", "mcp", "semantic-search"],
+      "author": { "name": "JP Sweeney" },
+      "license": "MIT",
+      "homepage": "https://github.com/jpsweeney97/superserum/tree/main/plugins/deep-analysis"
+    },
+    {
+      "name": "doc-auditor",
+      "source": "doc-auditor",
+      "description": "Documentation audit and repair",
+      "version": "1.0.0",
+      "keywords": ["documentation", "audit", "quality"],
+      "author": { "name": "JP Sweeney" },
+      "license": "MIT",
+      "homepage": "https://github.com/jpsweeney97/superserum/tree/main/plugins/doc-auditor"
+    },
+    {
+      "name": "ecosystem-builder",
+      "source": "ecosystem-builder",
+      "description": "Multi-project orchestration for Claude Code",
+      "version": "0.1.0",
+      "keywords": ["orchestration", "multi-project", "automation"],
+      "author": { "name": "JP Sweeney" },
+      "license": "MIT",
+      "homepage": "https://github.com/jpsweeney97/superserum/tree/main/plugins/ecosystem-builder"
+    },
+    {
+      "name": "persistent-tasks",
+      "source": "persistent-tasks",
+      "description": "Cross-session task persistence with dependency tracking",
+      "version": "0.1.0",
+      "keywords": ["tasks", "persistence", "mcp"],
+      "author": { "name": "JP Sweeney" },
+      "license": "MIT",
+      "homepage": "https://github.com/jpsweeney97/superserum/tree/main/plugins/persistent-tasks"
+    }
+  ]
+}

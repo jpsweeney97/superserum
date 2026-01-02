@@ -4,18 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-- Claude Code plugin development monorepo with four plugins plus official documentation
+- Claude Code plugin marketplace (superserum) with five plugins
 - Each plugin extends Claude Code via skills, commands, agents, hooks, and/or MCP integrations
-- Plugin-specific details in each plugin's README: @plugins/plugin-dev/README.md, @plugins/superpowers/README.md, @plugins/doc-auditor/README.md, @plugins/deep-analysis/README.md
+- Plugin-specific details in each plugin's README
 
 ## Plugins
 
 | Plugin | Purpose |
 |--------|---------|
 | **plugin-dev** | Plugin development toolkit (12 skills, 6 commands, 50+ validation rules) |
-| **superpowers** | Development workflow: TDD, brainstorming, planning, code review (14 skills) |
-| **doc-auditor** | Documentation audit/repair with 15 issue categories |
 | **deep-analysis** | Structured decision analysis with 6 frameworks and MCP semantic search |
+| **doc-auditor** | Documentation audit/repair with 15 issue categories |
+| **ecosystem-builder** | Multi-project orchestration for Claude Code |
+| **persistent-tasks** | Cross-session task persistence with MCP |
 
 ## Commands
 
@@ -59,16 +60,18 @@ plugins/
 │   ├── commands/         # create-plugin, create-skill, audit, fix, optimize, brainstorm
 │   ├── agents/           # creator, reviewer, validator
 │   └── skills/           # 12 skills with references/, examples/, scripts/
-├── superpowers/          # Workflow skills (obra/superpowers fork)
-│   ├── commands/         # brainstorm, write-plan, execute-plan
-│   └── skills/           # 14 workflow skills
+├── deep-analysis/        # Decision analysis + MCP
+│   ├── .mcp.json         # MCP server config
+│   ├── mcp/              # Python server (txtai, mcp>=1.0)
+│   └── skills/           # 6 analytical frameworks
 ├── doc-auditor/          # Documentation auditing
 │   ├── commands/         # report, scan, repair
 │   └── hooks/            # Optional pre-commit validation
-└── deep-analysis/        # Decision analysis + MCP
-    ├── .mcp.json         # MCP server config
-    ├── mcp/              # Python server (txtai, mcp>=1.0)
-    └── skills/           # 6 analytical frameworks
+├── ecosystem-builder/    # Multi-project orchestration
+│   ├── .mcp.json         # Project registry MCP
+│   └── agents/           # Orchestration agents
+└── persistent-tasks/     # Cross-session task persistence
+    └── .mcp.json         # Task persistence MCP
 ```
 
 ## Plugin Conventions
