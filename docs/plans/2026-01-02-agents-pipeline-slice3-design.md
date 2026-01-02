@@ -1,5 +1,11 @@
 # Agents Pipeline (Slice 3) Design
 
+> **⚠️ SUPERSEDED (2026-01-02):** Implementation complete
+>
+> - Replacement: `plugins/plugin-dev/skills/brainstorming-agents/SKILL.md` and `plugins/plugin-dev/skills/implementing-agents/SKILL.md`
+>
+> *Original preserved for historical reference.*
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task.
 
 **Goal:** Create brainstorming-agents and implementing-agents skills to complete Slice 3 of the plugin development pipeline.
