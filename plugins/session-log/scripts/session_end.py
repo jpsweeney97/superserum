@@ -24,10 +24,11 @@ def get_state_dir() -> Path:
     return Path.home() / ".claude" / "session-log" / "state"
 
 
-def load_session_state(state_dir: Path | None = None) -> dict | None:
+def load_session_state(session_id: str, state_dir: Path | None = None) -> dict | None:
     """Load session state from SessionStart hook.
 
     Args:
+        session_id: The session ID to load state for.
         state_dir: Optional override for state directory (for testing).
 
     Returns:
@@ -36,7 +37,8 @@ def load_session_state(state_dir: Path | None = None) -> dict | None:
     if state_dir is None:
         state_dir = get_state_dir()
 
-    state_file = state_dir / "session_state.json"
+    # Use session_id in filename to support concurrent sessions
+    state_file = state_dir / f"session_{session_id}.json"
     if not state_file.exists():
         return None
 
@@ -93,17 +95,21 @@ def handle_session_end(input_data: dict, state_dir: Path | None = None, db_path:
     """Handle SessionEnd event.
 
     Args:
-        input_data: Hook input data containing transcript_path, etc.
+        input_data: Hook input data containing transcript_path, session_id, etc.
         state_dir: Optional override for state directory (for testing).
         db_path: Optional override for database path (for testing).
 
     Returns:
         Dict with 'success' key indicating operation result.
     """
-    session_state = load_session_state(state_dir)
+    session_id = input_data.get("session_id")
+    if not session_id:
+        return {"success": False, "reason": "No session_id in input data"}
+
+    session_state = load_session_state(session_id, state_dir)
 
     if session_state is None:
-        return {"success": False, "reason": "No session state found"}
+        return {"success": False, "reason": f"No session state found for session {session_id}"}
 
     transcript_path = input_data.get("transcript_path")
     if not transcript_path or not Path(transcript_path).exists():
@@ -158,10 +164,10 @@ def handle_session_end(input_data: dict, state_dir: Path | None = None, db_path:
         "title": title,
         "summary_path": str(summary_path),
     }
-    indexed = index_session(metadata, db_path=db_path)
+    indexed, index_error = index_session(metadata, db_path=db_path)
 
     if not indexed:
-        print("Warning: Failed to index session in database", file=sys.stderr)
+        print(f"Warning: Failed to index session in database: {index_error}", file=sys.stderr)
 
     return {
         "success": True,

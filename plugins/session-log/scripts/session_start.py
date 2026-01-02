@@ -81,7 +81,8 @@ def handle_session_start(input_data: dict, state_dir: Path | None = None) -> dic
         "commit_start": git_info["commit"],
     }
 
-    state_file = state_dir / "session_state.json"
+    # Use session_id in filename to support concurrent sessions
+    state_file = state_dir / f"session_{session_id}.json"
     try:
         state_file.write_text(json.dumps(state, indent=2))
     except OSError as e:

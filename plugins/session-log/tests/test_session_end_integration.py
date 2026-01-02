@@ -10,7 +10,7 @@ import pytest
 @pytest.fixture
 def session_setup(tmp_path):
     """Set up session state and transcript."""
-    # Create state file
+    # Create state file with session_id in filename
     state_dir = tmp_path / "state"
     state_dir.mkdir()
     state = {
@@ -20,7 +20,7 @@ def session_setup(tmp_path):
         "branch": "feat/test",
         "commit_start": "abc1234",
     }
-    (state_dir / "session_state.json").write_text(json.dumps(state))
+    (state_dir / "session_test-123.json").write_text(json.dumps(state))
 
     # Create project dir
     project_dir = tmp_path / "project"

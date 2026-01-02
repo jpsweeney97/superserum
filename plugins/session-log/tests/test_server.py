@@ -199,3 +199,35 @@ class TestHandleTool:
         result = handle_tool("unknown_tool", {})
 
         assert "unknown tool" in result[0].text.lower()
+
+    def test_get_session_handles_read_error(self, tmp_path):
+        """Test get_session handles file read errors gracefully."""
+        from tool_handlers import handle_tool
+
+        mock_session = {
+            "filename": "test.md",
+            "summary_path": str(tmp_path / "test.md"),
+        }
+
+        with patch("tool_handlers.db_get_session", return_value=mock_session):
+            with patch("tool_handlers.validate_summary_path", return_value=str(tmp_path / "test.md")):
+                # File doesn't exist, so read_text will raise FileNotFoundError (OSError subclass)
+                result = handle_tool("get_session", {"filename": "test.md"})
+
+        assert "error" in result[0].text.lower()
+
+    def test_get_session_handles_permission_error(self, tmp_path):
+        """Test get_session handles permission errors gracefully."""
+        from tool_handlers import handle_tool
+
+        mock_session = {
+            "filename": "test.md",
+            "summary_path": str(tmp_path / "test.md"),
+        }
+
+        with patch("tool_handlers.db_get_session", return_value=mock_session):
+            with patch("tool_handlers.validate_summary_path", return_value=str(tmp_path / "test.md")):
+                with patch.object(Path, "read_text", side_effect=PermissionError("Access denied")):
+                    result = handle_tool("get_session", {"filename": "test.md"})
+
+        assert "permission denied" in result[0].text.lower()

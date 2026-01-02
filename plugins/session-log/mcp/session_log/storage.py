@@ -42,7 +42,7 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
     return conn
 
 
-def index_session(metadata: dict, db_path: Path | None = None) -> bool:
+def index_session(metadata: dict, db_path: Path | None = None) -> tuple[bool, str | None]:
     """Index a session in SQLite.
 
     Args:
@@ -53,7 +53,7 @@ def index_session(metadata: dict, db_path: Path | None = None) -> bool:
         db_path: Optional override for database path (for testing).
 
     Returns:
-        True if indexing succeeded, False otherwise.
+        Tuple of (success, error_message). error_message is None on success.
     """
     if db_path is None:
         db_path = get_db_path()
@@ -84,8 +84,14 @@ def index_session(metadata: dict, db_path: Path | None = None) -> bool:
             ),
         )
         conn.commit()
-        return True
-    except Exception:
-        return False
+        return True, None
+    except KeyError as e:
+        return False, f"Missing required metadata key: {e}"
+    except sqlite3.IntegrityError as e:
+        return False, f"Database integrity error: {e}"
+    except sqlite3.OperationalError as e:
+        return False, f"Database operation failed: {e}"
+    except sqlite3.Error as e:
+        return False, f"Database error: {e}"
     finally:
         conn.close()

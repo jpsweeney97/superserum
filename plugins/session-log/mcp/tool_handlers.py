@@ -97,8 +97,15 @@ def handle_get_session(arguments: dict) -> list[ToolResult]:
     if summary_path:
         validated_path = validate_summary_path(summary_path)
         if validated_path:
-            content = Path(validated_path).read_text()
-            return [ToolResult(type="text", text=content)]
+            try:
+                content = Path(validated_path).read_text()
+                return [ToolResult(type="text", text=content)]
+            except PermissionError:
+                return [ToolResult(type="text", text=f"Error: Permission denied reading {filename}")]
+            except UnicodeDecodeError:
+                return [ToolResult(type="text", text=f"Error: File encoding issue for {filename}")]
+            except OSError as e:
+                return [ToolResult(type="text", text=f"Error reading session file: {e}")]
 
     return [ToolResult(type="text", text=json.dumps(session, indent=2))]
 

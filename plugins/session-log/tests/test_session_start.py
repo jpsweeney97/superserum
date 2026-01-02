@@ -22,8 +22,8 @@ def test_session_start_records_timestamp():
 
         assert result["success"] is True
 
-        # Check state file was created
-        state_file = Path(tmpdir) / "session_state.json"
+        # Check state file was created with session_id in filename
+        state_file = Path(tmpdir) / "session_test-123.json"
         assert state_file.exists()
 
         state = json.loads(state_file.read_text())
@@ -44,7 +44,7 @@ def test_session_start_captures_cwd():
 
         handle_session_start(input_data, state_dir=Path(tmpdir))
 
-        state_file = Path(tmpdir) / "session_state.json"
+        state_file = Path(tmpdir) / "session_test-456.json"
         state = json.loads(state_file.read_text())
         assert state["cwd"] == tmpdir
 
@@ -93,6 +93,6 @@ def test_session_start_handles_missing_session_id():
 
         assert result["success"] is True
 
-        state_file = Path(tmpdir) / "session_state.json"
+        state_file = Path(tmpdir) / "session_unknown.json"
         state = json.loads(state_file.read_text())
         assert state["session_id"] == "unknown"

@@ -20,9 +20,10 @@ def test_session_end_reads_state():
             "branch": "main",
             "commit_start": "abc1234",
         }
-        (state_dir / "session_state.json").write_text(json.dumps(state))
+        # Use session_id in filename
+        (state_dir / "session_test-123.json").write_text(json.dumps(state))
 
-        loaded = load_session_state(state_dir)
+        loaded = load_session_state("test-123", state_dir)
 
         assert loaded["session_id"] == "test-123"
         assert loaded["branch"] == "main"
@@ -33,7 +34,7 @@ def test_session_end_handles_missing_state():
     from scripts.session_end import load_session_state
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        loaded = load_session_state(Path(tmpdir))
+        loaded = load_session_state("nonexistent", Path(tmpdir))
 
         assert loaded is None
 
@@ -47,12 +48,23 @@ def test_session_end_uses_default_state_dir():
     assert state_dir == expected
 
 
+def test_session_end_handles_no_session_id():
+    """SessionEnd returns error when no session_id in input."""
+    from scripts.session_end import handle_session_end
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = handle_session_end({}, state_dir=Path(tmpdir))
+
+        assert result["success"] is False
+        assert "session_id" in result["reason"]
+
+
 def test_session_end_handles_no_state():
     """SessionEnd returns error when no session state found."""
     from scripts.session_end import handle_session_end
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        result = handle_session_end({}, state_dir=Path(tmpdir))
+        result = handle_session_end({"session_id": "test-123"}, state_dir=Path(tmpdir))
 
         assert result["success"] is False
         assert "No session state found" in result["reason"]
@@ -71,9 +83,9 @@ def test_session_end_handles_missing_transcript():
             "branch": "main",
             "commit_start": "abc1234",
         }
-        (state_dir / "session_state.json").write_text(json.dumps(state))
+        (state_dir / "session_test-123.json").write_text(json.dumps(state))
 
-        result = handle_session_end({}, state_dir=state_dir)
+        result = handle_session_end({"session_id": "test-123"}, state_dir=state_dir)
 
         assert result["success"] is False
         assert "Transcript not found" in result["reason"]
@@ -92,10 +104,10 @@ def test_session_end_handles_nonexistent_transcript():
             "branch": "main",
             "commit_start": "abc1234",
         }
-        (state_dir / "session_state.json").write_text(json.dumps(state))
+        (state_dir / "session_test-123.json").write_text(json.dumps(state))
 
         result = handle_session_end(
-            {"transcript_path": "/nonexistent/transcript.jsonl"},
+            {"session_id": "test-123", "transcript_path": "/nonexistent/transcript.jsonl"},
             state_dir=state_dir,
         )
 
@@ -116,7 +128,7 @@ def test_session_end_skips_minimal_transcript():
             "branch": "main",
             "commit_start": "abc1234",
         }
-        (state_dir / "session_state.json").write_text(json.dumps(state))
+        (state_dir / "session_test-123.json").write_text(json.dumps(state))
 
         # Create a minimal transcript with only 1 user message
         transcript_file = Path(tmpdir) / "transcript.jsonl"
@@ -126,7 +138,7 @@ def test_session_end_skips_minimal_transcript():
         )
 
         result = handle_session_end(
-            {"transcript_path": str(transcript_file)},
+            {"session_id": "test-123", "transcript_path": str(transcript_file)},
             state_dir=state_dir,
         )
 
@@ -138,8 +150,8 @@ def test_load_session_state_handles_malformed_json(tmp_path):
     """Test that malformed JSON in state file returns None."""
     from scripts.session_end import load_session_state
 
-    state_file = tmp_path / "session_state.json"
+    state_file = tmp_path / "session_test-123.json"
     state_file.write_text("not valid json {")
 
-    result = load_session_state(state_dir=tmp_path)
+    result = load_session_state("test-123", state_dir=tmp_path)
     assert result is None
