@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from typing import Any, Callable
 
 from lib.prompts import build_skill_generation_prompt
-from lib.state import Gap
+from lib.state import Gap, normalize_skill_name
 
 
 @dataclass
@@ -37,7 +36,7 @@ class SkillGeneratorAgent:
     def generate(self, gap_dict: dict[str, Any]) -> GenerationResult:
         """Generate a skill for the given gap."""
         gap = Gap.from_dict(gap_dict)
-        name = self._normalize_name(gap.title)
+        name = normalize_skill_name(gap.title)
 
         if self.llm_callable is None:
             # No LLM configured - return placeholder
@@ -58,7 +57,7 @@ class SkillGeneratorAgent:
                 name=name,
                 gap_id=gap.gap_id,
                 content=None,
-                error=f"LLM generation failed: {e}",
+                error=f"LLM generation failed ({type(e).__name__}): {e}",
             )
 
         # Validate response has required structure (YAML frontmatter)
@@ -88,9 +87,3 @@ class SkillGeneratorAgent:
             gap_id=gap.gap_id,
             content=content,
         )
-
-    def _normalize_name(self, title: str) -> str:
-        """Normalize title to skill name."""
-        name = title.lower().strip()
-        name = re.sub(r"[^a-z0-9]+", "-", name)
-        return name.strip("-")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Callable
@@ -43,6 +44,12 @@ class Orchestrator:
         )
         self.builder = SkillBuilder(subagent_callable=subagent_callable)
         self.validator = ValidationPanel(existing_skills_dir=user_skills_dir)
+
+        if subagent_callable is None:
+            logging.warning(
+                "No subagent_callable configured - complex skill generation will fail. "
+                "Use --mock flag or configure Claude Code callable for full functionality."
+            )
 
     def run(self) -> None:
         """Execute the main control loop."""

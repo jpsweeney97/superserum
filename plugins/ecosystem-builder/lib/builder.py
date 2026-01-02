@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from typing import Any, Callable
 
 from lib.skill_generator import SkillGeneratorAgent
-from lib.state import BuildResult, Gap, GapType
+from lib.state import BuildResult, Gap, GapType, normalize_skill_name
 
 
 @dataclass
@@ -42,7 +41,7 @@ class SkillBuilder:
 
     def _build_direct(self, gap: Gap) -> BuildResult:
         """Generate skill directly from template."""
-        name = self._normalize_name(gap.title)
+        name = normalize_skill_name(gap.title)
         description = self._generate_description(gap)
         body = self._generate_body(gap)
 
@@ -75,13 +74,6 @@ description: {description}
             error=result.error,
             method="subagent",
         )
-
-    def _normalize_name(self, title: str) -> str:
-        """Normalize title to skill name."""
-        name = title.lower().strip()
-        name = re.sub(r"[^a-z0-9]+", "-", name)
-        name = name.strip("-")
-        return name
 
     def _title_case(self, title: str) -> str:
         """Convert to title case."""

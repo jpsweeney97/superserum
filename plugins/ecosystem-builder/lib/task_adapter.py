@@ -24,6 +24,12 @@ class SubagentConfig:
     timeout_ms: int = 60000
     description: str = "Generate skill from gap"
 
+    def __post_init__(self) -> None:
+        if self.timeout_ms < 1000:
+            raise ValueError(f"SubagentConfig.timeout_ms must be >= 1000. Got: {self.timeout_ms!r}")
+        if self.timeout_ms > 600000:
+            raise ValueError(f"SubagentConfig.timeout_ms must be <= 600000 (10 min). Got: {self.timeout_ms!r}")
+
 
 def create_subagent_callable(
     config: SubagentConfig | None = None,

@@ -3,12 +3,27 @@
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Literal
+
+
+def normalize_skill_name(title: str) -> str:
+    """Convert a gap title to a valid skill name.
+
+    Examples:
+        "Missing testing skill" -> "testing"
+        "TDD or testing workflow" -> "tdd-or-testing-workflow"
+    """
+    name = title.lower().strip()
+    name = re.sub(r"^missing\s+", "", name)
+    name = re.sub(r"\s+skill$", "", name)
+    name = re.sub(r"[^a-z0-9]+", "-", name)
+    return name.strip("-")
 
 
 class GapType(Enum):
@@ -31,6 +46,14 @@ class Gap:
     source_agent: str
     confidence: float  # 0.0 to 1.0
     priority: int  # 1 = highest
+
+    def __post_init__(self) -> None:
+        if not self.gap_id:
+            raise ValueError("Gap.gap_id cannot be empty")
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError(f"Gap.confidence must be in [0.0, 1.0]. Got: {self.confidence!r}")
+        if self.priority < 1:
+            raise ValueError(f"Gap.priority must be >= 1. Got: {self.priority!r}")
 
     def to_dict(self) -> dict:
         """Serialize to dict for JSON storage."""
@@ -67,6 +90,12 @@ class BuildResult:
     content: str | None = None
     error: str | None = None
     method: Literal["direct", "subagent"] = "direct"
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("BuildResult.name cannot be empty")
+        if self.content is not None and self.error is not None:
+            raise ValueError("BuildResult cannot have both content and error set")
 
     @property
     def success(self) -> bool:
@@ -114,6 +143,12 @@ class BudgetItem:
 
     limit: int | float
     used: int | float = 0
+
+    def __post_init__(self) -> None:
+        if self.limit < 0:
+            raise ValueError(f"BudgetItem.limit must be non-negative. Got: {self.limit!r}")
+        if self.used < 0:
+            raise ValueError(f"BudgetItem.used must be non-negative. Got: {self.used!r}")
 
     @property
     def remaining(self) -> int | float:

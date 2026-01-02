@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import re
+import uuid
+
+import yaml
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -55,8 +60,6 @@ class AgentPanel:
 
     def _run_catalog_agent(self) -> AgentResult:
         """Catalog existing artifacts and find missing skills."""
-        import uuid
-
         existing_skills: set[str] = set()
         scanned = 0
 
@@ -112,8 +115,6 @@ class AgentPanel:
 
     def _run_workflow_agent(self) -> AgentResult:
         """Analyze workflows for holes."""
-        import uuid
-
         gaps: list[Gap] = []
         scanned = 0
 
@@ -180,9 +181,6 @@ class AgentPanel:
 
     def _run_quality_agent(self) -> AgentResult:
         """Score artifact quality and flag issues."""
-        import re
-        import uuid
-
         gaps: list[Gap] = []
         scanned = 0
 
@@ -191,8 +189,6 @@ class AgentPanel:
 
             Falls back to simple key:value parsing if YAML is malformed.
             """
-            import yaml
-
             match = re.match(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
             if not match:
                 return {}

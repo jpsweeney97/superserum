@@ -52,12 +52,9 @@ class StagingManager:
     ) -> StagedArtifact:
         """Stage a new skill for review."""
         skill_dir = self.staging_dir / "skills" / name
-        skill_dir.mkdir(parents=True, exist_ok=True)
+        skill_file = skill_dir / "SKILL.md"
+        metadata_file = skill_dir / ".metadata.json"
 
-        # Write skill content
-        (skill_dir / "SKILL.md").write_text(content)
-
-        # Write metadata
         now = datetime.now(timezone.utc).isoformat()
         metadata = {
             "name": name,
@@ -66,7 +63,21 @@ class StagingManager:
             "gap_id": gap_id,
             "staged_at": now,
         }
-        (skill_dir / ".metadata.json").write_text(json.dumps(metadata, indent=2))
+
+        try:
+            skill_dir.mkdir(parents=True, exist_ok=True)
+
+            # Write skill content atomically
+            temp_skill = skill_file.with_suffix(".tmp")
+            temp_skill.write_text(content)
+            temp_skill.replace(skill_file)
+
+            # Write metadata atomically
+            temp_meta = metadata_file.with_suffix(".tmp")
+            temp_meta.write_text(json.dumps(metadata, indent=2))
+            temp_meta.replace(metadata_file)
+        except OSError as e:
+            raise RuntimeError(f"Failed to stage skill '{name}': {e}") from e
 
         return StagedArtifact(
             name=name,
@@ -120,15 +131,21 @@ class StagingManager:
         else:
             raise NotImplementedError(f"Accept not implemented for {artifact.artifact_type}")
 
-        # Move to production
-        prod_path.mkdir(parents=True, exist_ok=True)
-        for item in artifact.path.iterdir():
-            if item.name == ".metadata.json":
-                continue  # Don't copy metadata to production
-            shutil.copy2(item, prod_path / item.name)
+        try:
+            # Move to production with atomic copy
+            prod_path.mkdir(parents=True, exist_ok=True)
+            for item in artifact.path.iterdir():
+                if item.name == ".metadata.json":
+                    continue  # Don't copy metadata to production
+                dest = prod_path / item.name
+                temp_dest = dest.with_suffix(dest.suffix + ".tmp")
+                shutil.copy2(item, temp_dest)
+                temp_dest.replace(dest)
 
-        # Remove from staging
-        shutil.rmtree(artifact.path)
+            # Remove from staging
+            shutil.rmtree(artifact.path)
+        except OSError as e:
+            raise RuntimeError(f"Failed to accept artifact '{name}': {e}") from e
 
         return prod_path
 
@@ -138,18 +155,23 @@ class StagingManager:
         if artifact is None:
             raise FileNotFoundError(f"Staged artifact not found: {name}")
 
-        # Move to rejected
-        rejected_path = self.rejected_dir / artifact.run_id / name
-        rejected_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.move(str(artifact.path), str(rejected_path))
+        try:
+            # Move to rejected
+            rejected_path = self.rejected_dir / artifact.run_id / name
+            rejected_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(artifact.path), str(rejected_path))
 
-        # Add rejection reason to metadata
-        if reason:
-            metadata_file = rejected_path / ".metadata.json"
-            metadata = json.loads(metadata_file.read_text())
-            metadata["rejection_reason"] = reason
-            metadata["rejected_at"] = datetime.now(timezone.utc).isoformat()
-            metadata_file.write_text(json.dumps(metadata, indent=2))
+            # Add rejection reason to metadata atomically
+            if reason:
+                metadata_file = rejected_path / ".metadata.json"
+                metadata = json.loads(metadata_file.read_text())
+                metadata["rejection_reason"] = reason
+                metadata["rejected_at"] = datetime.now(timezone.utc).isoformat()
+                temp_meta = metadata_file.with_suffix(".tmp")
+                temp_meta.write_text(json.dumps(metadata, indent=2))
+                temp_meta.replace(metadata_file)
+        except OSError as e:
+            raise RuntimeError(f"Failed to reject artifact '{name}': {e}") from e
 
         return rejected_path
 

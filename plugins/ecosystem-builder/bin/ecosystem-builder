@@ -121,18 +121,18 @@ def review(show_all: bool, accept: str, reject: str, reason: str) -> None:
     if accept:
         try:
             prod_path = staging.accept(accept)
-            click.echo(f"✓ Accepted '{accept}' → {prod_path}")
+            click.echo(f"[OK] Accepted '{accept}' -> {prod_path}")
         except FileNotFoundError:
-            click.echo(f"✗ Artifact not found: {accept}", err=True)
+            click.echo(f"[ERROR] Artifact not found: {accept}", err=True)
             raise SystemExit(1)
         return
 
     if reject:
         try:
             rejected_path = staging.reject(reject, reason=reason)
-            click.echo(f"✗ Rejected '{reject}' → {rejected_path}")
+            click.echo(f"[REJECTED] Rejected '{reject}' -> {rejected_path}")
         except FileNotFoundError:
-            click.echo(f"✗ Artifact not found: {reject}", err=True)
+            click.echo(f"[ERROR] Artifact not found: {reject}", err=True)
             raise SystemExit(1)
         return
 
